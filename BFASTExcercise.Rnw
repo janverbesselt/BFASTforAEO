@@ -1,0 +1,135 @@
+%% Do not edit unless you really know what you are doing.
+\documentclass{article}
+\usepackage[sc]{mathpazo}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\geometry{verbose,tmargin=2.5cm,bmargin=2.5cm,lmargin=2.5cm,rmargin=2.5cm}
+\setcounter{secnumdepth}{2}
+\setcounter{tocdepth}{2}
+\usepackage{url}
+\usepackage[unicode=true,pdfusetitle,
+ bookmarks=true,bookmarksnumbered=true,bookmarksopen=true,bookmarksopenlevel=2,
+ breaklinks=false,pdfborder={0 0 1},backref=false,colorlinks=false]
+ {hyperref}
+\hypersetup{
+ pdfstartview={XYZ null null 1}}
+\usepackage{breakurl}
+% hyperref setup
+\definecolor{Red}{rgb}{0.5,0,0}
+\definecolor{Blue}{rgb}{0,0,0.5}
+\hypersetup{%
+  pdftitle = {Time series analysis using MODIS data},
+  pdfsubject = {},
+  pdfkeywords = {MODIS, time series},
+  pdfauthor = {Jan Verbesselt},
+  %% change colorlinks to false for pretty printing
+  colorlinks = {true},
+  linkcolor = {Blue},
+  citecolor = {Blue},
+  urlcolor = {Red},
+  hyperindex = {true},
+  linktocpage = {true},
+}
+\begin{document}
+
+<<setup, include=FALSE, cache=FALSE>>=
+library(knitr)
+# set global chunk options
+opts_chunk$set(fig.path='figure/minimal-', fig.align='center', fig.show='hold')
+options(replace.assign=TRUE,width=90)
+@
+
+\title{BFAST and MODIS NDVI time series}
+\author{Jan Verbesselt}
+\maketitle
+\begin{abstract}
+This document explains how to use R scripting language for downloading MODIS data and analysing it within R. The results of the analysis of MODIS data within R are illustrated. For this time series analysis demonstration it is not required to know R details, we only use R for some practical demonstration of its great potential.
+In this exercise we will automatically download MODIS data for specific locations, i.e. Flux tower sites, around the world. 
+First, an introduction to MODIS satellite data and the flux tower sites follow. Second, the use of R is introduced. Finally, the exercise in R is explained, step by step. 
+\end{abstract}
+
+\section{Introduction}
+The MODIS satellite data that we will download for this time series analysis exercise is available from the following site: \url{http://daac.ornl.gov/cgi-bin/MODIS/GR_col5_1/mod_viz.html}. MODIS data is made available for subsets above a global network of flux towers. FLUXNET, a "network of regional networks", coordinates regional and global analysis of observations from micrometeorological tower sites. The flux tower sites use eddy covariance methods to measure the exchanges of carbon dioxide ($CO_2$), water vapor, and energy between terrestrial ecosystems and the atmosphere.  The FLUXNET database contains information about tower location and site characteristics as well as data availability. More information above what a flux tower is and the network of flux towers can be found here: \url{http://www.fluxnet.ornl.gov/fluxnet/index.cfm}.
+For this exercise  we will focus on the analysis of MODIS satellite data available for these flux towers. More specifically, we will look at the MODIS product called MOD13Q1 which are global 16-day images at a spatial resolution of 250 m. Each image contains several bands; i.e. blue, red, and near-infrared reflectances, centered at 469-nanometers, 645-nanometers, and 858-nanometers, respectively, are used to determine the MODIS vegetation indices.
+The MODIS Normalized Difference Vegetation Index (NDVI) complements NOAA's Advanced Very High Resolution Radiometer (AVHRR) NDVI products and provides continuity for time series historical applications. MODIS also includes a new Enhanced Vegetation Index (EVI) that minimises canopy background variations and maintains sensitivity over dense vegetation conditions. The EVI also uses the blue band to remove residual atmosphere contamination caused by smoke and sub-pixel thin cloud clouds. The MODIS NDVI and EVI products are computed from atmospherically corrected bi-directional surface reflectances that have been masked for water, clouds, heavy aerosols, and cloud shadows.
+Vegetation indices are used for global monitoring of vegetation conditions and are used in products displaying land cover and land cover changes. These data may be used as input for modeling global biogeochemical and hydrologic processes and global and regional climate. These data also may be used for characterizing land surface biophysical properties and processes, including primary production and land cover conversion.
+We will work with the MODIS NDVI band within the MOD13Q1 product. More information about this MODIS product can be found here: \url{https://lpdaac.usgs.gov/products/modis_products_table/mod13q1}. Go to the NDVI and the pixel reliability Layer information and have a look.
+
+{\bf Question 1: By what factor does the 250m MODIS NDVI image layer need to be multiplied in order to obtain values between 0 and 1?}
+
+{\bf Question 2: What \emph{rank key} (number?) would you use to obtain Good Data?}
+
+
+\section{Online Analysis of MODIS satellite image data}
+
+Please go to the MODIS Land subsets website \url{http://daac.ornl.gov/cgi-bin/MODIS/GR_col5_1/mod_viz.html}:
+\begin{enumerate}
+  \item Select Country: The Netherlands and select the Loobos Site. 
+  \item Have a look at the \emph{Corner coordinates and site details} (this will be important for the R script as explain below).
+  \item Via this site the data can be downloaded manually. We will automatically download the MODIS data via the R script.
+  \item Click on Time Series Advanced Version (User Defined QC setting) and select the MOD13Q1 data.
+  \item Look at the NDVI time series data and also click on the google maps link to investigate the land cover type (Here is is mainly forested by Pinus sylvestris or also called Scots Pine) within google maps (satellite view).
+\end{enumerate}
+
+{\bf Question 3: At which pixel number is the flux tower (i.e. the Site pixel) positioned in the MODIS 250m data grid (have a look at the link for corner coordinates and site details)}
+
+{\bf Question 4: What happens with the NDVI Filter Applied Graph if you select only data that you can use with Confidence?}
+
+\section{Getting started with R}
+
+We will download the MODIS data for the Loobos Site via R and process the data for one location to detect changes within the time series.
+When you open R you will see Fig.~\ref{fig:GUIR}. The window in the top left corner is the R console (e.g. statistical and spatial analysis tools). Go to the menu, click on File > new script and a script window will appear. The interface should now look something like Fig.~\ref{fig:GUIR2}.
+
+\begin{figure}[t!]
+\centering
+    \includegraphics[height=0.5\textwidth]{figs/GUIR}
+  \caption{The graphical user interface to R}
+  \label{fig:GUIR}
+\end{figure}
+
+\begin{figure}[t!]
+\centering
+    \includegraphics[height=0.5\textwidth]{figs/GUIR2}
+  \caption{The graphical user interface with an empty script}
+  \label{fig:GUIR2}
+\end{figure}
+
+\newpage
+
+You are now going to pass what you have written in your script to the console line by line and we will discuss what R is doing with your code. Select the first two lines with your mouse and then type \textbf{Ctrl-r}. The selected lines will be passed to the R console and your console should now look like something like this:
+<<>>=
+a <- 1
+a
+@
+
+The first line you passed to the console created a new object named  $a$ in memory. The symbol '<-' is somewhat equivalent to an equal sign. In the second line you printed $a$ to the console by simply typing it's name. 
+
+Now try to obtain he following output in the R console by writing the commands in the script window and running the via \textbf{Crtl-r} (make sure you remove $>$ and $+$). R commands shown in the following section should be written in your Script file without $>$ and $+$ in front of it, so that you can run them by using \textbf{Crtl-r} and the result in the R console will look like this:
+ 
+<<>>=
+class(a)
+b <- 2 
+a + b
+newfunc <- function(x, y) {
+  2*x + y
+} 
+a2b <- newfunc(2, 4)
+a2b
+rm(a, b, newfunc, a2b)
+@
+
+You now have requested the \textbf{class} attribute of $a$ and the console has returned the attribute: \textbf{numeric}. R possesses a simple mechanism to support an object-oriented style of programming. All objects ($a$ in this case) have a class attribute assigned to them. \textbf{R} is quite forgiving and will assign a class to an object even if you haven't specified one (as you didn't in this case). Classes are a very important feature of the \textbf{R} environment. Any function or method that is applied to an object takes into account its class and uses this information to determine the correct course of action. A simple example should suffice to explain further. Select the next two lines using your mouse and pass these to the console using \textbf{Crtl-r}. The first line passed declares a new object $b$. The second line passed adds $a$ and $b$ together and prints the solution to the console. \textbf{R} has assessed the class attribute of a and b; determined they are both \textbf{numeric} objects, and; carried out the arithmetic calculation as requested.
+
+The 4th line passed declares a new object \textbf{newfunc} (this is just a name and if you like you can give this function another name). It is a new function. Appearing in the first set of brackets is an argument list that specifies (in this case) two names. The value of the function appears within the second set of brackets where the process applied to the named objects from the argument list is defined. 
+
+Next, a new object $a2b$ is created which contains the result of applying \textbf{newfunc} to the two objects you have defined earlier. The second last R command prints this new object to the console. Finally, you can now remove the objects you have created to make room for the next exercise by selecting and running the last line of the code.
+
+\textbf{R} is supported by a very comprehensive help system. Help on any function can be accessed by entering the name of the function into the console preceded with a $?$. The easiest way to access the system is to open a web-browser. This help system can be started by entering \textbf{help.start()} in the R console. Try it and see what happens.
+
+<<>>=
+?class
+@
+
+For more information about R please refer to the following links \url{http://www.statmethods.net/index.html}. This is a great website for learning R function, graphs, and stats. Also visit \url{http://www.r-project.org/} and check out the Manuals i.e an introductions to R. Welcome the Rrrrrr world!
+
+\end{document}
