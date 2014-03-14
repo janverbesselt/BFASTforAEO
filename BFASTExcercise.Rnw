@@ -179,7 +179,8 @@ dependencies=TRUE)
 
 In the next section below, \textbf{library(zoo)} loads a library with predefined time series analysis functions in R. This is the great thing about R, there are many other R packages available (for FREE!) that you can upload in R and make it more functional. For a overview of available packages is available here: \url{http://crantastic.org/}.
 
-All the other lines of the section above need to be run at once (select all of them in the R script window and do \textbf{Crtl-r}), this will define two simple functions which we will need to process the MODIS data time series. So nothing will happen now in R, but the function are loaded and ready to be used in the script sections below.
+All the other lines of the section above need to be run at once (select all of them in the R script window and do \textbf{Crtl-r}), this will define two simple functions which we will need to process the MODIS data time series. So nothing will happen now in R, but the function are loaded and ready to be used in the script sections below. Note: you do not need to understand the details of the two functions below. Make sure you know how to use them. Understanding the details of the two functions below is only for advanced R users (so optional and not required for AEO!).
+
 <<>>=
 ## a function to create a regular "ts" (time series) object in R using time information (dt)
 timeser <- function(index,dt) {
@@ -214,27 +215,25 @@ getwd() ## the file is downloaded to your working directory
 @
 
 <<>>=
-## you can set the working directory yourself via Rstudio if you go to "session" 
-## and then "set working directory"
-fluxtoren <- c("fn_nlloobos.txt")  
-filenaam <- paste(
+fluxtower <- c("fn_nlloobos.txt")  
+filename <- paste(
 "ftp://daac.ornl.gov//data/modis_ascii_subsets//C5_MOD13Q1/data/MOD13Q1."
-, fluxtoren,sep="")
+, fluxtower,sep="")
 
 ## if the file exists already in your working directory nothing will happen:
- if(!file.exists(fluxtoren)) {
-  download.file(filenaam,fluxtoren)
-	modis <- read.csv(fluxtoren, colClasses = "character") 
+ if(!file.exists(fluxtower)) {
+  download.file(filename,fluxtower)
+	modis <- read.csv(fluxtower, colClasses = "character") 
 } else {
-	modis <- read.csv(fluxtoren, colClasses = "character") 
+	modis <- read.csv(fluxtower, colClasses = "character") 
 }
 ## if the above step does not work you can download the data manually 
 ## (go to 'Manual Downloading').
 @
 
-By running the lines above the MODIS data subset for the Loobos fluxtower (the Netherlands) is downloaded to the \textbf{modis} variable. Please be patient when running the code section above. Data for a different fluxtower, a fluxtower in New South Wales, Australia, can be downloaded by changing the \textbf{fluxtoren} variable using the following line:
+By running the lines above the MODIS data subset for the Loobos fluxtower (the Netherlands) is downloaded to the \textbf{modis} variable. Please be patient when running the code section above. Data for a different fluxtower, a fluxtower in New South Wales, Australia, can be downloaded by changing the \textbf{fluxtower} variable using the following line:
 <<>>=
-fluxtoren <- c("fn_autumbar.txt") 
+fluxtower <- c("fn_autumbar.txt") 
 @
 
 Please try and change the name of the flux tower site and then rerun the section above to download data for another flux tower. The names of the flux towers for which MODIS data is available can be found in the following file available via this link; 
@@ -428,7 +427,7 @@ detected within the image. Do you detect breaks? How strict would you do the cle
 
 {\bf Question 8: Download data from another location on earth and run all the steps mentioned above again in order to apply the BFAST function again onto a new cleaned NDVI time series. Plot the BFAST result graph in a word document, mention the flux tower that you downloaded the data from and describe the difference with the graph obtained from Question 7.}
 
-To better understand how bfastmonitor works have a look at the help section of bfastmonitor function and try out the examples provided. 
+To better understand how BFAST works have a look at the help section of the BFAST function and try out the examples provided. 
 <<eval=FALSE>>=
 help(bfast)
 ## for more info
