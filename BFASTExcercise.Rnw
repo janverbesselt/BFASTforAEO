@@ -350,7 +350,7 @@ lines(meant, col="red")
 @
 
 \clearpage
-\subsection{Plotting a MODIS Reliability time series and clean the NDVI data}
+\subsection{Use the MODIS Reliability information to clean the NDVI time series}
 
 Now, we will visualize MODIS reliability information (See Figure \ref{fig:tsrel}). This R function plots a red point on the plot for all the data points in the time series with a reliability > 1. You can choose ts.rel = 1, or ts.rel > 2, or ..., and rerun the plot command again and see what happens.
 
