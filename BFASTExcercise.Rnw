@@ -324,10 +324,9 @@ plot(ts.NDVI, ylab = "NDVI")
 \newpage
 
 {\bf  Question 5:
-What would happen if you would select multiple pixels (e.g. 3 pixels) and derive an average,maximum, and median of the 3 time series?
-Now make a plot showing the average, maximum, or median of the 3 NDVI time series. Compare the median NDVI time series with the NDVI time series of the flux tower and copy paste the R plot output in a word document. 
-
-What is the best technique to reduce the noise within a time series? How many pixels would you recommend selecting to reduce the noise level?
+Below a code section is provide that you can use (copy/paste and customize). Select multiple pixels (e.g. 6 pixels) and derive an average, maximum, and median of the selected time series. Now make a plot showing the average, maximum, or median of the 3 NDVI time series. 
+Compare the median NDVI time series with the NDVI time series of the flux tower and copy paste the R plot output in your report. 
+Which approach do you think would be suitable to reduce the noise within a time series? Explain why?
 
 For bonus points and an extra challenge. 
 Try to derive a 'noise reduced' NDVI time series of a 3 by 3 window around the flux tower. } 
@@ -420,12 +419,10 @@ fit <- bfast(ts.clNDVIfilled, h=rdist,
 plot(fit, main="") 
 @
 
-{\bf Question 7: Copy past the resulting R BFAST graph in the report and 
-describe the detected components and change types, 
-detected within the image. Do you detect breaks? How strict would you do the cleaning?
+{\bf Question 7: copy  and paste the resulting R BFAST graph in the report and describe the detected components and change types, detected within the time series. Are there any detected breaks? How strict would you do the cleaning?
 }
 
-{\bf Question 8: Download data from another location on earth and run all the steps mentioned above again in order to apply the BFAST function again onto a new cleaned NDVI time series. Plot the BFAST result graph in a word document, mention the flux tower that you downloaded the data from and describe the difference with the graph obtained from Question 7.}
+{\bf Question 8: Download data from another location on earth and run all the steps mentioned above again in order to apply the BFAST function again onto a new cleaned NDVI time series. Copy the BFAST plot your report, mention the flux tower that you downloaded the data from and describe the difference with the graph obtained from Question 7.}
 
 To better understand how BFAST works have a look at the help section of the BFAST function and try out the examples provided. 
 <<eval=FALSE>>=
@@ -454,7 +451,7 @@ mon <- bfastmonitor(ts.clNDVIfilled,
 plot(mon, main="bfastmonitor results")
 @
 
-{\bf Question 9: How many stable years do you have in your history period? Illustrate this with your own time series from a flux tower of your own choice.}
+{\bf Question 9: How long (in years) is your selected stable history period? Illustrate this with your own time series from a flux tower of your own choice.}
 
 {\bf Question 10: Start the monitoring period the end of 2011. Is 2012 an abnormal year? Illustrate this with your own time series from a flux tower of your own choice.}
 
