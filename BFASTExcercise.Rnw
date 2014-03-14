@@ -80,10 +80,10 @@ We will work with the MODIS NDVI band within the MOD13Q1 product. More informati
 Please go to the MODIS Land subsets website \url{http://daac.ornl.gov/cgi-bin/MODIS/GR_col5_1/mod_viz.html}:
 \begin{enumerate}
   \item Select Country: The Netherlands and select the Loobos Site. 
-  \item Have a look at the \emph{Corner coordinates and site details} (this will be important for the R script as explain below).
+  \item Have a look at the \emph{Corner coordinates and site details} (this will be important for the R script as explained below).
   \item Via this site the data can be downloaded manually. We will automatically download the MODIS data via the R script.
   \item Click on Time Series Advanced Version (User Defined QC setting) and select the MOD13Q1 data.
-  \item Look at the NDVI time series data and also click on the google maps link to investigate the land cover type. It is mainly forested by Pinus sylvestris or also called Scots Pine (within google maps satellite view).
+  \item Look at the NDVI time series data and also click on the google maps link to investigate the land cover type. It is mainly forested by Pinus Sylvestris or also called Scots Pine (within google maps satellite view).
 \end{enumerate}
 
 {\bf Question 3: At which pixel number is the flux tower (i.e. the Site pixel) positioned in the MODIS 250m data grid (have a look at the link for corner coordinates and site details)}
@@ -281,7 +281,7 @@ about each MODIS pixel within the subset. E.g the 7th column is a pixel, and the
 modis$Band[1:12]
 @
 
-\section{Visualising a modis time series above the fluxtower}
+\section{Visualising modis time series above the fluxtower}
 
 \subsection{Plotting a MODIS NDVI time series}
 We select band 5 i.e. the NDVI band, and band 7 i.e. the band with reliability information
@@ -294,7 +294,7 @@ rel <- modis$Band[7]
 We will select data for the pixel above the Loobos Fluxtower. Have a look at 
 \href{http://daac.ornl.gov/cgi-bin/MODIS/GR_col5_1/corners.1.pl?site=fn_nlloobos&res=250m}{LoobosSiteInfo}.
 
-It is pixel number 436. Each column after the 6th column in the MODIS file contain data of one pixel 
+It is pixel number 436. Each column after the 6th column in the MODIS file contains data of one pixel 
 so to select the data above the flux tower we have to add 6 to select the correct column within the matrix.
 The code section below will select the MODIS data for one pixel, scale the NDVI data by dividing it by 10000,
 and then plot the resulting variable \textbf{ts.NDVI} using the \textbf{plot()} function:
@@ -308,7 +308,7 @@ DATUM <- as.Date(DATUM,"A%Y%j") # convert to a datum type
 @
 
 Now, let's create a time series! The NDVI value need to be scaled between 0-1 by dividing them by 10000.
-Attention! The 'Zoo' package is needed within the 'timeser' function so we load the packag using the line below.
+Attention! The 'Zoo' package is needed within the 'timeser' function so we load the package using the line below.
 <<>>=
 library(zoo) ## load the package
 ts.rel <- timeser(reliability, DATUM)
@@ -324,7 +324,7 @@ plot(ts.NDVI, ylab = "NDVI")
 \newpage
 
 {\bf  Question 5:
-Below a code section is provide that you can use (copy/paste and customize). Select multiple pixels (e.g. 6 pixels) and derive an average, maximum, and median of the selected time series. Now make a plot showing the average, maximum, or median of the 3 NDVI time series. 
+Below a code section is provided that you can use (copy/paste and customize). Select multiple pixels (e.g. 6 pixels) and derive an average, maximum, and median of the selected time series. Now make a plot showing the average, maximum, or median of the 3 NDVI time series. 
 Compare the median NDVI time series with the NDVI time series of the flux tower and copy paste the R plot output in your report. 
 Which approach do you think would be suitable to reduce the noise within a time series? Explain why?
 
@@ -422,7 +422,7 @@ plot(fit, main="")
 {\bf Question 7: copy  and paste the resulting R BFAST graph in the report and describe the detected components and change types, detected within the time series. Are there any detected breaks? How strict would you do the cleaning?
 }
 
-{\bf Question 8: Download data from another location on earth and run all the steps mentioned above again in order to apply the BFAST function again onto a new cleaned NDVI time series. Copy the BFAST plot your report, mention the flux tower that you downloaded the data from and describe the difference with the graph obtained from Question 7.}
+{\bf Question 8: Download data from another location on earth and run all the steps mentioned above again in order to apply the BFAST function again onto a new cleaned NDVI time series. Copy the BFAST plot to your report, mention the flux tower that you downloaded the data from and describe the difference with the graph obtained from Question 7.}
 
 To better understand how BFAST works have a look at the help section of the BFAST function and try out the examples provided. 
 <<eval=FALSE>>=
@@ -441,7 +441,7 @@ plot(fit, main="")
 \clearpage
 \section{Applying BFASTmonitor on the cleaned NDVI time series}
 
-To better understand how bfastmonitor works have a look at the help section of bfastmonitor function and try out the examples provided (Figure \ref{fig:bfastmon1}). For extra background information  \citep{Verbesselt:rse:2011}.
+To better understand how bfastmonitor works have a look at the help section of the bfastmonitor function and try out the examples provided (Figure \ref{fig:bfastmon1}). For extra background information  you can look at the following reference: \citep{Verbesselt:rse:2011}.
 
 <<bfastmon1, fig.width=10, fig.height=5, out.width='.8\\linewidth', fig.cap="BFASTmonitor analysis of the cleaned and interpolated NDVI time series", tidy=TRUE>>=
 mon <- bfastmonitor(ts.clNDVIfilled, 
@@ -465,7 +465,7 @@ plot(mon, main="bfastmonitor results")
 
 (For those who already followed the {\bf Geo-scripting course} )
 Can somebody georeference the subset of data downloaded for a fluxtower and e.g. make a spatial map? Hint:
-The name and georeference information of the flux towers for which MODIS data is available can be found in the following file available via this link; \href{ftp://daac.ornl.gov//data/modis_ascii_subsets//5_MODIS_Subset_Sites_Information_Collection5.csv}{MODISSubsetSiteInformation}. Select all the NDVI data at one time step (e.g. the first measurement of 2011) and create raster from that.
+The name and georeference information of the flux towers for which MODIS data is available can be found in the following file available via this link; \href{ftp://daac.ornl.gov//data/modis_ascii_subsets//5_MODIS_Subset_Sites_Information_Collection5.csv}{MODISSubsetSiteInformation}. Select all the NDVI data at one time step (e.g. the first measurement of 2011) and create a raster from that.
 
 <<eval=FALSE>>=
 library(raster)
