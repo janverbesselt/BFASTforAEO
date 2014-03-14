@@ -30,6 +30,16 @@
   hyperindex = {true},
   linktocpage = {true},
 }
+
+%% BibTeX settings
+\usepackage[authoryear,round]{natbib}
+%\bibliographystyle{jae}
+\bibpunct{(}{)}{,}{a}{,}{,}
+\newcommand{\doi}[1]{\href{http://dx.doi.org/#1}{\normalfont\texttt{doi:#1}}}
+
+\usepackage{lineno}
+\linenumbers
+
 \begin{document}
 
 <<setup, include=FALSE, cache=FALSE>>=
@@ -39,16 +49,21 @@ opts_chunk$set(fig.path='figure/minimal-', fig.align='center', fig.show='hold')
 options(replace.assign=TRUE,width=90)
 @
 
-\title{BFAST and MODIS NDVI time series}
+\title{MODIS NDVI time series with BFAST}
 \author{Jan Verbesselt}
 \maketitle
+
 \begin{abstract}
 This document explains how to use R scripting language for downloading MODIS data and analysing it within R. The results of the analysis of MODIS data within R are illustrated. For this time series analysis demonstration it is not required to know R details, we only use R for some practical demonstration of its great potential.
 In this exercise we will automatically download MODIS data for specific locations, i.e. Flux tower sites, around the world. 
 First, an introduction to MODIS satellite data and the flux tower sites follow. Second, the use of R is introduced. Finally, the exercise in R is explained, step by step. 
 \end{abstract}
 
-\section{Introduction}
+
+\tableofcontents
+\clearpage
+
+\section{MODIS satellite data}
 The MODIS satellite data that we will download for this time series analysis exercise is available from the following site: \url{http://daac.ornl.gov/cgi-bin/MODIS/GR_col5_1/mod_viz.html}. MODIS data is made available for subsets above a global network of flux towers. FLUXNET, a "network of regional networks", coordinates regional and global analysis of observations from micrometeorological tower sites. The flux tower sites use eddy covariance methods to measure the exchanges of carbon dioxide ($CO_2$), water vapor, and energy between terrestrial ecosystems and the atmosphere.  The FLUXNET database contains information about tower location and site characteristics as well as data availability. More information above what a flux tower is and the network of flux towers can be found here: \url{http://www.fluxnet.ornl.gov/fluxnet/index.cfm}.
 For this exercise  we will focus on the analysis of MODIS satellite data available for these flux towers. More specifically, we will look at the MODIS product called MOD13Q1 which are global 16-day images at a spatial resolution of 250 m. Each image contains several bands; i.e. blue, red, and near-infrared reflectances, centered at 469-nanometers, 645-nanometers, and 858-nanometers, respectively, are used to determine the MODIS vegetation indices.
 The MODIS Normalized Difference Vegetation Index (NDVI) complements NOAA's Advanced Very High Resolution Radiometer (AVHRR) NDVI products and provides continuity for time series historical applications. MODIS also includes a new Enhanced Vegetation Index (EVI) that minimises canopy background variations and maintains sensitivity over dense vegetation conditions. The EVI also uses the blue band to remove residual atmosphere contamination caused by smoke and sub-pixel thin cloud clouds. The MODIS NDVI and EVI products are computed from atmospherically corrected bi-directional surface reflectances that have been masked for water, clouds, heavy aerosols, and cloud shadows.
@@ -68,13 +83,14 @@ Please go to the MODIS Land subsets website \url{http://daac.ornl.gov/cgi-bin/MO
   \item Have a look at the \emph{Corner coordinates and site details} (this will be important for the R script as explain below).
   \item Via this site the data can be downloaded manually. We will automatically download the MODIS data via the R script.
   \item Click on Time Series Advanced Version (User Defined QC setting) and select the MOD13Q1 data.
-  \item Look at the NDVI time series data and also click on the google maps link to investigate the land cover type (Here is is mainly forested by Pinus sylvestris or also called Scots Pine) within google maps (satellite view).
+  \item Look at the NDVI time series data and also click on the google maps link to investigate the land cover type. It is mainly forested by Pinus sylvestris or also called Scots Pine (within google maps satellite view).
 \end{enumerate}
 
 {\bf Question 3: At which pixel number is the flux tower (i.e. the Site pixel) positioned in the MODIS 250m data grid (have a look at the link for corner coordinates and site details)}
 
 {\bf Question 4: What happens with the NDVI Filter Applied Graph if you select only data that you can use with Confidence?}
 
+\clearpage
 \section{Getting started with R}
 
 We will download the MODIS data for the Loobos Site via R and process the data for one location to detect changes within the time series.
@@ -97,17 +113,27 @@ When you open R you will see Fig.~\ref{fig:GUIR}. The window in the top left cor
 \newpage
 
 You are now going to pass what you have written in your script to the console line by line and we will discuss what R is doing with your code. Select the first two lines with your mouse and then type \textbf{Ctrl-r}. The selected lines will be passed to the R console and your console should now look like something like this:
-<<>>=
+<<echo=TRUE, eval=FALSE>>=
 a <- 1
 a
 @
 
 The first line you passed to the console created a new object named  $a$ in memory. The symbol '<-' is somewhat equivalent to an equal sign. In the second line you printed $a$ to the console by simply typing it's name. 
 
-Now try to obtain he following output in the R console by writing the commands in the script window and running the via \textbf{Crtl-r} (make sure you remove $>$ and $+$). R commands shown in the following section should be written in your Script file without $>$ and $+$ in front of it, so that you can run them by using \textbf{Crtl-r} and the result in the R console will look like this:
- 
+Now try to obtain he following output in the R console by writing the commands in the script window and running the via \textbf{Crtl-r}:
+<<echo=FALSE, eval=TRUE>>=
+a <- 1
+a
+@
+
+Now copy/paste the following script sections (in the grey zone) to your script window and run it step by step. The result is shown behind the \# \# sign:
 <<>>=
 class(a)
+@
+
+You now have requested the \textbf{class} attribute of $a$ and the console has returned the attribute: \textbf{numeric}. R possesses a simple mechanism to support an object-oriented style of programming. All objects ($a$ in this case) have a class attribute assigned to them. \textbf{R} is quite forgiving and will assign a class to an object even if you haven't specified one (as you didn't in this case). Classes are a very important feature of the \textbf{R} environment. Any function or method that is applied to an object takes into account its class and uses this information to determine the correct course of action. A simple example should suffice to explain further:
+
+<<>>=
 b <- 2 
 a + b
 newfunc <- function(x, y) {
@@ -115,21 +141,353 @@ newfunc <- function(x, y) {
 } 
 a2b <- newfunc(2, 4)
 a2b
-rm(a, b, newfunc, a2b)
 @
 
-You now have requested the \textbf{class} attribute of $a$ and the console has returned the attribute: \textbf{numeric}. R possesses a simple mechanism to support an object-oriented style of programming. All objects ($a$ in this case) have a class attribute assigned to them. \textbf{R} is quite forgiving and will assign a class to an object even if you haven't specified one (as you didn't in this case). Classes are a very important feature of the \textbf{R} environment. Any function or method that is applied to an object takes into account its class and uses this information to determine the correct course of action. A simple example should suffice to explain further. Select the next two lines using your mouse and pass these to the console using \textbf{Crtl-r}. The first line passed declares a new object $b$. The second line passed adds $a$ and $b$ together and prints the solution to the console. \textbf{R} has assessed the class attribute of a and b; determined they are both \textbf{numeric} objects, and; carried out the arithmetic calculation as requested.
+Select the next two lines using your mouse and pass these to the console using \textbf{Crtl-r}. The first line passed declares a new object $b$. The second line passed adds $a$ and $b$ together and prints the solution to the console. \textbf{R} has assessed the class attribute of $a$ and $b$; determined they are both \textbf{numeric} objects, and; carried out the arithmetic calculation as requested.
 
 The 4th line passed declares a new object \textbf{newfunc} (this is just a name and if you like you can give this function another name). It is a new function. Appearing in the first set of brackets is an argument list that specifies (in this case) two names. The value of the function appears within the second set of brackets where the process applied to the named objects from the argument list is defined. 
 
-Next, a new object $a2b$ is created which contains the result of applying \textbf{newfunc} to the two objects you have defined earlier. The second last R command prints this new object to the console. Finally, you can now remove the objects you have created to make room for the next exercise by selecting and running the last line of the code.
+Next, a new object $a2b$ is created which contains the result of applying \textbf{newfunc} to the two objects you have defined earlier. The second last R command prints this new object to the console. Finally, you can now remove the objects you have created to make room for the next exercise by selecting and running:
+
+<<>>=
+rm(a, b, newfunc, a2b)
+@
 
 \textbf{R} is supported by a very comprehensive help system. Help on any function can be accessed by entering the name of the function into the console preceded with a $?$. The easiest way to access the system is to open a web-browser. This help system can be started by entering \textbf{help.start()} in the R console. Try it and see what happens.
 
 <<>>=
-?class
+help(class)
 @
 
 For more information about R please refer to the following links \url{http://www.statmethods.net/index.html}. This is a great website for learning R function, graphs, and stats. Also visit \url{http://www.r-project.org/} and check out the Manuals i.e an introductions to R. Welcome the Rrrrrr world!
+
+\newpage
+
+\section{Install packages and define functions for MODIS data analysis}
+
+Now we are ready to get started with the MODIS time series analysis exercise in R! 
+First, the necessary add-on packages need to be installed within R in case there are not installed yet (so run the section below only once!):
+
+<<eval=FALSE, echo=TRUE>>=
+## install these package in case they are not available on your computer
+install.packages("strucchange")
+install.packages("forecast")
+install.packages("zoo")
+install.packages("bfast", repos="http://R-Forge.R-project.org", 
+dependencies=TRUE)
+@
+
+In the next section below, \textbf{library(zoo)} loads a library with predefined time series analysis functions in R. This is the great thing about R, there are many other R packages available (for FREE!) that you can upload in R and make it more functional. For a overview of available packages is available here: \url{http://crantastic.org/}.
+
+All the other lines of the section above need to be run at once (select all of them in the R script window and do \textbf{Crtl-r}), this will define two simple functions which we will need to process the MODIS data time series. So nothing will happen now in R, but the function are loaded and ready to be used in the script sections below.
+<<>>=
+## a function to create a regular "ts" (time series) object in R using time information (dt)
+timeser <- function(index,dt) {
+	z <- zoo(index,dt)
+	yr <- as.numeric(format(time(z), "%Y"))
+	jul <- as.numeric(format(time(z), "%j"))
+	delta <- min(unlist(tapply(jul, yr, diff))) # 16
+	zz <- aggregate(z, yr + (jul - 1) / delta / 23)
+	(tso <- as.ts(zz))
+	return(tso)	
+}
+
+## a function to remove values (set NA)
+## that do not equal a certain criteria
+sel <- function(y,crit){
+	ts.sel <- y
+	ts.sel[!crit] <- NA
+	return(ts.sel)
+}	
+@
+
+\section{Downloading MODIS data using R script}
+
+Now we are ready to start downloading the MODIS data. There are two methods; (1) automatic downloading via the ftp server in the U.S. within R using the code section below (Section \ref{sec:autdown}), (2) manual downloading of the data (Section \ref{sec:mandown}). We will use the automatic downloading method for the exercise (easier;-)). 
+
+\subsection{Automatic MODIS data downloading}\label{sec:autdown}
+
+We will use this method in the exercise as long as the server in the U.S. is online and working (you need internet connection, and also keep in mind that the file can be more than 15Mb large).
+
+<<echo=TRUE, eval=FALSE>>=
+getwd() ## the file is downloaded to your working directory 
+@
+
+<<>>=
+## you can set the working directory yourself via Rstudio if you go to "session" 
+## and then "set working directory"
+fluxtoren <- c("fn_nlloobos.txt")  
+filenaam <- paste(
+"ftp://daac.ornl.gov//data/modis_ascii_subsets//C5_MOD13Q1/data/MOD13Q1."
+, fluxtoren,sep="")
+
+## if the file exists already in your working directory nothing will happen:
+ if(!file.exists(fluxtoren)) {
+  download.file(filenaam,fluxtoren)
+	modis <- read.csv(fluxtoren, colClasses = "character") 
+} else {
+	modis <- read.csv(fluxtoren, colClasses = "character") 
+}
+## if the above step does not work you can download the data manually 
+## (go to 'Manual Downloading').
+@
+
+By running the lines above the MODIS data subset for the Loobos fluxtower (the Netherlands) is downloaded to the \textbf{modis} variable. Please be patient when running the code section above. Data for a different fluxtower, a fluxtower in New South Wales, Australia, can be downloaded by changing the \textbf{fluxtoren} variable using the following line:
+<<>>=
+fluxtoren <- c("fn_autumbar.txt") 
+@
+
+Please try and change the name of the flux tower site and then rerun the section above to download data for another flux tower. The names of the flux towers for which MODIS data is available can be found in the following file available via this link; 
+\href{ftp://daac.ornl.gov//data/modis_ascii_subsets//5_MODIS_Subset_Sites_Information_Collection5.csv}{MODISSubsetSiteInformation}, which you can open in Excel. The names that you need are in the \textbf{{$Site_{ID}$}} column.
+
+\subsection{Manual MODIS data Downloading}\label{sec:mandown}
+If the above section does not work, you can download the data manually into your working directory via the following site:
+\href{http://daac.ornl.gov/cgi-bin/MODIS/GR_col5_1/mod_viz.html}{ModisViZ} and can be loaded in R via the R script below. Things to do to download the data manually:
+
+\begin{itemize}
+  \item download the .txt file from the MODIS Land Subsets website mentioned above, go to the e.g. Loobos site, click download the ASCII file, do \emph{save as} \emph{txt} file to save to a local folder, and rename the file to e.g. \textbf{NDVIMOD13Q1}.
+  \item Read the data from R with the following R script lines.
+\end{itemize}  
+  
+First set your workdirectory using the \textbf{setwd()} command. Remark: on your computer the file path looks different on windows! In R you have to change the backslash symbol to a forward slash symbol.
+  
+<<eval=FALSE>>= 
+## "c:\student\MODIS"
+setwd(c("c:/student/MODIS/"))
+getwd() ## to check what your working directory is.
+@
+
+Once your working directory is set correctly, you can read in the data file using the following command. Now the MODIS data is loaded!
+<<eval=FALSE>>=
+modis <- read.csv("NDVIMOD13Q1.txt")
+@
+
+\subsection{The MODIS data structure}
+The MODIS data within the 'modis'  variable is organised so that the first six columns of the file contain information
+about filename, product (i.e. MOD13Q1), date (date of the image), Site (e.g. Loobos), Processdata, and band 
+(i.e. one MODIS image has different bands = LAYERS, e.g. NDVI).
+For More information about the MODIS data look at: \href{https://lpdaac.usgs.gov/products/modis_products_table}{MODIS product table}.
+
+<<>>=
+str(modis[1,1:7])
+@
+
+The following R names() shows the names of the first 8 columns of the 'modis' variable containing all the data.
+<<>>=
+names(modis)[1:8]
+@ 
+The first six columns contain info about the image (e.g. site, date, band, and when it is processed) and from the 7th each column contains information 
+about each MODIS pixel within the subset. E.g the 7th column is a pixel, and the 8th is another pixel. This shows the band names of this file. The MOD13Q1 Product contains 12 Bands:
+<<>>=
+modis$Band[1:12]
+@
+
+\section{Visualising a modis time series above the fluxtower}
+
+\subsection{Plotting a MODIS NDVI time series}
+We select band 5 i.e. the NDVI band, and band 7 i.e. the band with reliability information
+
+<<>>=
+ndvibandname <- modis$Band[5] 
+rel <- modis$Band[7] 
+@
+
+We will select data for the pixel above the Loobos Fluxtower. Have a look at 
+\href{http://daac.ornl.gov/cgi-bin/MODIS/GR_col5_1/corners.1.pl?site=fn_nlloobos&res=250m}{LoobosSiteInfo}.
+
+It is pixel number 436. Each column after the 6th column in the MODIS file contain data of one pixel 
+so to select the data above the flux tower we have to add 6 to select the correct column within the matrix.
+The code section below will select the MODIS data for one pixel, scale the NDVI data by dividing it by 10000,
+and then plot the resulting variable \textbf{ts.NDVI} using the \textbf{plot()} function:
+
+<<echo=TRUE>>=
+j <- (436)+6 # we are adding 6 since the first data column is the 7th column  
+reliability <- as.numeric(modis[modis$Band == rel, j]) # reliability data
+NDVI <- as.numeric(modis[modis$Band == ndvibandname, j]) # NDVI data
+DATUM <- modis[modis$Band == ndvibandname, 3] # dates
+DATUM <- as.Date(DATUM,"A%Y%j") # convert to a datum type
+@
+
+Now, let's create a time series! The NDVI value need to be scaled between 0-1 by dividing them by 10000.
+Attention! The 'Zoo' package is needed within the 'timeser' function so we load the packag using the line below.
+<<>>=
+library(zoo) ## load the package
+ts.rel <- timeser(reliability, DATUM)
+ts.NDVI <- timeser(NDVI/10000, DATUM)
+@
+
+Now plot the resulting \textbf{ts.NDVI} object (See Figure \ref{fig:tsndvi}).
+
+<<tsndvi, fig.width=10, fig.height=4, out.width='.8\\linewidth', fig.cap="NDVI time series at the Flux towersite">>=
+plot(ts.NDVI, ylab = "NDVI") 
+@
+
+\newpage
+
+{\bf  Question 5:
+What would happen if you would select multiple pixels (e.g. 3 pixels) and derive an average,maximum, and median of the 3 time series?
+Now make a plot showing the average, maximum, or median of the 3 NDVI time series. Compare the median NDVI time series with the NDVI time series of the flux tower and copy paste the R plot output in a word document. 
+
+What is the best technique to reduce the noise within a time series? How many pixels would you recommend selecting to reduce the noise level?
+
+For bonus points and an extra challenge. 
+Try to derive a 'noise reduced' NDVI time series of a 3 by 3 window around the flux tower. } 
+
+<<eval=FALSE>>=
+## this is an example for two pixels
+## try it out and customize for your own needs
+j <- 442:444  
+t <- modis[modis$Band == ndvibandname, j] # extract NDVI data
+tt <- data.matrix(t)/10000 ## convert to a data matrix and divide by 10000
+ttt <- ts(apply(tt, 2, timeser, DATUM), start=c(2000,4), freq=23) 
+## convert to a regular time series object
+## plot(ttt) ## plot all the time series
+## derive the statistics (max, mean):
+maxt <- ts(apply(ttt, 1, max, na.rm=TRUE), start=c(2000,4), freq=23)
+meant <- ts(apply(ttt, 1, mean, na.rm=TRUE), start=c(2000,4), freq=23)
+## plot
+plot(maxt, col="green", ylim=c(0,1))
+lines(meant, col="red")
+## 
+@
+
+\clearpage
+\subsection{Plotting a MODIS Reliability time series and clean the NDVI data}
+
+Now, we will visualize MODIS reliability information (See Figure \ref{fig:tsrel}). This R function plots a red point on the plot for all the data points in the time series with a reliability > 1. You can choose ts.rel = 1, or ts.rel > 2, or ..., and rerun the plot command again and see what happens.
+
+<<tsrel, fig.width=10, fig.height=4, out.width='.8\\linewidth', fig.cap="MODIS NDVI time series showing pixels with a low reliability.">>=
+plot(ts.NDVI)
+lines(sel(ts.NDVI,ts.rel > 1), col = "red", type = "p") 
+legend("bottomleft","pixels with a low reliablity",col=2,pch=1)
+@
+
+{\bf Question 6: Investigation of MODIS reliability scores. What happens if you select only good quality NDVI data? Can you explain what happens and why this could be? Discuss} \\
+
+Perform the cleaning and plot the result by running the following lines. The resulting plot will show the MODIS NDVI time series showing red section which indicate the zones that are deleted based on reliability information.
+
+<<>>=
+ts.clNDVI <- ts.NDVI
+ts.clNDVI[ts.rel > 1] <- NA  # delete data with reliability > 1
+@ 
+
+By applying the two R script lines above, we set all the points with a reliability above 1 to NA (i.e. Not Available which is similar as deleting the value) in the \textbf{ts.clNDVI} variable. Now, plot the result of the cleaning and compare with the non-cleaned time series (See Figure \ref{fig:tsclean}):
+
+<<tsclean, fig.width=10, fig.height=4, out.width='.8\\linewidth', fig.cap="MODIS NDVI time series still showing remaining cloud effects.">>=
+plot(ts.NDVI, col='red')
+lines(ts.clNDVI, lwd=2, col='black')   
+@
+
+There are still clouds effects visible in the NDVI time series after using the MODIS reliability information. The reliability information available with each MODIS image indicates how reliable the data is and is based on the cloud masking results, atmospheric data (aerosol thickness), satellite viewing angle, etc. More information about the reliability is available via the \href{https://lpdaac.usgs.gov/products/modis_products_table/mod13q1}{MODIS Product Table website}.
+
+\newpage
+
+\section{Applying BFAST on cleaned NDVI time series}
+
+In this section we will use BFAST on the cleaned NDVI time series to detect changes within the time series.
+If the following R packages are not installed yet, they can be installed using the following commands.
+
+% install only when not installed yet
+<<eval=FALSE,  echo=TRUE>>=
+## install these package in case they are not available on your computer
+install.packages("strucchange")
+install.packages("forecast")
+install.packages("bfast", repos="http://R-Forge.R-project.org")
+@
+
+The BFAST package can be loaded via:
+<<>>=
+library("bfast")  
+@
+
+First, we will interpolate the gaps in the cleaned NDVI time series using a simple linear interpolation approach. The function that we use for this is the \textbf{na.aprox()} function which looks for NA's (Not Available's), which means dates for which no data is available (e.g., that we removed in the previous steps)
+and interpolates the data. The \textbf{plot()} command of the results (\textbf{ts.clNDVIfilled}) visualizes the result of the interpolation (See Figure \ref{fig:NDVIinterp}).
+
+<<NDVIinterp, fig.width=10, fig.height=4, out.width='.8\\linewidth', fig.cap="An NDVI time series without gaps.", cache=TRUE>>=
+ts.clNDVIfilled <- na.approx(ts.clNDVI)
+plot(ts.clNDVIfilled, ylim=c(0.1, 1))	
+@
+
+Second, we apply the BFAST function onto the time series. 
+We determine this minimum distance between potentially detected breaks. Here, we set 
+the distance to 25 time steps (i.e. 25 16-day images). 
+Then we apply the BFAST function (bfast()) on the time series (Figure \ref{fig:bfastvi}).
+
+<<bfastvi, fig.width=10, fig.height=10, out.width='.8\\linewidth', fig.cap="BFAST analysis of the cleaned and interpolated NDVI time series", cache=TRUE>>=
+rdist <- 25/length(ts.clNDVIfilled) 
+## ratio of distance between breaks (time steps) and length of the time series 
+fit <- bfast(ts.clNDVIfilled, h=rdist, 
+             season="harmonic", max.iter=1)
+plot(fit, main="") 
+@
+
+{\bf Question 7: Copy past the resulting R BFAST graph in the report and 
+describe the detected components and change types, 
+detected within the image. Do you detect breaks? How strict would you do the cleaning?
+}
+
+{\bf Question 8: Download data from another location on earth and run all the steps mentioned above again in order to apply the BFAST function again onto a new cleaned NDVI time series. Plot the BFAST result graph in a word document, mention the flux tower that you downloaded the data from and describe the difference with the graph obtained from Question 7.}
+
+To better understand how bfastmonitor works have a look at the help section of bfastmonitor function and try out the examples provided. 
+<<eval=FALSE>>=
+help(bfast)
+## for more info
+## try out the examples in the bfast help section!
+plot(harvest, ylab="NDVI") # MODIS 16-day cleaned and interpolated NDVI time series 
+(rdist <- 10/length(harvest)) 
+# ratio of distance between breaks (time steps) and length of the time series 
+fit <- bfast(harvest, h=rdist, season="harmonic", max.iter=1, breaks=2)
+plot(fit)
+## plot anova and slope of the trend identified trend segments
+plot(fit, main="")
+@
+
+\clearpage
+\section{Applying BFASTmonitor on the cleaned NDVI time series}
+
+To better understand how bfastmonitor works have a look at the help section of bfastmonitor function and try out the examples provided (Figure \ref{fig:bfastmon1}). For extra background information  \citep{Verbesselt:rse:2011}.
+
+<<bfastmon1, fig.width=10, fig.height=5, out.width='.8\\linewidth', fig.cap="BFASTmonitor analysis of the cleaned and interpolated NDVI time series", tidy=TRUE>>=
+mon <- bfastmonitor(ts.clNDVIfilled, 
+                    start = c(2010, 23), 
+                formula = response ~ harmon + trend,
+                    history = c("ROC"))
+plot(mon, main="bfastmonitor results")
+@
+
+{\bf Question 9: How many stable years do you have in your history period? Illustrate this with your own time series from a flux tower of your own choice.}
+
+{\bf Question 10: Start the monitoring period the end of 2011. Is 2012 an abnormal year? Illustrate this with your own time series from a flux tower of your own choice.}
+
+{\bf Question 11: See the help section of bfastmonitor. Can you explain what the effect is of using a different "formula" in bfastmonitor(). For example, what happens if you use $response \sim trend$. Illustrate this with your own time series from a flux tower of your own choice.}
+
+<<>>=
+?bfastmonitor
+@
+
+\section{For a super Bonus (optional)}
+
+(For those who already followed the {\bf Geo-scripting course} )
+Can somebody georeference the subset of data downloaded for a fluxtower and e.g. make a spatial map? Hint:
+The name and georeference information of the flux towers for which MODIS data is available can be found in the following file available via this link; \href{ftp://daac.ornl.gov//data/modis_ascii_subsets//5_MODIS_Subset_Sites_Information_Collection5.csv}{MODISSubsetSiteInformation}. Select all the NDVI data at one time step (e.g. the first measurement of 2011) and create raster from that.
+
+<<eval=FALSE>>=
+library(raster)
+?projection
+## the site coordinates are projected in lat/long
+latlong <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
+## convert these to sinusoidal projection
+modissinprojection <- "+proj=sinu +lon_0=0 +x_0=0 +y_0=0 +a=6371007.181 +b=6371007.181 +units=m +no_defs"
+## and then define your modis spatial point data frame
+resolution <- 250
+## define the extent by looking at the subset site information (xmin, xmax, ymin,ymax)
+@
+
+\section{More information}
+
+More information can be found on the following website \url{http://bfast.r-forge.r-project.org/} and in the BFAST papers mentioned on the website.
+
+\bibliographystyle{model5-names}
+\bibliography{refs}
 
 \end{document}
