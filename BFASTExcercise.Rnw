@@ -49,7 +49,7 @@ opts_chunk$set(fig.path='figure/minimal-', fig.align='center', fig.show='hold')
 options(replace.assign=TRUE,width=90)
 @
 
-\title{MODIS NDVI time series with BFAST}
+\title{MODIS NDVI time series analysis using BFAST}
 \author{Jan Verbesselt}
 \maketitle
 
@@ -166,15 +166,35 @@ For more information about R please refer to the following links \url{http://www
 \section{Install packages and define functions for MODIS data analysis}
 
 Now we are ready to get started with the MODIS time series analysis exercise in R! 
-First, the necessary add-on packages need to be installed within R in case there are not installed yet (so run the section below only once!):
+First, choose your working directory (i.e. a folder on your hard drive) to which the MODIS data will be downloaded and where you will save your R script. Set your workdirectory in \textbf{R} using the \textbf{setwd()} command. Remark: on your computer the file path looks different on windows! In R you have to change the backslash symbol to a forward slash symbol e.g.: 
+  
+<<eval=FALSE>>= 
+## "c:\student\MODIS"
+setwd(c("c:/student/MODIS/"))
+getwd() ## to check what your working directory is.
+@
 
+Second, make sure your package installed in R are up-to-date by:
 <<eval=FALSE, echo=TRUE>>=
-## install these package in case they are not available on your computer
-install.packages("strucchange")
-install.packages("forecast")
-install.packages("zoo")
+update.packages(ask=F)
+## we install the latest bfast package from the R-forge website
 install.packages("bfast", repos="http://R-Forge.R-project.org", 
 dependencies=TRUE)
+@
+
+The necessary add-on packages need to be installed within R before loading the using the \textbf(library()) function. Below we define a helper function that does installing and loading of the packages for us:
+
+<<>>=
+# pkgTest is a helper function to load packages and install packages only when they are not installed yet.
+pkgTest <- function(x)
+{
+  if (x %in% rownames(installed.packages()) == FALSE) {
+    install.packages(x, dependencies= TRUE)    
+  }
+  library(x, character.only = TRUE)
+}
+neededPackages <- c("strucchange","forecast","zoo", "bfast")
+for (package in neededPackages){pkgTest(package)}
 @
 
 In the next section below, \textbf{library(zoo)} loads a library with predefined time series analysis functions in R. This is the great thing about R, there are many other R packages available (for FREE!) that you can upload in R and make it more functional. For a overview of available packages is available here: \url{http://crantastic.org/}.
@@ -247,16 +267,8 @@ If the above section does not work, you can download the data manually into your
   \item download the .txt file from the MODIS Land Subsets website mentioned above, go to the e.g. Loobos site, click download the ASCII file, do \emph{save as} \emph{txt} file to save to a local folder, and rename the file to e.g. \textbf{NDVIMOD13Q1}.
   \item Read the data from R with the following R script lines.
 \end{itemize}  
-  
-First set your workdirectory using the \textbf{setwd()} command. Remark: on your computer the file path looks different on windows! In R you have to change the backslash symbol to a forward slash symbol.
-  
-<<eval=FALSE>>= 
-## "c:\student\MODIS"
-setwd(c("c:/student/MODIS/"))
-getwd() ## to check what your working directory is.
-@
 
-Once your working directory is set correctly, you can read in the data file using the following command. Now the MODIS data is loaded!
+You can read in the data file using the following command. Now the MODIS data is loaded!
 <<eval=FALSE>>=
 modis <- read.csv("NDVIMOD13Q1.txt")
 @
@@ -382,23 +394,7 @@ There are still clouds effects visible in the NDVI time series after using the M
 
 \section{Applying BFAST on cleaned NDVI time series}
 
-In this section we will use BFAST on the cleaned NDVI time series to detect changes within the time series.
-If the following R packages are not installed yet, they can be installed using the following commands.
-
-% install only when not installed yet
-<<eval=FALSE,  echo=TRUE>>=
-## install these package in case they are not available on your computer
-install.packages("strucchange")
-install.packages("forecast")
-install.packages("bfast", repos="http://R-Forge.R-project.org")
-@
-
-The BFAST package can be loaded via:
-<<>>=
-library("bfast")  
-@
-
-First, we will interpolate the gaps in the cleaned NDVI time series using a simple linear interpolation approach. The function that we use for this is the \textbf{na.aprox()} function which looks for NA's (Not Available's), which means dates for which no data is available (e.g., that we removed in the previous steps)
+In this section we will use BFAST on the cleaned NDVI time series to detect changes within the time series. First, we will interpolate the gaps in the cleaned NDVI time series using a simple linear interpolation approach. The function that we use for this is the \textbf{na.aprox()} function which looks for NA's (Not Available's), which means dates for which no data is available (e.g., that we removed in the previous steps)
 and interpolates the data. The \textbf{plot()} command of the results (\textbf{ts.clNDVIfilled}) visualizes the result of the interpolation (See Figure \ref{fig:NDVIinterp}).
 
 <<NDVIinterp, fig.width=10, fig.height=4, out.width='.8\\linewidth', fig.cap="An NDVI time series without gaps.", cache=TRUE>>=
@@ -409,9 +405,9 @@ plot(ts.clNDVIfilled, ylim=c(0.1, 1))
 Second, we apply the BFAST function onto the time series. 
 We determine this minimum distance between potentially detected breaks. Here, we set 
 the distance to 25 time steps (i.e. 25 16-day images). 
-Then we apply the BFAST function (bfast()) on the time series (Figure \ref{fig:bfastvi}).
+Then we apply the BFAST function (bfast()) on the time series. % (Figure \ref{fig:bfastvi}).
 
-<<bfastvi, fig.width=10, fig.height=10, out.width='.8\\linewidth', fig.cap="BFAST analysis of the cleaned and interpolated NDVI time series", cache=TRUE>>=
+<<bfastvi, eval=FALSE, fig.width=10, fig.height=10, out.width='.8\\linewidth', fig.cap="BFAST analysis of the cleaned and interpolated NDVI time series", cache=TRUE>>=
 rdist <- 25/length(ts.clNDVIfilled) 
 ## ratio of distance between breaks (time steps) and length of the time series 
 fit <- bfast(ts.clNDVIfilled, h=rdist, 
@@ -423,6 +419,8 @@ plot(fit, main="")
 }
 
 {\bf Question 8: Download data from another location on earth and run all the steps mentioned above again in order to apply the BFAST function again onto a new cleaned NDVI time series. Copy the BFAST plot to your report, mention the flux tower that you downloaded the data from and describe the difference with the graph obtained from Question 7.}
+
+\subsection{Finding information and examples about BFAST}
 
 To better understand how BFAST works have a look at the help section of the BFAST function and try out the examples provided. 
 <<eval=FALSE>>=
@@ -438,7 +436,43 @@ plot(fit)
 plot(fit, main="")
 @
 
-\clearpage
+\subsection{Extra information about the seasonal modelling done within BFAST}
+
+A harmonic seasonal model is used within BFAST to account for seasonal variation within BFAST (Figure \ref{fig:sincos}):
+
+<<sincos, fig.width=10, fig.height=5, out.width='.8\\linewidth', fig.cap="The harmonic seasonal model", tidy=TRUE>>=
+library(bfast)
+
+## a demo ndvi time series:
+ndvi <- ts(rowSums(simts$time.series))  
+tsp(ndvi) <- tsp(simts$time.series)
+
+## input variable for the sinus and cosinus functions
+f <- 23
+w <- 1/f
+tl <- 1:length(ndvi)
+
+## 3th order harmonic model
+co <- cos(2 * pi * tl * w)
+si <- sin(2 * pi * tl * w)
+co2 <- cos(2 * pi * tl * w * 2)
+si2 <- sin(2 * pi * tl * w * 2)
+co3 <- cos(2 * pi * tl * w * 3)
+si3 <- sin(2 * pi * tl * w * 3)
+
+# fit the seasonal model using linear regression
+fitm <-  lm(ndvi ~ co + si + co2 + si2 + co3 + si3)
+predm <- fitted(fitm) ## predict based on the modelfit
+
+plot(co, type = "l", ylab = "cos and sin")
+lines(si, type = "l", lty = 2)
+
+#create time series bfast on the 3th order harmonic function
+predm <- ts(as.numeric(predm), start=c(2000,4), frequency=23)
+plot(ndvi, lwd = 3, col = "grey", ylab = "NDVI")
+lines(predm, type = "l", col = "red") # fitted
+@
+
 \section{Applying BFASTmonitor on the cleaned NDVI time series}
 
 To better understand how bfastmonitor works have a look at the help section of the bfastmonitor function and try out the examples provided (Figure \ref{fig:bfastmon1}). For extra background information  you can look at the following reference: \citep{Verbesselt:rse:2011}.
@@ -467,16 +501,26 @@ plot(mon, main="bfastmonitor results")
 Can somebody georeference the subset of data downloaded for a fluxtower and e.g. make a spatial map? Hint:
 The name and georeference information of the flux towers for which MODIS data is available can be found in the following file available via this link; \href{ftp://daac.ornl.gov//data/modis_ascii_subsets//5_MODIS_Subset_Sites_Information_Collection5.csv}{MODISSubsetSiteInformation}. Select all the NDVI data at one time step (e.g. the first measurement of 2011) and create a raster from that.
 
-<<eval=FALSE>>=
+<<eval=FALSE, tidy=TRUE, tidy.opts=list(keep.blank.line=FALSE, width.cutoff=70)>>=
 library(raster)
-?projection
+help(projection)
 ## the site coordinates are projected in lat/long
 latlong <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
 ## convert these to sinusoidal projection
-modissinprojection <- "+proj=sinu +lon_0=0 +x_0=0 +y_0=0 +a=6371007.181 +b=6371007.181 +units=m +no_defs"
+modissin <- 
+"+proj=sinu +lon_0=0 +x_0=0 +y_0=0+a=6371007.181 +b=6371007.181+units=m +no_defs"
 ## and then define your modis spatial point data frame
 resolution <- 250
 ## define the extent by looking at the subset site information (xmin, xmax, ymin,ymax)
+@
+
+<<eval=FALSE, echo=FALSE>>=
+str(modis)
+head(modis)
+## select data from one date
+ndvi <- modis[modis$Band == ndvibandname & modis$Date=="A2001033", 7:790]
+ndvi <- raster(t(matrix(as.numeric(ndvi)/10000, 28, 28)))
+plot(ndvi)
 @
 
 \section{More information}
