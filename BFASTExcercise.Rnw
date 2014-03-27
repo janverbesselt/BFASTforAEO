@@ -180,6 +180,13 @@ update.packages(ask=F)
 ## we install the latest bfast package from the R-forge website
 install.packages("bfast", repos="http://R-Forge.R-project.org", 
 dependencies=TRUE)
+
+## for mac users you can do
+if (FALSE) {
+  install.packages("bfast", repos="http://R-Forge.R-project.org", 
+                   dependencies=TRUE, type = "source")
+}
+
 @
 
 The necessary add-on packages need to be installed within R before loading the using the \textbf(library()) function. Below we define a helper function that does installing and loading of the packages for us:
@@ -510,7 +517,6 @@ latlong <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
 modissin <- 
 "+proj=sinu +lon_0=0 +x_0=0 +y_0=0+a=6371007.181 +b=6371007.181+units=m +no_defs"
 ## and then define your modis spatial point data frame
-resolution <- 250
 ## define the extent by looking at the subset site information (xmin, xmax, ymin,ymax)
 @
 
@@ -519,7 +525,10 @@ str(modis)
 head(modis)
 ## select data from one date
 ndvi <- modis[modis$Band == ndvibandname & modis$Date=="A2001033", 7:790]
-ndvi <- raster(t(matrix(as.numeric(ndvi)/10000, 28, 28)))
+ndvi <- raster(t(matrix(as.numeric(ndvi)/10000, 28, 28))) ## do we need to transpose?
+## modis sin/cos resolution is 231 resolution
+## do we need to know the resolution? no normally not
+## we now the extent and the number of pixels so that should be fine... let's try.
 plot(ndvi)
 @
 
