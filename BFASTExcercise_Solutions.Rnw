@@ -1,0 +1,164 @@
+%% Do not edit unless you really know what you are doing.
+\documentclass{article}
+\usepackage[sc]{mathpazo}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\geometry{verbose,tmargin=2.5cm,bmargin=2.5cm,lmargin=2.5cm,rmargin=2.5cm}
+\setcounter{secnumdepth}{2}
+\setcounter{tocdepth}{2}
+\usepackage{url}
+\usepackage[unicode=true,pdfusetitle,
+ bookmarks=true,bookmarksnumbered=true,bookmarksopen=true,bookmarksopenlevel=2,
+ breaklinks=false,pdfborder={0 0 1},backref=false,colorlinks=false]
+ {hyperref}
+\hypersetup{
+ pdfstartview={XYZ null null 1}}
+\usepackage{breakurl}
+% hyperref setup
+\definecolor{Red}{rgb}{0.5,0,0}
+\definecolor{Blue}{rgb}{0,0,0.5}
+\hypersetup{%
+  pdftitle = {Time series analysis using MODIS data},
+  pdfsubject = {},
+  pdfkeywords = {MODIS, time series},
+  pdfauthor = {Jan Verbesselt},
+  %% change colorlinks to false for pretty printing
+  colorlinks = {true},
+  linkcolor = {Blue},
+  citecolor = {Blue},
+  urlcolor = {Red},
+  hyperindex = {true},
+  linktocpage = {true},
+}
+
+%% BibTeX settings
+\usepackage[authoryear,round]{natbib}
+%\bibliographystyle{jae}
+\bibpunct{(}{)}{,}{a}{,}{,}
+\newcommand{\doi}[1]{\href{http://dx.doi.org/#1}{\normalfont\texttt{doi:#1}}}
+
+\usepackage{lineno}
+\linenumbers
+
+\begin{document}
+
+<<setup, include=FALSE, cache=FALSE>>=
+library(knitr)
+# set global chunk options
+opts_chunk$set(fig.path='figure/minimal-', fig.align='center', fig.show='hold')
+options(replace.assign=TRUE,width=90)
+@
+
+\title{MODIS NDVI time series analysis using BFAST: Answers}
+\author{Jan Verbesselt}
+\maketitle
+
+<<echo=FALSE, message=FALSE>>=
+## a function to create a regular "ts" (time series) object in R using time information (dt)
+timeser <- function(index,dt) {
+  z <- zoo(index,dt)
+  yr <- as.numeric(format(time(z), "%Y"))
+	jul <- as.numeric(format(time(z), "%j"))
+	delta <- min(unlist(tapply(jul, yr, diff))) # 16
+	zz <- aggregate(z, yr + (jul - 1) / delta / 23)
+	(tso <- as.ts(zz))
+	return(tso)	
+}
+
+## a function to remove values (set NA)
+## that do not equal a certain criteria
+sel <- function(y,crit){
+	ts.sel <- y
+	ts.sel[!crit] <- NA
+	return(ts.sel)
+}
+fluxtower <- c("fn_nlloobos.txt")  
+filename <- paste(
+"ftp://daac.ornl.gov//data/modis_ascii_subsets//C5_MOD13Q1/data/MOD13Q1."
+, fluxtower,sep="")
+
+## if the file exists already in your working directory nothing will happen:
+ if(!file.exists(fluxtower)) {
+  download.file(filename,fluxtower)
+  modis <- read.csv(fluxtower, colClasses = "character") 
+} else {
+	modis <- read.csv(fluxtower, colClasses = "character") 
+}
+
+ndvibandname <- modis$Band[5] 
+rel <- modis$Band[7] 
+j <- (436)+6 # we are adding 6 since the first data column is the 7th column  
+reliability <- as.numeric(modis[modis$Band == rel, j]) # reliability data
+NDVI <- as.numeric(modis[modis$Band == ndvibandname, j]) # NDVI data
+DATUM <- modis[modis$Band == ndvibandname, 3] # dates
+DATUM <- as.Date(DATUM,"A%Y%j") # convert to a datum type
+library(zoo) ## load the package
+ts.rel <- timeser(reliability, DATUM)
+ts.NDVI <- timeser(NDVI/10000, DATUM)
+@
+
+\section*{Answers}
+\begin{enumerate}
+\item The factor for NDVI scaling is 0.0001
+\item The Rank Key number of the pixel reliability for good data is 0
+\item Pixel number is 436
+\item After applying the filter less data is available and the interpolated line becomes unreliable. There is a lot of cloud cover above this sites which explains the effect of only using good quality data.
+\item The Median of the 3 NDVI time series is robust against outliers but probably not robust enough since only 3 time series are used. The median of e.g. 9 time series would be a good robust and representative time series for the 9 pixel time series. Alternatively the maximum of the three time series would work too, as it would reduce the effect of negative cloud spikes. The disadvantage of the maximum is that positive error (e.g. due to atmospheric scatter) can also be selected (See Figure \ref{fig:tsmedian}).
+
+<<eval=TRUE, message=FALSE, warning=FALSE>>=
+j <- 440:450  
+t <- modis[modis$Band == ndvibandname, j] # extract NDVI data
+tt <- data.matrix(t)/10000 ## convert to a data matrix and divide by 10000
+ttt <- ts(apply(tt, 2, timeser, DATUM), start=c(2000,4), freq=23) 
+## convert to a regular time series object
+## plot(ttt) ## plot all the time series
+## derive the statistics (max, mean):
+maxt <- ts(apply(ttt, 1, max, na.rm=TRUE), start=c(2000,4), freq=23)
+medt <- ts(apply(ttt, 1, median, na.rm=TRUE), start=c(2000,4), freq=23)
+maxt[!is.finite(maxt)] <- NA ## remove -Inf values
+@
+
+<<tsmedian, fig.width=10, fig.height=8, out.width='.8\\linewidth', fig.cap=" 1 NDVI time series versus the maximum (red) and median (blue) of multiple NDVI time series", echo=TRUE>>=
+## plot
+plot(ts.NDVI, ylab = "NDVI", ylim=range(ts.NDVI, maxt, medt, na.rm=TRUE), col = "grey", lwd = 4)
+lines(maxt, col="red", lty = 2)
+lines(medt, col="blue")
+## 
+@
+
+\item The best threshold is reliability = 0 but then nearly no data remains for time series analysis so the best realistic threshold is where the reliability <= 1.
+
+\item Overall the data from Loobos site has a very high and constant NDVI signal influence by cloud cover, and some seasonal effect (See Figure \ref{fig:bfastvi}). One abrupt change is detected in the trend component of which the trend is overall positive but not significant. We have analyse here the median NDVI time series!
+
+<<bfastvi, eval=TRUE, fig.width=10, fig.height=10, out.width='.8\\linewidth', fig.cap="BFAST analysis of the cleaned and interpolated NDVI time series", cache=TRUE, message=FALSE>>=
+require(bfast)
+rdist <- 25/length(medt) 
+## ratio of distance between breaks (time steps) and length of the time series 
+fit <- bfast(na.approx(medt), h=0.06, 
+             season="harmonic", max.iter=1)
+plot(fit, main="", ANOVA = TRUE) 
+@
+
+\item This is an open question and here the student will have to demonstrate that he understands how to download and analyze data for another site and describe the results for this site the same way as is done above.
+
+\item This is an open question and here the student will have to demonstrate that he understands how to download and analyze data for another site and describe the results of the bfastmonitor function. If the history is unstable the lenght of the history period will be shorter.
+
+\item 2012 is not an abnormal year (See Figure \ref{fig:bfastmon1}).
+
+\item When using $response \sim trend$ as formula only a trend component is used to explain the variability (See Figure \ref{fig:bfastmon1}).
+
+<<bfastmon1, fig.width=10, fig.height=5, out.width='.8\\linewidth', fig.cap="BFASTmonitor analysis of the maximum NDVI time series", tidy=TRUE, echo=FALSE, message=FALSE>>=
+require(bfast)
+mon <- bfastmonitor(maxt, 
+                    start = c(2011, 23), 
+                formula = response ~ trend,
+                    history = c("ROC"))
+plot(mon, main="bfastmonitor results")
+@
+
+\end{enumerate}
+
+\bibliographystyle{model5-names}
+\bibliography{refs}
+
+\end{document}
