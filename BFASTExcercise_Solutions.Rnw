@@ -46,7 +46,7 @@
 library(knitr)
 # set global chunk options
 opts_chunk$set(fig.path='figure/minimal-', fig.align='center', fig.show='hold')
-options(replace.assign=TRUE,width=60, tidy=TRUE)
+options(replace.assign=TRUE,width=70, tidy=TRUE)
 @
 
 \title{Answers: MODIS NDVI time series analysis using BFAST: Answers}
@@ -97,7 +97,7 @@ ts.rel <- timeser(reliability, DATUM)
 ts.NDVI <- timeser(NDVI/10000, DATUM)
 @
 
-\section{Answers}
+\section*{Answers}
 
 \begin{enumerate}
 
@@ -161,7 +161,7 @@ plot(mon, main="bfastmonitor results")
 \clearpage
 \item Bonus question solution
 
-<<echo=TRUE, tidy=TRUE, message=FALSE>>=
+<<echo=TRUE, tidy=TRUE, message=FALSE, tidy.opts=list(keep.blank.line=FALSE, width.cutoff=60)>>=
 ## the site coordinates are projected in lat/long
 library(raster)
 library(rgdal)
