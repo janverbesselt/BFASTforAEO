@@ -46,10 +46,10 @@
 library(knitr)
 # set global chunk options
 opts_chunk$set(fig.path='figure/minimal-', fig.align='center', fig.show='hold')
-options(replace.assign=TRUE,width=90)
+options(replace.assign=TRUE,width=60, tidy=TRUE)
 @
 
-\title{MODIS NDVI time series analysis using BFAST: Answers}
+\title{Answers: MODIS NDVI time series analysis using BFAST: Answers}
 \author{Jan Verbesselt}
 \maketitle
 
@@ -58,10 +58,10 @@ options(replace.assign=TRUE,width=90)
 timeser <- function(index,dt) {
   z <- zoo(index,dt)
   yr <- as.numeric(format(time(z), "%Y"))
-	jul <- as.numeric(format(time(z), "%j"))
-	delta <- min(unlist(tapply(jul, yr, diff))) # 16
-	zz <- aggregate(z, yr + (jul - 1) / delta / 23)
-	(tso <- as.ts(zz))
+  jul <- as.numeric(format(time(z), "%j"))
+  delta <- min(unlist(tapply(jul, yr, diff))) # 16
+  zz <- aggregate(z, yr + (jul - 1) / delta / 23)
+  (tso <- as.ts(zz))
 	return(tso)	
 }
 
@@ -97,12 +97,15 @@ ts.rel <- timeser(reliability, DATUM)
 ts.NDVI <- timeser(NDVI/10000, DATUM)
 @
 
-\section*{Answers}
+\section{Answers}
+
 \begin{enumerate}
+
 \item The factor for NDVI scaling is 0.0001
 \item The Rank Key number of the pixel reliability for good data is 0
 \item Pixel number is 436
-\item After applying the filter less data is available and the interpolated line becomes unreliable. There is a lot of cloud cover above this sites which explains the effect of only using good quality data.
+\item After applying the filter, less data is available and the interpolated line becomes unreliable. There is intense cloud cover above this site which explains the effect of only using good quality data.
+
 \item The Median of the 3 NDVI time series is robust against outliers but probably not robust enough since only 3 time series are used. The median of e.g. 9 time series would be a good robust and representative time series for the 9 pixel time series. Alternatively the maximum of the three time series would work too, as it would reduce the effect of negative cloud spikes. The disadvantage of the maximum is that positive error (e.g. due to atmospheric scatter) can also be selected (See Figure \ref{fig:tsmedian}).
 
 <<eval=TRUE, message=FALSE, warning=FALSE>>=
@@ -119,18 +122,20 @@ maxt[!is.finite(maxt)] <- NA ## remove -Inf values
 @
 
 <<tsmedian, fig.width=10, fig.height=8, out.width='.8\\linewidth', fig.cap=" 1 NDVI time series versus the maximum (red) and median (blue) of multiple NDVI time series", echo=TRUE>>=
-## plot
 plot(ts.NDVI, ylab = "NDVI", ylim=range(ts.NDVI, maxt, medt, na.rm=TRUE), col = "grey", lwd = 4)
 lines(maxt, col="red", lty = 2)
 lines(medt, col="blue")
-## 
 @
 
 \item The best threshold is reliability = 0 but then nearly no data remains for time series analysis so the best realistic threshold is where the reliability <= 1.
 
-\item Overall the data from Loobos site has a very high and constant NDVI signal influence by cloud cover, and some seasonal effect (See Figure \ref{fig:bfastvi}). One abrupt change is detected in the trend component of which the trend is overall positive but not significant. We have analyse here the median NDVI time series!
+\item Overall the data from Loobos site has a very high and constant NDVI signal influence by cloud cover, and some seasonal effect (See Figure \ref{fig:bfastvi}). One abrupt change is detected in the trend component of which the trend is overall positive but not significant. 
 
-<<bfastvi, eval=TRUE, fig.width=10, fig.height=10, out.width='.8\\linewidth', fig.cap="BFAST analysis of the cleaned and interpolated NDVI time series", cache=TRUE, message=FALSE>>=
+\item This is an open question and here the student will have to demonstrate that he understands how to download and analyze data for another site and describe the results for this site the same way as is done above.
+
+\item This is an open question and here the student will have to demonstrate that he understands how to download and analyze data for another site and describe the results of the bfastmonitor function. If the history is unstable the lenght of the history period will be shorter.
+
+<<bfastvi, eval=TRUE, fig.width=10, fig.height=10, out.width='.8\\linewidth', fig.cap="BFAST analysis of the median interpolated NDVI time series. We have analyse here the median NDVI time series (see above).", cache=TRUE, message=FALSE>>=
 require(bfast)
 rdist <- 25/length(medt) 
 ## ratio of distance between breaks (time steps) and length of the time series 
@@ -138,14 +143,6 @@ fit <- bfast(na.approx(medt), h=0.06,
              season="harmonic", max.iter=1)
 plot(fit, main="", ANOVA = TRUE) 
 @
-
-\item This is an open question and here the student will have to demonstrate that he understands how to download and analyze data for another site and describe the results for this site the same way as is done above.
-
-\item This is an open question and here the student will have to demonstrate that he understands how to download and analyze data for another site and describe the results of the bfastmonitor function. If the history is unstable the lenght of the history period will be shorter.
-
-\item 2012 is not an abnormal year (See Figure \ref{fig:bfastmon1}).
-
-\item When using $response \sim trend$ as formula only a trend component is used to explain the variability (See Figure \ref{fig:bfastmon1}).
 
 <<bfastmon1, fig.width=10, fig.height=5, out.width='.8\\linewidth', fig.cap="BFASTmonitor analysis of the maximum NDVI time series", tidy=TRUE, echo=FALSE, message=FALSE>>=
 require(bfast)
@@ -156,7 +153,52 @@ mon <- bfastmonitor(maxt,
 plot(mon, main="bfastmonitor results")
 @
 
+\item 2012 is not an abnormal year (See Figure \ref{fig:bfastmon1}).
+
+\item When using $response \sim trend$ as formula only a trend component is used to explain the variability 
+(See Figure \ref{fig:bfastmon1}).
+
+\clearpage
+\item Bonus question solution
+
+<<echo=TRUE, tidy=TRUE, message=FALSE>>=
+## the site coordinates are projected in lat/long
+library(raster)
+library(rgdal)
+latlong <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
+## modis product use sinusoidal projection
+modissinprojection <- paste0("+proj=sinu +lon_0=0 +x_0=0 +y_0=0"," +a=6371007.181 +b=6371007.181 +units=m +no_defs")
+if (!file.exists(fn <- "data/SiteInfo.csv")) {
+    download.file(paste0("ftp://daac.ornl.gov//data/modis_ascii_subsets//","5_MODIS_Subset_Sites_Information_Collection5.csv"), fn)
+    SitesI <- read.csv(fn)
+} else {
+  SitesI <- read.csv(fn)
+}
+i <- which(SitesI$Site_Name == "Loobos")
+## create spatial points from coordinates (as in Corner coordinates and site details file)
+coords <- data.frame(lat=c(SitesI$NW_Latitude_edge[i],   SitesI$SE_Latitude_edge[i]), 
+                     long=c(SitesI$NW_Longitude_edge[i], SitesI$SE_Longitude_edge[i]))
+coordinates(coords) <- c("long", "lat")
+proj4string(coords) <- CRS(latlong)
+## transform to modis projection
+coords_modis <- spTransform(coords, CRSobj=CRS(modissinprojection))
+ex_modis <- extent(coords_modis)
+## brick creation
+dat <- data.matrix(modis[modis$Date == 'A2000049', -c(1:6)])
+modis_brick <- brick(x=ex_modis, nl=nrow(dat), nrows = 28, 
+                     ncols=28, crs=modissinprojection)
+values(modis_brick) <- as.numeric(t(dat))
+names(modis_brick) <- modis$Band[modis$Date == 'A2000049']
+@
+
+
+<<modisraster, fig.width=5, fig.height=5, out.width='.8\\linewidth', fig.cap="MODIS raster creation (12-layers, all bands)", tidy=TRUE, echo=FALSE, message=FALSE>>=
+plot(modis_brick/10000, 5)
+
+@
+
 \end{enumerate}
+
 
 \bibliographystyle{model5-names}
 \bibliography{refs}
