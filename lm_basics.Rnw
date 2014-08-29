@@ -1,0 +1,106 @@
+%% Do not edit unless you really know what you are doing.
+\documentclass{article}
+\usepackage[sc]{mathpazo}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\geometry{verbose,tmargin=2.5cm,bmargin=2.5cm,lmargin=2.5cm,rmargin=2.5cm}
+\setcounter{secnumdepth}{2}
+\setcounter{tocdepth}{2}
+\usepackage{url}
+\usepackage[unicode=true,pdfusetitle,
+ bookmarks=true,bookmarksnumbered=true,bookmarksopen=true,bookmarksopenlevel=2,
+ breaklinks=false,pdfborder={0 0 1},backref=false,colorlinks=false]
+ {hyperref}
+\hypersetup{
+ pdfstartview={XYZ null null 1}}
+\usepackage{breakurl}
+% hyperref setup
+\definecolor{Red}{rgb}{0.5,0,0}
+\definecolor{Blue}{rgb}{0,0,0.5}
+\hypersetup{%
+  pdftitle = {},
+  pdfsubject = {},
+  pdfkeywords = {},
+  pdfauthor = {Jan Verbesselt},
+  %% change colorlinks to false for pretty printing
+  colorlinks = {true},
+  linkcolor = {Red},
+  citecolor = {Blue},
+  urlcolor = {Red},
+  hyperindex = {true},
+  linktocpage = {true},
+}
+
+\begin{document}
+
+<<setup, include=FALSE, cache=FALSE>>=
+library(knitr)
+# set global chunk options
+opts_chunk$set(fig.path='figure/minimal-', fig.align='center', fig.show='hold')
+options(width=80)
+@
+
+\title{Linear model basics}
+\author{Jan Verbesselt, Achim Zeileis}
+\maketitle
+
+<<>>=
+## Data
+set.seed(1)
+d <- data.frame(x = runif(100), err = rnorm(100, sd = 0.2),
+   f = factor(rep(0:1, each = 50)))
+d$y <- ifelse(d$f == "0", 1 + 1 * d$x, 0 + 3 * d$x) + d$err
+@
+
+
+<<vis, fig.width=4, fig.height=4, fig.cap="Simulated data with two subgroups">>=
+## Visualization
+plot(y ~ x, data = d, col = f, pch = 19)
+abline(1, 1, lty = 2)
+abline(0, 3, lty = 2, col = 2)
+@
+
+See Figure \ref{fig:vis}.
+
+<<>>=
+# So there are two subgroups: One with intercept 1 and slope 1 - and one
+# with intercept 0 and slope 3. You can consider the following three models:
+
+m1 <- lm(y ~ f * x, data = d)
+m2 <- lm(y ~ f/x, data = d)
+m3 <- lm(y ~ 0 + f/x, data = d)
+
+# All imply the exact same fit and hence the same residuals, likelihood etc.
+
+logLik(m1)
+logLik(m2)
+logLik(m3)
+
+# However, the coefficients are coded differently. The first uses
+# intercept/slope in the reference group (0.93 and 1.17) plus _difference_
+# of intercept and slope between the two groups (-0.93 and 1.76):
+
+coef(m1)
+
+# The second one uses separate slopes for the two groups (1.17 and 2.93 =
+# 1.17 + 1.76):
+
+coef(m2)
+
+# The third one also uses separate intercepts (0.93 and 0.00 = 0.93 - 0.93):
+
+coef(m3)
+
+# The model m1 is most useful when I want to check whether there are
+# differences between slopes or intercepts and whether these are
+# significant.
+
+summary(m1)
+
+## summary() shows that intercept and slopes are significantly different
+
+# Models m2/m3 are more useful when I want to see the actual
+# intercept/slope estimates in the subgroups.
+
+@
+\end{document}

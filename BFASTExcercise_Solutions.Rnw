@@ -194,7 +194,6 @@ names(modis_brick) <- modis$Band[modis$Date == 'A2000049']
 
 <<modisraster, fig.width=5, fig.height=5, out.width='.8\\linewidth', fig.cap="MODIS raster creation (12-layers, all bands)", tidy=TRUE, echo=FALSE, message=FALSE>>=
 plot(modis_brick/10000, 5)
-
 @
 
 \end{enumerate}

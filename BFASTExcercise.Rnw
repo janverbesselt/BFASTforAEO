@@ -46,7 +46,7 @@
 library(knitr)
 # set global chunk options
 opts_chunk$set(fig.path='figure/minimal-', fig.align='center', fig.show='hold')
-options(replace.assign=TRUE,width=90)
+options(width=90)
 @
 
 \title{MODIS NDVI time series analysis using BFAST}
@@ -336,7 +336,7 @@ ts.NDVI <- timeser(NDVI/10000, DATUM)
 
 Now plot the resulting \textbf{ts.NDVI} object (See Figure \ref{fig:tsndvi}).
 
-<<tsndvi, fig.width=10, fig.height=4, out.width='.8\\linewidth', fig.cap="NDVI time series at the Flux towersite">>=
+<<tsndvi, fig.width=12, fig.height=4, out.width='.8\\linewidth', fig.cap="NDVI time series at the Flux towersite">>=
 plot(ts.NDVI, ylab = "NDVI") 
 @
 
@@ -373,7 +373,7 @@ lines(meant, col="red")
 
 Now, we will visualize MODIS reliability information (See Figure \ref{fig:tsrel}). This R function plots a red point on the plot for all the data points in the time series with a reliability > 1. You can choose ts.rel = 1, or ts.rel > 2, or ..., and rerun the plot command again and see what happens.
 
-<<tsrel, fig.width=10, fig.height=4, out.width='.8\\linewidth', fig.cap="MODIS NDVI time series showing pixels with a low reliability.">>=
+<<tsrel, fig.width=12, fig.height=4, out.width='.8\\linewidth', fig.cap="MODIS NDVI time series showing pixels with a low reliability.">>=
 plot(ts.NDVI)
 lines(sel(ts.NDVI,ts.rel > 1), col = "red", type = "p") 
 legend("bottomleft","pixels with a low reliablity",col=2,pch=1)
@@ -390,7 +390,7 @@ ts.clNDVI[ts.rel > 1] <- NA  # delete data with reliability > 1
 
 By applying the two R script lines above, we set all the points with a reliability above 1 to NA (i.e. Not Available which is similar as deleting the value) in the \textbf{ts.clNDVI} variable. Now, plot the result of the cleaning and compare with the non-cleaned time series (See Figure \ref{fig:tsclean}):
 
-<<tsclean, fig.width=10, fig.height=4, out.width='.8\\linewidth', fig.cap="MODIS NDVI time series still showing remaining cloud effects.">>=
+<<tsclean, fig.width=12, fig.height=4, out.width='.8\\linewidth', fig.cap="MODIS NDVI time series still showing remaining cloud effects.">>=
 plot(ts.NDVI, col='red')
 lines(ts.clNDVI, lwd=2, col='black')   
 @
@@ -404,7 +404,7 @@ There are still clouds effects visible in the NDVI time series after using the M
 In this section we will use BFAST on the cleaned NDVI time series to detect changes within the time series. First, we will interpolate the gaps in the cleaned NDVI time series using a simple linear interpolation approach. The function that we use for this is the \textbf{na.aprox()} function which looks for NA's (Not Available's), which means dates for which no data is available (e.g., that we removed in the previous steps)
 and interpolates the data. The \textbf{plot()} command of the results (\textbf{ts.clNDVIfilled}) visualizes the result of the interpolation (See Figure \ref{fig:NDVIinterp}).
 
-<<NDVIinterp, fig.width=10, fig.height=4, out.width='.8\\linewidth', fig.cap="An NDVI time series without gaps.", cache=TRUE>>=
+<<NDVIinterp, fig.width=12, fig.height=4, out.width='.8\\linewidth', fig.cap="An NDVI time series without gaps.", cache=TRUE>>=
 ts.clNDVIfilled <- na.approx(ts.clNDVI)
 plot(ts.clNDVIfilled, ylim=c(0.1, 1))	
 @
@@ -414,7 +414,7 @@ We determine this minimum distance between potentially detected breaks. Here, we
 the distance to 25 time steps (i.e. 25 16-day images). 
 Then we apply the BFAST function (bfast()) on the time series. % (Figure \ref{fig:bfastvi}).
 
-<<bfastvi, eval=FALSE, fig.width=10, fig.height=10, out.width='.8\\linewidth', fig.cap="BFAST analysis of the cleaned and interpolated NDVI time series", cache=TRUE>>=
+<<bfastvi, eval=FALSE, fig.width=12, fig.height=10, out.width='.8\\linewidth', fig.cap="BFAST analysis of the cleaned and interpolated NDVI time series", cache=TRUE>>=
 rdist <- 25/length(ts.clNDVIfilled) 
 ## ratio of distance between breaks (time steps) and length of the time series 
 fit <- bfast(ts.clNDVIfilled, h=rdist, 
@@ -447,7 +447,8 @@ plot(fit, main="")
 
 A harmonic seasonal model is used within BFAST to account for seasonal variation within BFAST (Figure \ref{fig:sincos}):
 
-<<sincos, fig.width=10, fig.height=5, out.width='.8\\linewidth', fig.cap="The harmonic seasonal model", tidy=TRUE>>=
+<<sincos, fig.width=12, fig.height=5, out.width='.8\\linewidth', fig.cap="The harmonic seasonal model">>=
+
 library(bfast)
 
 ## a demo ndvi time series:
@@ -484,7 +485,7 @@ lines(predm, type = "l", col = "red") # fitted
 
 To better understand how bfastmonitor works have a look at the help section of the bfastmonitor function and try out the examples provided (Figure \ref{fig:bfastmon1}). For extra background information  you can look at the following reference: \citep{Verbesselt:rse:2011}.
 
-<<bfastmon1, fig.width=10, fig.height=5, out.width='.8\\linewidth', fig.cap="BFASTmonitor analysis of the cleaned and interpolated NDVI time series", tidy=TRUE>>=
+<<bfastmon1, fig.width=12, fig.height=5, out.width='.8\\linewidth', fig.cap="BFASTmonitor analysis of the cleaned and interpolated NDVI time series">>=
 mon <- bfastmonitor(ts.clNDVIfilled, 
                     start = c(2010, 23), 
                 formula = response ~ harmon + trend,
@@ -508,7 +509,7 @@ plot(mon, main="bfastmonitor results")
 Can somebody georeference the subset of data downloaded for a fluxtower and e.g. make a spatial map? Hint:
 The name and georeference information of the flux towers for which MODIS data is available can be found in the following file available via this link; \href{ftp://daac.ornl.gov//data/modis_ascii_subsets//5_MODIS_Subset_Sites_Information_Collection5.csv}{MODISSubsetSiteInformation}. Select all the NDVI data at one time step (e.g. the first measurement of 2011) and create a raster from that.
 
-<<eval=FALSE, tidy=TRUE, tidy.opts=list(keep.blank.line=FALSE, width.cutoff=70)>>=
+<<eval=FALSE>>=
 library(raster)
 help(projection)
 ## the site coordinates are projected in lat/long
