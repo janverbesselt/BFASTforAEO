@@ -503,35 +503,11 @@ plot(mon, main="bfastmonitor results")
 ?bfastmonitor
 @
 
-\section{For a super Bonus (optional)}
+\section{For Bonus points (optional)}
 
-(For those who already followed the {\bf Geo-scripting course} )
-Can somebody georeference the subset of data downloaded for a fluxtower and e.g. make a spatial map? Hint:
-The name and georeference information of the flux towers for which MODIS data is available can be found in the following file available via this link; \href{ftp://daac.ornl.gov//data/modis_ascii_subsets//5_MODIS_Subset_Sites_Information_Collection5.csv}{MODISSubsetSiteInformation}. Select all the NDVI data at one time step (e.g. the first measurement of 2011) and create a raster from that.
+Especially, if you want to learn how to apply BFAST on Landsat data go to \url{https://dutri001.github.io/bfastSpatial/quickStart#} and the tutorial on BFASTspatial (\url{https://dutri001.github.io/bfastSpatial/}). Now, try to reproduce the results shown in this tutorial and visualise the change with a magnitude smaller than -0.1 in a map for the study area (i.e. tura brick). 
 
-<<eval=FALSE>>=
-library(raster)
-help(projection)
-## the site coordinates are projected in lat/long
-latlong <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
-## convert these to sinusoidal projection
-modissin <- 
-"+proj=sinu +lon_0=0 +x_0=0 +y_0=0+a=6371007.181 +b=6371007.181+units=m +no_defs"
-## and then define your modis spatial point data frame
-## define the extent by looking at the subset site information (xmin, xmax, ymin,ymax)
-@
-
-<<eval=FALSE, echo=FALSE>>=
-str(modis)
-head(modis)
-## select data from one date
-ndvi <- modis[modis$Band == ndvibandname & modis$Date=="A2001033", 7:790]
-ndvi <- raster(t(matrix(as.numeric(ndvi)/10000, 28, 28))) ## do we need to transpose?
-## modis sin/cos resolution is 231 resolution
-## do we need to know the resolution? no normally not
-## we now the extent and the number of pixels so that should be fine... let's try.
-plot(ndvi)
-@
+{\bf Question 12: include a map in your report showing the changes with a magnitude smaller than -0.1. Where to they occur?}
 
 \section{More information}
 
@@ -541,3 +517,32 @@ More information can be found on the following website \url{http://bfast.r-forge
 \bibliography{refs}
 
 \end{document}
+
+% 
+% (For those who already followed the {\bf Geo-scripting course} )
+% Can somebody georeference the subset of data downloaded for a fluxtower and e.g. make a spatial map? Hint:
+% The name and georeference information of the flux towers for which MODIS data is available can be found in the following file available via this link; \href{ftp://daac.ornl.gov//data/modis_ascii_subsets//5_MODIS_Subset_Sites_Information_Collection5.csv}{MODISSubsetSiteInformation}. Select all the NDVI data at one time step (e.g. the first measurement of 2011) and create a raster from that.
+% 
+% <<eval=FALSE>>=
+% library(raster)
+% help(projection)
+% ## the site coordinates are projected in lat/long
+% latlong <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
+% ## convert these to sinusoidal projection
+% modissin <- 
+% "+proj=sinu +lon_0=0 +x_0=0 +y_0=0+a=6371007.181 +b=6371007.181+units=m +no_defs"
+% ## and then define your modis spatial point data frame
+% ## define the extent by looking at the subset site information (xmin, xmax, ymin,ymax)
+% @
+% 
+% <<eval=FALSE, echo=FALSE>>=
+% str(modis)
+% head(modis)
+% ## select data from one date
+% ndvi <- modis[modis$Band == ndvibandname & modis$Date=="A2001033", 7:790]
+% ndvi <- raster(t(matrix(as.numeric(ndvi)/10000, 28, 28))) ## do we need to transpose?
+% ## modis sin/cos resolution is 231 resolution
+% ## do we need to know the resolution? no normally not
+% ## we now the extent and the number of pixels so that should be fine... let's try.
+% plot(ndvi)
+% @
