@@ -8,21 +8,21 @@ output:
     menu: FALSE
 ---
 
-# [MODIS based time series analysis using BFAST](https://geoscripting-wur.github.io/) ![WUR logo](http://www.wageningenur.nl/upload/f9a0b5f2-15c5-4b84-9e14-20ef02f5e265_wur-logo.png)
-
-# Introduction
+# MODIS based time series analysis using BFAST 
+![WUR logo](http://www.wageningenur.nl/upload/f9a0b5f2-15c5-4b84-9e14-20ef02f5e265_wur-logo.png)
 
 This document explains how to use R scripting language for downloading MODIS data and analysing it within R. The results of the analysis of MODIS data within R are illustrated. For this time series analysis demonstration it is not required to know R details, we only use R for some practical demonstration of its great potential.
 In this exercise we will automatically download MODIS data for specific locations, i.e. Flux tower sites, around the world. 
-First, an introduction to MODIS satellite data and the flux tower sites follow. Second, the use of R is introduced. Finally, the exercise in R is explained, step by step. 
+First, an introduction to MODIS satellite data and the flux tower sites is presented. Second, the use of R is introduced. Finally, the exercise in R is explained, step by step. 
 
 # MODIS satellite data
 
-The MODIS satellite data that we will download for this time series analysis exercise is available from [the following site](http://daac.ornl.gov/cgi-bin/MODIS/GR_col5_1/mod_viz.html). MODIS data is made available for subsets above a global network of flux towers. FLUXNET, a "network of regional networks", coordinates regional and global analysis of observations from micrometeorological tower sites. The flux tower sites use eddy covariance methods to measure the exchanges of carbon dioxide (*CO2*), water vapor, and energy between terrestrial ecosystems and the atmosphere.  The FLUXNET database contains information about tower location and site characteristics as well as data availability. More information above what a flux tower is and the network of flux towers can be found [here](http://www.fluxnet.ornl.gov/fluxnet/index.cfm).
+The MODIS satellite data that we will download for this time series analysis exercise is available from [the following site](http://daac.ornl.gov/cgi-bin/MODIS/GR_col5_1/mod_viz.html). MODIS data is made available for subsets above a global network of flux towers. FLUXNET, a "network of regional networks", coordinates regional and global analysis of observations from micrometeorological tower sites. The flux tower sites use eddy covariance methods to measure the exchanges of carbon dioxide (*CO2*), water vapor, and energy between terrestrial ecosystems and the atmosphere.  The FLUXNET database contains information about tower location and site characteristics as well as data availability.
+
 For this exercise  we will focus on the analysis of MODIS satellite data available for these flux towers. More specifically, we will look at the MODIS product called MOD13Q1 which are global 16-day images at a spatial resolution of 250 m. Each image contains several bands; i.e. blue, red, and near-infrared reflectances, centered at 469-nanometers, 645-nanometers, and 858-nanometers, respectively, are used to determine the MODIS vegetation indices.
 The MODIS Normalized Difference Vegetation Index (NDVI) complements NOAA's Advanced Very High Resolution Radiometer (AVHRR) NDVI products and provides continuity for time series historical applications. MODIS also includes a new Enhanced Vegetation Index (EVI) that minimises canopy background variations and maintains sensitivity over dense vegetation conditions. The EVI also uses the blue band to remove residual atmosphere contamination caused by smoke and sub-pixel thin cloud clouds. The MODIS NDVI and EVI products are computed from atmospherically corrected bi-directional surface reflectances that have been masked for water, clouds, heavy aerosols, and cloud shadows.
 Vegetation indices are used for global monitoring of vegetation conditions and are used in products displaying land cover and land cover changes. These data may be used as input for modeling global biogeochemical and hydrologic processes and global and regional climate. These data also may be used for characterizing land surface biophysical properties and processes, including primary production and land cover conversion.
-We will work with the MODIS NDVI band within the MOD13Q1 product. More information about this MODIS product can be found [here](https://lpdaac.usgs.gov/products/modis_products_table/mod13q1). Go to the NDVI and the pixel reliability Layer information and have a look.
+We will work with the MODIS NDVI band within the MOD13Q1 product. More information about this MODIS product can be found via the [MODIS product table](https://lpdaac.usgs.gov/dataset_discovery/modis/modis_products_table/mod13q1_v006).
 
 
 > Question 1: By what factor does the 250m MODIS NDVI image layer need to 
@@ -49,7 +49,7 @@ Please go to the [MODIS Land subsets website](http://daac.ornl.gov/cgi-bin/MODIS
 
 We will download the MODIS data for the Loobos Site via R and process the data for one location to detect changes within the time series.
 
-Now follow the following tutorial on getting started with [R and Rstudio](https://geoscripting-wur.github.io/Scripting4GeoIntro/#Basic_R_and_RStudio_setup).
+Now if need you can follow the following tutorial on getting started with [R and Rstudio](https://geoscripting-wur.github.io/Scripting4GeoIntro/#Basic_R_and_RStudio_setup).
 
 
 # Install packages and define functions for MODIS data analysis
@@ -79,7 +79,7 @@ install.packages("bfast", repos="http://R-Forge.R-project.org",
 
 The necessary add-on packages need to be installed within R before loading the using the `library()` function. Below we define a helper function that does installing and loading of the packages for us. 
 
-```{r, echo=FALSE, message=FALSE, eval=FALSE}
+```{r, echo=FALSE, message=FALSE, eval=TRUE}
 # pkgTest is a helper function to load packages and install packages only when they are not installed yet.
 pkgTest <- function(x)
 {
@@ -128,7 +128,7 @@ There are two methods:
   * automatic downloading via the ftp server in the U.S. within R using the code section below
   * manual downloading of the data. 
 
-We will use the automatic downloading method for the exercise (easier;-)). 
+We recommend using the automatic downloading method for the exercise. 
 
 ## Automatic MODIS data downloading 
 
@@ -190,6 +190,28 @@ You can read in the data file using the following command. Now the MODIS data is
 modis <- read.csv("NDVIMOD13Q1.txt")
 ```
 
+## The MODIS CSV file data structure
+
+The MODIS data within the 'modis'  variable is organised so that the first six columns of the file contain information
+about filename, product (i.e. MOD13Q1), date (date of the image), Site (e.g. Loobos), Processdata, and band
+(i.e. one MODIS image has different bands = LAYERS, e.g. NDVI). For More information about the MODIS data look at, the [MODIS product table](https://lpdaac.usgs.gov/products/modis_products_table).
+
+```{r}
+str(modis[1,1:7])
+```
+
+The following R names() shows the names of the first 8 columns of the 'modis' variable containing all the data.
+
+```{r}
+names(modis)[1:8]
+```
+
+The first six columns contain info about the image (e.g. site, date, band, and when it is processed) and from the 7th each column contains information
+about each MODIS pixel within the subset. E.g the 7th column is a pixel, and the 8th is another pixel. This shows the band names of this file. The MOD13Q1 Product contains 12 Bands:
+
+```{r}
+modis$Band[1:12]
+```
 
 # Visualising modis time series above the fluxtower
 
@@ -230,7 +252,7 @@ ts.NDVI <- timeser(NDVI/10000, DATUM)
 
 Now plot the resulting `ts.NDVI` object:
 
-```{r, fig.width=11, fig.height=6}
+```{r, fig.width=20, fig.height=10}
 plot(ts.NDVI, ylab = "NDVI") 
 ```
 
@@ -239,6 +261,8 @@ Select multiple pixels (e.g. 6 pixels) and derive an average, maximum, and media
 Now make a plot showing the average, maximum, or median of the 3 NDVI time series. 
 Compare the median NDVI time series with the NDVI time series of the flux tower and copy paste the R plot output in your report. 
 Which approach do you think would be suitable to reduce the noise within a time series? Explain why?
+**For bonus points and an extra challenge**:
+Try to derive a 'noise reduced' NDVI time series of a 3 by 3 window around the flux tower.
 
 
 ```{r, message=FALSE, warning=FALSE, fig.width=11, fig.height=6}
@@ -293,8 +317,32 @@ lines(ts.clNDVI, lwd=2, col='black')
 
 There are still clouds effects visible in the NDVI time series after using the MODIS reliability information. 
 The reliability information available with each MODIS image indicates how reliable the data is and is based on the cloud masking results, atmospheric data (aerosol thickness), 
-satellite viewing angle, etc. More information about the reliability is available via the [MODIS Product Table website](https://lpdaac.usgs.gov/products/modis_products_table/mod13q1).
+satellite viewing angle, etc. More information about the reliability is available via the [MODIS Product Table website](https://lpdaac.usgs.gov/dataset_discovery/modis/modis_products_table/mod13q1_v006).
 
+# Applying BFAST on cleaned NDVI time series
+
+In this section we will use BFAST on the cleaned NDVI time series to detect changes within the time series. First, we will interpolate the gaps in the cleaned NDVI time series using a simple linear interpolation approach. The function that we use for this is the \textbf{na.aprox()} function which looks for NA's (Not Available's), which means dates for which no data is available (e.g., that we removed in the previous steps) and interpolates the data. 
+The 'plot()' command of the results 'ts.clNDVIfilled}' visualizes the result of the interpolation.
+
+```{r, fig.width=20, fig.height=10}
+ts.clNDVIfilled <- na.approx(ts.clNDVI)
+plot(ts.clNDVIfilled, ylim=c(0.1, 1))
+```
+
+Second, we apply the BFAST function onto the time series. We determine this minimum distance between potentially detected breaks. 
+Here, we set the distance to 25 time steps (i.e. 25 16-day images). Then we apply the BFAST function (bfast()) on the time series..
+
+```{r, eval=FALSE}
+rdist <- 25/length(ts.clNDVIfilled)
+## ratio of distance between breaks (time steps) and length of the time series
+fit <- bfast(ts.clNDVIfilled, h=rdist,
+             season="harmonic", max.iter=1)
+plot(fit, main="")
+```
+
+> Question 7: copy  and paste the resulting R BFAST graph in the report and describe the detected components and change types, detected within the time series. Are there any detected breaks? How strict would you do the cleaning?
+
+> Question 8: Download data from another location on earth and run all the steps mentioned above again in order to apply the BFAST function again onto a new cleaned NDVI time series. Copy the BFAST plot to your report, mention the flux tower that you downloaded the data from and describe the difference with the graph obtained from Question 7.}
 
 
 
