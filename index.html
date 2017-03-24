@@ -5,7 +5,7 @@
   <meta http-equiv="Content-Style-Type" content="text/css" />
   <meta name="generator" content="pandoc" />
   <meta name="author" content="Jan Verbesselt" />
-  <title></title>
+  <title>MODIS NDVI time series analysis using BFAST</title>
   <style type="text/css">code{white-space: pre;}</style>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
@@ -862,15 +862,25 @@
   </style>
 </head>
 <body>
-<title>
-MODIS NDVI time series analysis using BFAST
-</title>
+<div id="header">
+<h1 class="title">MODIS NDVI time series analysis using BFAST</h1>
+<h2 class="author">Jan Verbesselt</h2>
+<h3 class="date">24 March, 2017</h3>
+</div>
 <div id="wrap">
 <div class="container">
 <div class="row row-offcanvas row-offcanvas-right">
 <div class="contents col-xs-12 col-md-10">
 <h1 id="modis-based-time-series-analysis-using-bfast">MODIS based time series analysis using BFAST</h1>
 <p><img src="http://www.wageningenur.nl/upload/f9a0b5f2-15c5-4b84-9e14-20ef02f5e265_wur-logo.png" alt="WUR logo" /></p>
+<p><a href="https://www.wur.eu/changemonitor">Jan Verbesselt</a></p>
+<div class="row">
+<button class="source R toggle btn btn-xs btn-primary">
+<span class="glyphicon glyphicon-chevron-down"></span> R source
+</button>
+<pre style=""><code class="source r">print(format(Sys.time(), '%d %B, %Y'))</code></pre>
+<p>[1] &quot;24 March, 2017&quot;</p>
+</div>
 <p>This document explains how to use R scripting language for downloading MODIS data and analysing it within R. The results of the analysis of MODIS data within R are illustrated. For this time series analysis demonstration it is not required to know R details, we only use R for some practical demonstration of its great potential. In this exercise we will automatically download MODIS data for specific locations, i.e. Flux tower sites, around the world. First, an introduction to MODIS satellite data and the flux tower sites is presented. Second, the use of R is introduced. Finally, the exercise in R is explained, step by step.</p>
 <h1 id="modis-satellite-data">MODIS satellite data</h1>
 <p>The MODIS satellite data that we will download for this time series analysis exercise is available from <a href="http://daac.ornl.gov/cgi-bin/MODIS/GR_col5_1/mod_viz.html">the following site</a>. MODIS data is made available for subsets above a global network of flux towers. FLUXNET, a &quot;network of regional networks&quot;, coordinates regional and global analysis of observations from micrometeorological tower sites. The flux tower sites use eddy covariance methods to measure the exchanges of carbon dioxide (<em>CO2</em>), water vapor, and energy between terrestrial ecosystems and the atmosphere. The FLUXNET database contains information about tower location and site characteristics as well as data availability.</p>
@@ -1278,7 +1288,7 @@ Styled with <a href="https://github.com/jimhester/knitrBootstrap">knitrBootstrap
 </p>
 </div>
 </div>
-<link rel="stylesheet" id="theme" href="https://netdna.bootstrapcdn.com/bootswatch/3.0.0/cosmo/bootstrap.min.css" media="screen"></link><link rel="stylesheet" id="highlight" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/7.3/styles/default.min.css" media="screen"></link>
+<link rel="stylesheet" id="theme" href="https://netdna.bootstrapcdn.com/bootswatch/3.0.0/simplex/bootstrap.min.css" media="screen"></link><link rel="stylesheet" id="highlight" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/7.3/styles/tomorrow-night-bright.min.css" media="screen"></link>
 </div>
 </body>
 </html>

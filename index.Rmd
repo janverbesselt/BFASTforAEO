@@ -1,15 +1,25 @@
 ---
+title: "MODIS NDVI time series analysis using BFAST"
 author: "Jan Verbesselt"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
   knitrBootstrap::bootstrap_document:
-    title: "MODIS NDVI time series analysis using BFAST"
-    theme: cosmo
+    theme: "simplex"
+    highlight: Tomorrow Night Bright
     menu: FALSE
+    theme.chooser: TRUE
+    highlight.chooser: TRUE
 ---
 
 # MODIS based time series analysis using BFAST 
 ![WUR logo](http://www.wageningenur.nl/upload/f9a0b5f2-15c5-4b84-9e14-20ef02f5e265_wur-logo.png)
+
+[Jan Verbesselt](https://www.wur.eu/changemonitor)
+
+```{r, eval=TRUE, echo=TRUE, include=TRUE, results='asis'}
+print(format(Sys.time(), '%d %B, %Y'))
+```
+
 
 This document explains how to use R scripting language for downloading MODIS data and analysing it within R. The results of the analysis of MODIS data within R are illustrated. For this time series analysis demonstration it is not required to know R details, we only use R for some practical demonstration of its great potential.
 In this exercise we will automatically download MODIS data for specific locations, i.e. Flux tower sites, around the world. 
