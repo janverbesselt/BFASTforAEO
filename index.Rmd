@@ -170,7 +170,7 @@ fluxtower <- c("fn_autumbar.txt")
 
 Now try and change the name of the flux tower site and then rerun the section above to download data for another flux tower. 
 
-The names of the flux towers for which MODIS data is available can be found in the following file available via this link: [MODISSubsetSiteInformation](ftp://daac.ornl.gov//data/modis_ascii_subsets//5_MODIS_Subset_Sites_Information_Collection5.csv)
+The names of the flux towers for which MODIS data is available can be found in the following file available via this link: [MODISSubsetSiteInformation](https://www.dropbox.com/s/26suy1tafll8nkm/5_MODIS_Subset_Sites_Information_Collection5.csv?dl=0)
 , which you can open in Excel. The names that you need are in the `Site_ID` column.
 
 ## Manual MODIS data Downloading
@@ -321,7 +321,7 @@ satellite viewing angle, etc. More information about the reliability is availabl
 
 # Applying BFAST on cleaned NDVI time series
 
-In this section we will use BFAST on the cleaned NDVI time series to detect changes within the time series. First, we will interpolate the gaps in the cleaned NDVI time series using a simple linear interpolation approach. The function that we use for this is the \textbf{na.aprox()} function which looks for NA's (Not Available's), which means dates for which no data is available (e.g., that we removed in the previous steps) and interpolates the data. 
+In this section we will use BFAST on the cleaned NDVI time series to detect changes within the time series. First, we will interpolate the gaps in the cleaned NDVI time series using a simple linear interpolation approach. The function that we use for this is the 'na.aprox()' function which looks for NA's (Not Available's), which means dates for which no data is available (e.g., that we removed in the previous steps) and interpolates the data. 
 The 'plot()' command of the results 'ts.clNDVIfilled}' visualizes the result of the interpolation.
 
 ```{r, fig.width=20, fig.height=10}
