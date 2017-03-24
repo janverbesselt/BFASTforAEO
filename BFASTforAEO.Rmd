@@ -344,6 +344,57 @@ plot(fit, main="")
 
 > Question 8: Download data from another location on earth and run all the steps mentioned above again in order to apply the BFAST function again onto a new cleaned NDVI time series. Copy the BFAST plot to your report, mention the flux tower that you downloaded the data from and describe the difference with the graph obtained from Question 7.}
 
+## Finding information and examples about BFAST
+
+To better understand how BFAST works have a look at the help section of the BFAST function and try out the examples provided.
+
+```{r, eval=FALSE}
+help(bfast)
+## for more info
+## try out the examples in the bfast help section!
+plot(harvest, ylab="NDVI") # MODIS 16-day cleaned and interpolated NDVI time series
+(rdist <- 10/length(harvest))
+# ratio of distance between breaks (time steps) and length of the time series
+fit <- bfast(harvest, h=rdist, season="harmonic", max.iter=1, breaks=2)
+plot(fit)
+## plot anova and slope of the trend identified trend segments
+plot(fit, main="")
+```
+
+
+<!-- \section{Applying BFASTmonitor on the cleaned NDVI time series} -->
+
+<!-- To better understand how bfastmonitor works have a look at the help section of the bfastmonitor function and try out the examples provided (Figure \ref{fig:bfastmon1}). For extra background information  you can look at the following reference: \citep{Verbesselt:rse:2011}. -->
+
+<!-- <<bfastmon1, fig.width=12, fig.height=5, out.width='.8\\linewidth', fig.cap="BFASTmonitor analysis of the cleaned and interpolated NDVI time series">>= -->
+<!-- mon <- bfastmonitor(ts.clNDVIfilled, -->
+<!--                     start = c(2010, 23), -->
+<!--                 formula = response ~ harmon + trend, -->
+<!--                     history = c("ROC")) -->
+<!-- plot(mon, main="bfastmonitor results") -->
+<!-- @ -->
+
+<!-- {\bf Question 9: How long (in years) is your selected stable history period? Illustrate this with your own time series from a flux tower of your own choice.} -->
+
+<!-- {\bf Question 10: Start the monitoring period the end of 2011. Is 2012 an abnormal year? Illustrate this with your own time series from a flux tower of your own choice.} -->
+
+<!-- {\bf Question 11: See the help section of bfastmonitor. Can you explain what the effect is of using a different "formula" in bfastmonitor(). For example, what happens if you use $response \sim trend$. Illustrate this with your own time series from a flux tower of your own choice.} -->
+
+<!-- <<>>= -->
+<!-- ?bfastmonitor -->
+<!-- @ -->
+
+<!-- \section{For Bonus points (optional)} -->
+
+<!-- Especially, if you want to learn how to apply BFAST on Landsat data go to \url{https://dutri001.github.io/bfastSpatial/quickStart#} and the tutorial on BFASTspatial (\url{https://dutri001.github.io/bfastSpatial/}). Now, try to reproduce the results shown in this tutorial and visualise the change with a magnitude smaller than -0.1 in a map for the study area (i.e. tura brick). -->
+
+<!-- {\bf Question 12: include a map in your report showing the changes with a magnitude smaller than -0.1. Where to they occur?} -->
+
+<!-- \section{More information} -->
+
+<!-- More information can be found on the following website \url{http://bfast.r-forge.r-project.org/} and in the BFAST papers mentioned on the website. -->
+
+
 
 
 
