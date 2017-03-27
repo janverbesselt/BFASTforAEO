@@ -27,10 +27,10 @@ First, an introduction to MODIS satellite data and the flux tower sites is prese
 
 # MODIS satellite data
 
-The MODIS satellite data that we will download for this time series analysis exercise is available from [the following site](http://daac.ornl.gov/cgi-bin/MODIS/GR_col5_1/mod_viz.html). MODIS data is made available for subsets above a global network of flux towers. FLUXNET, a "network of regional networks", coordinates regional and global analysis of observations from micrometeorological tower sites. The flux tower sites use eddy covariance methods to measure the exchanges of carbon dioxide (*CO2*), water vapor, and energy between terrestrial ecosystems and the atmosphere.  The FLUXNET database contains information about tower location and site characteristics as well as data availability.
+The MODIS satellite data that we will download for this time series analysis exercise is available from [the following site](http://daac.ornl.gov/cgi-bin/MODIS/GR_col5_1/mod_viz.html). MODIS data is made available for subsets above a global network of flux towers. FLUXNET, a "network of regional networks", is a coordinator of regional and global analysis of observations from micrometeorological tower sites. The flux tower sites use eddy covariance methods to measure the exchanges of carbon dioxide (*CO2*), water vapor, and energy between terrestrial ecosystems and the atmosphere.  The FLUXNET database contains information about tower location and site characteristics as well as data availability.
 
 For this exercise  we will focus on the analysis of MODIS satellite data available for these flux towers. More specifically, we will look at the MODIS product called MOD13Q1 which are global 16-day images at a spatial resolution of 250 m. Each image contains several bands; i.e. blue, red, and near-infrared reflectances, centered at 469-nanometers, 645-nanometers, and 858-nanometers, respectively, are used to determine the MODIS vegetation indices.
-The MODIS Normalized Difference Vegetation Index (NDVI) complements NOAA's Advanced Very High Resolution Radiometer (AVHRR) NDVI products and provides continuity for time series historical applications. MODIS also includes a new Enhanced Vegetation Index (EVI) that minimises canopy background variations and maintains sensitivity over dense vegetation conditions. The EVI also uses the blue band to remove residual atmosphere contamination caused by smoke and sub-pixel thin cloud clouds. The MODIS NDVI and EVI products are computed from atmospherically corrected bi-directional surface reflectances that have been masked for water, clouds, heavy aerosols, and cloud shadows.
+The MODIS Normalized Difference Vegetation Index (NDVI) complements NOAA's Advanced Very High Resolution Radiometer (AVHRR) NDVI products and provides continuity for time series historical applications. MODIS also includes a new Enhanced Vegetation Index (EVI) that minimises canopy background variations and maintains sensitivity over dense vegetation conditions. The EVI also uses the blue band to remove residual atmosphere contamination caused by smoke and sub-pixel thin clouds. The MODIS NDVI and EVI products are computed from atmospherically corrected bi-directional surface reflectances that have been masked for water, clouds, heavy aerosols, and cloud shadows.
 Vegetation indices are used for global monitoring of vegetation conditions and are used in products displaying land cover and land cover changes. These data may be used as input for modeling global biogeochemical and hydrologic processes and global and regional climate. These data also may be used for characterizing land surface biophysical properties and processes, including primary production and land cover conversion.
 We will work with the MODIS NDVI band within the MOD13Q1 product. More information about this MODIS product can be found via the [MODIS product table](https://lpdaac.usgs.gov/dataset_discovery/modis/modis_products_table/mod13q1_v006).
 
@@ -38,7 +38,7 @@ We will work with the MODIS NDVI band within the MOD13Q1 product. More informati
 > Question 1: By what factor does the 250m MODIS NDVI image layer need to 
 be multiplied in order to obtain values between 0 and 1?
 
-> Question 2: What rank key (number?) would you use to obtain Good Data?
+> Question 2: What pixel reliability (i.e. rank number) would you use to obtain *good data*?
 
 
 # Online Analysis of MODIS satellite image data
@@ -79,10 +79,10 @@ Second, make sure your package installed in R are up-to-date by:
 update.packages(ask=FALSE)
 
 ## we install the latest bfast package from the R-forge website
-install.packages("bfast", repos="http://R-Forge.R-project.org", dependencies=TRUE)
+install.packages("bfast", dependencies=TRUE)
 
 ## for mac users you can do
-install.packages("bfast", repos="http://R-Forge.R-project.org", 
+install.packages("bfast", 
                  dependencies=TRUE, type = "source")
 
 ```
@@ -266,11 +266,10 @@ plot(ts.NDVI, ylab = "NDVI")
 
 > Question 5: Below a code section is provided that you can use (copy/paste and customize). 
 Select multiple pixels (e.g. 6 pixels) and derive an average, maximum, and median of the selected time series. 
-Now make a plot showing the average, maximum, or median of the 3 NDVI time series. 
+Now make a plot showing the average, maximum, or median time series. 
 Compare the median NDVI time series with the NDVI time series of the flux tower and copy paste the R plot output in your report. 
-Which approach do you think would be suitable to reduce the noise within a time series? Explain why?
-**For bonus points and an extra challenge**:
-Try to derive a 'noise reduced' NDVI time series of a 3 by 3 window around the flux tower.
+Which approach do you think would be suitable to reduce the noise within a time series? Explain why? 
+For bonus points and an extra challenge: Try to derive a 'noise reduced' NDVI time series of a 3 by 3 window around the flux tower.
 
 
 ```{r, message=FALSE, warning=FALSE, fig.width=11, fig.height=6}
