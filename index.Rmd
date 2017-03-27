@@ -151,9 +151,7 @@ getwd() ## the file is downloaded to your working directory
 
 ```{r}
 fluxtower <- c("fn_nlloobos.txt")  
-filename <- paste(
-"ftp://daac.ornl.gov//data/modis_ascii_subsets//C5_MOD13Q1/data/MOD13Q1."
-, fluxtower,sep="")
+filename <- paste("https://modis.ornl.gov/subset/C5_MOD13Q1/data/MOD13Q1.", fluxtower,sep="")
 
 ## now download the file only if the .csv file does not exist yet on your computer
 ## then read the csv file using the 'read.csv' function
