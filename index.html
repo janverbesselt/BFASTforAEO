@@ -898,7 +898,7 @@
 <li>Have a look at the Corner coordinates and site details (this will be important for the R script as explained below).</li>
 <li>Via this site the data can be downloaded manually. We will automatically download the MODIS data via the R script.</li>
 <li>Click on Time Series Advanced Version (User Defined QC setting) and select the MOD13Q1 data.</li>
-<li>Look at the NDVI time series data and also click on the google maps link to investigate the land cover type. It is mainly forested by Pinus Sylvestris or also called Scots Pine (within google maps satellite view).</li>
+<li>Look at the NDVI time series data and also click on the google maps link to investigate the land cover type. It is mainly forested by <em>Pinus sylvestris</em> or also called Scots pine (within google maps satellite view).</li>
 </ul>
 <blockquote>
 <p><strong>Question 3</strong>: At which pixel number is the flux tower (i.e. the Site pixel) positioned in the MODIS 250m data grid (have a look at the link for corner coordinates and site details)</p>
@@ -1128,8 +1128,7 @@ ts.NDVI <- timeser(NDVI/10000, DATUM)</code></pre>
 <button class="source R toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> R source
 </button>
-<pre style=""><code class="source r">## this is an example for two pixels
-## try it out and customize for your own needs
+<pre style=""><code class="source r">## try it out and customize for your own needs
 j <- 442:444  
 t <- modis[modis$Band == ndvibandname, j] # extract NDVI data
 tt <- data.matrix(t)/10000 ## convert to a data matrix and divide by 10000
@@ -1271,7 +1270,7 @@ plot(mon, main="bfastmonitor results")</code></pre>
 <p><strong>Question 11</strong>: See the help section of bfastmonitor. Can you explain what the effect is of using a different <code>formula</code> in <code>bfastmonitor()</code>. For example, what happens if you use <code>response ~ trend</code>. Illustrate this with your own time series from a flux tower of your own choice.</p>
 </blockquote>
 <h1 id="for-bonus-points-optional">For Bonus points (optional)</h1>
-<p>Especially, if you want to learn how to apply BFAST on Landsat data go to <a href="https://dutri001.github.io/bfastSpatial/quickStart#">BFASTspatial intro</a> and the <a href="https://dutri001.github.io/bfastSpatial/">tutorial on BFASTspatial</a>. Now, try to reproduce the results shown in this tutorial and visualise the change with a magnitude smaller than -0.1 in a map for the study area (i.e. tura brick).</p>
+<p>Especially, if you want to learn how to apply BFAST on Landsat data go the <a href="http://www.loicdutrieux.net/bfastSpatial/">tutorial on BFASTspatial</a>. Now, try to reproduce the results shown in this tutorial and visualise the change with a magnitude smaller than -0.1 in a map for the study area (i.e. tura brick).</p>
 <blockquote>
 <p><strong>Question 12</strong>: include a map in your report showing the changes with a magnitude smaller than -0.1. Where do they occur?</p>
 </blockquote>

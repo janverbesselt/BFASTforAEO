@@ -49,7 +49,7 @@ Please go to the [MODIS Land subsets website](http://daac.ornl.gov/cgi-bin/MODIS
   * Have a look at the Corner coordinates and site details (this will be important for the R script as explained below).
   * Via this site the data can be downloaded manually. We will automatically download the MODIS data via the R script.
   * Click on Time Series Advanced Version (User Defined QC setting) and select the MOD13Q1 data.
-  * Look at the NDVI time series data and also click on the google maps link to investigate the land cover type. It is mainly forested by Pinus Sylvestris or also called Scots Pine (within google maps satellite view).
+  * Look at the NDVI time series data and also click on the google maps link to investigate the land cover type. It is mainly forested by *Pinus sylvestris* or also called Scots pine (within google maps satellite view).
 
 > **Question 3**: At which pixel number is the flux tower (i.e. the Site pixel) positioned in the MODIS 250m data grid (have a look at the link for corner coordinates and site details)
 
@@ -276,7 +276,6 @@ For bonus points and an extra challenge: Try to derive a 'noise reduced' NDVI ti
 
 
 ```{r, message=FALSE, warning=FALSE, fig.width=11, fig.height=6}
-## this is an example for two pixels
 ## try it out and customize for your own needs
 j <- 442:444  
 t <- modis[modis$Band == ndvibandname, j] # extract NDVI data
@@ -397,7 +396,7 @@ plot(mon, main="bfastmonitor results")
 
 # For Bonus points (optional)
 
-Especially, if you want to learn how to apply BFAST on Landsat data go to [BFASTspatial intro](https://dutri001.github.io/bfastSpatial/quickStart#) and the [tutorial on BFASTspatial](https://dutri001.github.io/bfastSpatial/). Now, try to reproduce the results shown in this tutorial and visualise the change with a magnitude smaller than -0.1 in a map for the study area (i.e. tura brick).
+Especially, if you want to learn how to apply BFAST on Landsat data go the [tutorial on BFASTspatial](http://www.loicdutrieux.net/bfastSpatial/). Now, try to reproduce the results shown in this tutorial and visualise the change with a magnitude smaller than -0.1 in a map for the study area (i.e. tura brick).
 
 > **Question 12**: include a map in your report showing the changes with a magnitude smaller than -0.1. Where do they occur?
 
