@@ -17,7 +17,7 @@ output:
 [Jan Verbesselt](http://www.wur.eu/changemonitor)
 
 ```{r, eval=TRUE, echo=TRUE, include=TRUE, results='asis'}
-print(format(Sys.time(), '%d %B, %Y'))
+format(Sys.time(), '%d %B, %Y')
 ```
 
 
@@ -390,13 +390,13 @@ plot(mon, main="bfastmonitor results")
 
 > **Question 9**: How long (in years) is your selected stable history period? Illustrate this with your own time series from a flux tower of your own choice.
 
-> **Question 10**: Start the monitoring period the end of 2011. Is 2012 an abnormal year? Illustrate this with your own time series from a flux tower of your own choice.
+> **Question 10**: Start the monitoring period the end of last year. Is the current year an abnormal year? Illustrate this with your own time series from a flux tower of your own choice.
 
 > **Question 11**: See the help section of bfastmonitor. Can you explain what the effect is of using a different `formula` in `bfastmonitor()`. For example, what happens if you use `response ~ trend`. Illustrate this with your own time series from a flux tower of your own choice.
 
 # For Bonus points (optional)
 
-Especially, if you want to learn how to apply BFAST on Landsat data go the [tutorial on BFASTspatial](http://www.loicdutrieux.net/bfastSpatial/). Now, try to reproduce the results shown in this tutorial and visualise the change with a magnitude smaller than -0.1 in a map for the study area (i.e. tura brick).
+Especially, if you want to learn how to apply BFAST on Landsat data go the [tutorial on BFASTspatial](http://www.loicdutrieux.net/bfastSpatial/). Now, try to reproduce the results shown in this tutorial and visualise the change with a magnitude smaller than -0.1 in a map for the study area (i.e. tura brick). *Tip*: Reduce the size of the Tura brick, the make sure the processing on the Tura brick takes up too much time (use the `crop` function).
 
 > **Question 12**: include a map in your report showing the changes with a magnitude smaller than -0.1. Where do they occur?
 

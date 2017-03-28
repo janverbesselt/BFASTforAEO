@@ -878,7 +878,7 @@
 <button class="source R toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> R source
 </button>
-<pre style=""><code class="source r">print(format(Sys.time(), '%d %B, %Y'))</code></pre>
+<pre style=""><code class="source r">format(Sys.time(), '%d %B, %Y')</code></pre>
 <p>[1] &quot;28 March, 2017&quot;</p>
 </div>
 <p>This document explains how to use R scripting language for downloading MODIS data and analysing it within R. The results of the analysis of MODIS data within R are illustrated. For this time series analysis demonstration it is not required to know R details, we only use R for some practical demonstration of its great potential. In this exercise we will automatically download MODIS data for specific locations, i.e. Flux tower sites, around the world. First, an introduction to MODIS satellite data and the flux tower sites is presented. Second, the use of R is introduced. Finally, the exercise in R is explained, step by step.</p>
@@ -1264,13 +1264,13 @@ plot(mon, main="bfastmonitor results")</code></pre>
 <p><strong>Question 9</strong>: How long (in years) is your selected stable history period? Illustrate this with your own time series from a flux tower of your own choice.</p>
 </blockquote>
 <blockquote>
-<p><strong>Question 10</strong>: Start the monitoring period the end of 2011. Is 2012 an abnormal year? Illustrate this with your own time series from a flux tower of your own choice.</p>
+<p><strong>Question 10</strong>: Start the monitoring period the end of last year. Is the current year an abnormal year? Illustrate this with your own time series from a flux tower of your own choice.</p>
 </blockquote>
 <blockquote>
 <p><strong>Question 11</strong>: See the help section of bfastmonitor. Can you explain what the effect is of using a different <code>formula</code> in <code>bfastmonitor()</code>. For example, what happens if you use <code>response ~ trend</code>. Illustrate this with your own time series from a flux tower of your own choice.</p>
 </blockquote>
 <h1 id="for-bonus-points-optional">For Bonus points (optional)</h1>
-<p>Especially, if you want to learn how to apply BFAST on Landsat data go the <a href="http://www.loicdutrieux.net/bfastSpatial/">tutorial on BFASTspatial</a>. Now, try to reproduce the results shown in this tutorial and visualise the change with a magnitude smaller than -0.1 in a map for the study area (i.e. tura brick).</p>
+<p>Especially, if you want to learn how to apply BFAST on Landsat data go the <a href="http://www.loicdutrieux.net/bfastSpatial/">tutorial on BFASTspatial</a>. Now, try to reproduce the results shown in this tutorial and visualise the change with a magnitude smaller than -0.1 in a map for the study area (i.e. tura brick). <em>Tip</em>: Reduce the size of the Tura brick, the make sure the processing on the Tura brick takes up too much time (use the <code>crop</code> function).</p>
 <blockquote>
 <p><strong>Question 12</strong>: include a map in your report showing the changes with a magnitude smaller than -0.1. Where do they occur?</p>
 </blockquote>
