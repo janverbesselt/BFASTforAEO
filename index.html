@@ -881,30 +881,34 @@
 <pre style=""><code class="source r">format(Sys.time(), '%d %B, %Y')</code></pre>
 <p>[1] &quot;08 March, 2018&quot;</p>
 </div>
-<p>This document explains how to use R scripting language for downloading MODIS data and analysing it within R. The results of the analysis of MODIS data within R are illustrated. For this time series analysis demonstration it is not required to know R details, we only use R for some practical demonstration of its great potential. In this exercise we will automatically download MODIS data for specific locations, i.e. Flux tower sites, around the world. First, an introduction to MODIS satellite data and the flux tower sites is presented. Second, the use of R is introduced. Finally, the exercise in R is explained, step by step.</p>
+<p>This document explains how to use R scripting language for downloading MODIS data and analysing it within R. The results of the analysis of MODIS data within R are illustrated. For this time series analysis demonstration it is not required to know R details, we only use R for some practical demonstration of its great potential.</p>
+<p>In this exercise we will automatically download MODIS data for specific locations around the world. First, MODIS satellite data is describd. Second, the use of R is introduced. Finally, the exercise in R is explained, step by step.</p>
 <h1 id="modis-satellite-data">MODIS satellite data</h1>
-<p>The MODIS satellite data that we will download for this time series analysis exercise is available from <a href="http://daac.ornl.gov/cgi-bin/MODIS/GR_col5_1/mod_viz.html">the following site</a>. MODIS data is made available for subsets above a global network of flux towers. FLUXNET, a &quot;network of regional networks&quot;, is a coordinator of regional and global analysis of observations from micrometeorological tower sites. The flux tower sites use eddy covariance methods to measure the exchanges of carbon dioxide (<em>CO2</em>), water vapor, and energy between terrestrial ecosystems and the atmosphere. The FLUXNET database contains information about tower location and site characteristics as well as data availability.</p>
-<p>For this exercise we will focus on the analysis of MODIS satellite data available for these flux towers. More specifically, we will look at the MODIS product called MOD13Q1 which are global 16-day images at a spatial resolution of 250 m. Each image contains several bands; i.e. blue, red, and near-infrared reflectances, centered at 469-nanometers, 645-nanometers, and 858-nanometers, respectively, are used to determine the MODIS vegetation indices. The MODIS Normalized Difference Vegetation Index (NDVI) complements NOAA's Advanced Very High Resolution Radiometer (AVHRR) NDVI products and provides continuity for time series historical applications. MODIS also includes a new Enhanced Vegetation Index (EVI) that minimises canopy background variations and maintains sensitivity over dense vegetation conditions. The EVI also uses the blue band to remove residual atmosphere contamination caused by smoke and sub-pixel thin clouds. The MODIS NDVI and EVI products are computed from atmospherically corrected bi-directional surface reflectances that have been masked for water, clouds, heavy aerosols, and cloud shadows. Vegetation indices are used for global monitoring of vegetation conditions and are used in products displaying land cover and land cover changes. These data may be used as input for modeling global biogeochemical and hydrologic processes and global and regional climate. These data also may be used for characterizing land surface biophysical properties and processes, including primary production and land cover conversion. We will work with the MODIS NDVI band within the MOD13Q1 product. More information about this MODIS product can be found via the <a href="https://lpdaac.usgs.gov/dataset_discovery/modis/modis_products_table/mod13q1_v006">MODIS product table</a>.</p>
+<p>The MODIS satellite data that we will download for this time series analysis exercise is available from <a href="http://daac.ornl.gov/cgi-bin/MODIS/GR_col5_1/mod_viz.html">the following site</a>. MODIS data is made available for speficic locations.</p>
+<p>More specifically, we will look at the MODIS product called MOD13Q1 which are global 16-day images at a spatial resolution of 250 m. Each image contains several bands; i.e. blue, red, and near-infrared reflectances, centered at 469-nanometers, 645-nanometers, and 858-nanometers, respectively, are used to determine the MODIS vegetation indices.</p>
+<p>The MODIS Normalized Difference Vegetation Index (NDVI) complements NOAA's Advanced Very High Resolution Radiometer (AVHRR) NDVI products and provides continuity for time series historical applications. MODIS also includes a new Enhanced Vegetation Index (EVI) that minimises canopy background variations and maintains sensitivity over dense vegetation conditions. The EVI also uses the blue band to remove residual atmosphere contamination caused by smoke and sub-pixel thin clouds. The MODIS NDVI and EVI products are computed from atmospherically corrected bi-directional surface reflectances that have been masked for water, clouds, heavy aerosols, and cloud shadows.</p>
+<p>Vegetation indices are used for global monitoring of vegetation conditions and are used in products displaying land cover and land cover changes. These data may be used as input for modeling global biogeochemical and hydrologic processes and global and regional climate. These data also may be used for characterizing land surface biophysical properties and processes, including primary production and land cover conversion. We will work with the MODIS NDVI band within the MOD13Q1 product. More information about this MODIS product can be found via the <a href="https://lpdaac.usgs.gov/dataset_discovery/modis/modis_products_table/mod13q1_v006">MODIS product table</a>.</p>
 <blockquote>
 <p><strong>Question 1</strong>: By what factor does the 250m MODIS NDVI image layer need to be multiplied in order to obtain values between 0 and 1?</p>
 </blockquote>
 <blockquote>
 <p><strong>Question 2</strong>: What pixel reliability (i.e. rank number) would you use to obtain <em>good data</em>?</p>
 </blockquote>
+<p>Tip: see the <a href="https://lpdaac.usgs.gov/sites/default/files/public/product_documentation/mod13_user_guide.pdf">MODIS user guide</a> and search for the meaning of reliability.</p>
 <h1 id="online-analysis-of-modis-satellite-image-data">Online Analysis of MODIS satellite image data</h1>
 <p>Please go to the <a href="http://daac.ornl.gov/cgi-bin/MODIS/GR_col5_1/mod_viz.html">MODIS Land subsets website</a>:</p>
 <ul>
-<li>Select Country: The Netherlands and select the Loobos Site.</li>
-<li>Have a look at the Corner coordinates and site details (this will be important for the R script as explained below).</li>
-<li>Via this site the data can be downloaded manually. We will automatically download the MODIS data via the R script.</li>
-<li>Click on Time Series Advanced Version (User Defined QC setting) and select the MOD13Q1 data.</li>
-<li>Look at the NDVI time series data and also click on the google maps link to investigate the land cover type. It is mainly forested by <em>Pinus sylvestris</em> or also called Scots pine (within google maps satellite view).</li>
+<li>Search for 'The Netherlands' and select the Gelderland Loobos Site.</li>
+<li>select the MODIS 13Q1 product</li>
+<li>here you can download the data manually but we will do that via a R script as explained below.</li>
+<li><p>See the tab 'location' and see how the subset has been spatially defined. This will be important for the R script as explained below.</p></li>
+<li><p>Now study the NDVI and EVI time series graphs:</p></li>
 </ul>
 <blockquote>
-<p><strong>Question 3</strong>: At which pixel number is the flux tower (i.e. the Site pixel) positioned in the MODIS 250m data grid (have a look at the link for corner coordinates and site details)</p>
+<p><strong>Question 3</strong>: What key differences do you observe between NDVI and EVI time series visualised on the bottom of the page? Why do they differ?</p>
 </blockquote>
 <blockquote>
-<p><strong>Question 4</strong>: What happens with the NDVI Filter Applied Graph if you select only data that you can use with Confidence?</p>
+<p><strong>Question 4</strong>: What is the key land cover type in the center of the site? (see bottom left side of the website)</p>
 </blockquote>
 <h1 id="getting-started-with-r">Getting started with R</h1>
 <p>We will download the MODIS data for the Loobos Site via R and process the data for one location to detect changes within the time series.</p>
@@ -999,7 +1003,7 @@ filename <- paste("https://modis.ornl.gov/subset/C5_MOD13Q1/data/MOD13Q1.", flux
 ## if the above step does not work you can download the data manually 
 ## (go to 'Manual Downloading').</code></pre>
 </div>
-<p>By running the lines above the MODIS data subset for the Loobos fluxtower (the Netherlands) is downloaded to the<code>modis</code> variable. Please be patient when running the code section above.</p>
+<p>By running the lines above the MODIS data subset for the Loobos fluxtower (the Netherlands) is downloaded to the<code>modis</code> variable.</p>
 <p>Data for a different fluxtower, a fluxtower in New South Wales, Australia, can be downloaded by changing the <code>fluxtower</code> variable using the following line:</p>
 <div class="row">
 <button class="source R toggle btn btn-xs btn-primary">
@@ -1010,7 +1014,7 @@ filename <- paste("https://modis.ornl.gov/subset/C5_MOD13Q1/data/MOD13Q1.", flux
 <p>Now try and change the name of the flux tower site and then rerun the section above to download data for another flux tower.</p>
 <p>The names of the flux towers for which MODIS data is available can be found in the following file available via this link: <a href="https://www.dropbox.com/s/26suy1tafll8nkm/5_MODIS_Subset_Sites_Information_Collection5.csv?dl=0">MODISSubsetSiteInformation</a> , which you can open in Excel. The names that you need are in the <code>Site_ID</code> column.</p>
 <h2 id="manual-modis-data-downloading">Manual MODIS data Downloading</h2>
-<p>If the above section does not work, you can download the data manually into your working directory via the following site: <a href="http://daac.ornl.gov/cgi-bin/MODIS/GR_col5_1/mod_viz.html">ModisViZ</a> and can be loaded in R via the R script below. Things to do to download the data manually:</p>
+<p>If the above section does not work, you can download the data manually into your working directory via the following site: <a href="http://daac.ornl.gov/cgi-bin/MODIS/GR_col5_1/mod_viz.html">MODIS Landsubset website</a> and can be loaded in R via the R script below. Things to do to download the data manually:</p>
 <ul>
 <li><p>download the .txt file from the MODIS Land Subsets website mentioned above, go to the e.g. Loobos site, click download the ASCII file, do <em>save as</em>, <strong>txt</strong> file to save to a local folder, and rename the file to e.g. NDVIMOD13Q1.</p></li>
 <li><p>Read the data from R with the following R script lines.</p></li>
