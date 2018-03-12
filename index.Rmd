@@ -11,7 +11,8 @@ output:
     highlight.chooser: TRUE
 ---
 
-# MODIS based time series analysis using BFAST 
+# MODIS based time series analysis using BFAST
+
 ![WUR logo](http://www.wageningenur.nl/upload/f9a0b5f2-15c5-4b84-9e14-20ef02f5e265_wur-logo.png)
 
 [Jan Verbesselt](http://www.wur.eu/changemonitor)
@@ -21,21 +22,19 @@ format(Sys.time(), '%d %B, %Y')
 ```
 
 
-This document explains how to use R scripting language for downloading MODIS data and analysing it within R. The results of the analysis of MODIS data within R are illustrated. For this time series analysis demonstration it is not required to know R details, we only use R for some practical demonstration of its great potential.
-
-In this exercise we will automatically download MODIS data for specific locations around the world. 
+This document explains how to use R scripting language for downloading MODIS data and analysing it within R. The results of the analysis of MODIS data within R are illustrated. For this time series analysis demonstration it is not required to know R details, we only use R for some practical demonstration of its great potential. In this exercise we will automatically download MODIS data for specific locations around the world. 
 First, MODIS satellite data is describd. Second, the use of R is introduced. Finally, the exercise in R is explained, step by step. 
 
-# MODIS satellite data
+# Introduction to MODIS data and online analysis
 
-The MODIS satellite data that we will download for this time series analysis exercise is available from [the following site](http://daac.ornl.gov/cgi-bin/MODIS/GR_col5_1/mod_viz.html). MODIS data is made available for speficic locations. 
+The MODIS satellite data that we will download for this time series analysis exercise is available from [MODIS Subsetting Website](https://modis.ornl.gov/sites/). MODIS data is made available for speficic locations. 
 
 More specifically, we will look at the MODIS product called MOD13Q1 which are global 16-day images at a spatial resolution of 250 m. Each image contains several bands; i.e. blue, red, and near-infrared reflectances, centered at 469-nanometers, 645-nanometers, and 858-nanometers, respectively, are used to determine the MODIS vegetation indices.
 
 The MODIS Normalized Difference Vegetation Index (NDVI) complements NOAA's Advanced Very High Resolution Radiometer (AVHRR) NDVI products and provides continuity for time series historical applications. MODIS also includes a new Enhanced Vegetation Index (EVI) that minimises canopy background variations and maintains sensitivity over dense vegetation conditions. The EVI also uses the blue band to remove residual atmosphere contamination caused by smoke and sub-pixel thin clouds. The MODIS NDVI and EVI products are computed from atmospherically corrected bi-directional surface reflectances that have been masked for water, clouds, heavy aerosols, and cloud shadows.
 
 Vegetation indices are used for global monitoring of vegetation conditions and are used in products displaying land cover and land cover changes. These data may be used as input for modeling global biogeochemical and hydrologic processes and global and regional climate. These data also may be used for characterizing land surface biophysical properties and processes, including primary production and land cover conversion.
-We will work with the MODIS NDVI band within the MOD13Q1 product. More information about this MODIS product can be found via the [MODIS product table](https://lpdaac.usgs.gov/dataset_discovery/modis/modis_products_table/mod13q1_v006).
+We will work with the MODIS NDVI band within the MOD13Q1 product. More information about this MODIS data set can be found via the [MODIS product table](https://lpdaac.usgs.gov/dataset_discovery/modis/modis_products_table/mod13q1_v006).
 
 
 > **Question 1**: By what factor does the 250m MODIS NDVI image layer need to 
@@ -46,10 +45,7 @@ be multiplied in order to obtain values between 0 and 1?
 Tip: see the [MODIS user guide](https://lpdaac.usgs.gov/sites/default/files/public/product_documentation/mod13_user_guide.pdf) and search for the meaning of reliability.
 
 
-
-# Online Analysis of MODIS satellite image data
-
-Please go to the [MODIS Land subsets website](http://daac.ornl.gov/cgi-bin/MODIS/GR_col5_1/mod_viz.html):
+Now go to the [MODIS Land Products](https://modis.ornl.gov/sites/):
 
   * Search for 'The Netherlands' and select the Gelderland Loobos Site.
   * select the MODIS 13Q1 product
@@ -63,14 +59,14 @@ Why do they differ?
 
 > **Question 4**: What is the key land cover type in the center of the site? (see bottom left side of the website)
 
-# Getting started with R
+# Automated MODIS NDVI download and analysis via R
 
 We will download the MODIS data for the Loobos Site via R and process the data for one location to detect changes within the time series.
 
 Now if need you can follow the following tutorial on getting started with [R and Rstudio](https://geoscripting-wur.github.io/Scripting4GeoIntro/#Basic_R_and_RStudio_setup).
 
 
-# Install packages and define functions for MODIS data analysis
+## Getting started: install packages and define functions for MODIS data analysis
 
 Now we are ready to get started with the MODIS time series analysis exercise in R! 
 First, choose your working directory (i.e. a folder on your hard drive) to which the MODIS data will be downloaded and where you will save your R script. Set your workdirectory in R using the `setwd()` command. Remark: on your computer the file path looks different on windows! In R you have to change the backslash symbol to a forward slash symbol e.g.: 
@@ -139,21 +135,9 @@ sel <- function(y,crit){
 }
 ```
 
-# Downloading MODIS data using R script
+## Downloading MODIS data using R script
 
-Now we are ready to start downloading the MODIS data.
-
-There are two ways:
-
-  - automatic downloading via the ftp server in the U.S. with R using the code section below
-
-  - manual downloading of the data 
-
-We recommend using the automatic downloading method for the exercise. 
-
-## Automatic MODIS data downloading 
-
-We will use this method in the exercise as long as the server in the U.S. is online and working (you need internet connection, and also keep in mind that the file can be more than 15Mb large).
+Now we are ready to start downloading the MODIS data. We will use this approah via R as long as the server in the U.S. is online and working (you need internet connection, and also keep in mind that the file can be more than 15Mb large).
 
 ```{r, eval = FALSE}
 getwd() ## the file is downloaded to your working directory 
@@ -161,72 +145,61 @@ getwd() ## the file is downloaded to your working directory
 
 
 ```{r}
-fluxtower <- c("fn_nlloobos.txt")  
-filename <- paste("https://modis.ornl.gov/subset/C5_MOD13Q1/data/MOD13Q1.", fluxtower,sep="")
+## now download the file only if the .csv file does not exist yet on your computer (check in your working directory for existing csv files!)
 
-## now download the file only if the .csv file does not exist yet on your computer
 ## then read the csv file using the 'read.csv' function
+fluxtower <- "nl_gelderland_loobos_MOD13Q1"
+filename <- paste("https://modis.ornl.gov/site/",fluxtower,"/MOD13Q1.csv",sep="")
 
- if(!file.exists(fluxtower)) {
-  download.file(filename,fluxtower)
-	modis <- read.csv(fluxtower, colClasses = "character") 
+# result of the paste function for loobos site"https://modis.ornl.gov/site/nl_gelderland_loobos_MOD13Q1/MOD13Q1.csv"
+
+# define column names of the file the we will download
+colnames <- c("HDFname","Product","Date","Location","ProcessDate","Band", 1:(1095-6))
+
+modisfilename <- paste(fluxtower,".csv",sep="")
+ if(!file.exists(modisfilename)) {
+  download.file(filename,modisfilename) # download
+	modis <- read.csv(modisfilename, header=FALSE, col.names=colnames)
 } else {
-	modis <- read.csv(fluxtower, colClasses = "character") 
+	modis <- read.csv(modisfilename, header=FALSE, col.names=colnames) 
 }
-## if the above step does not work you can download the data manually 
-## (go to 'Manual Downloading').
+
+## if the above step does not work you can download the data manually via the website and name the file
+## e.g. "nl_gelderland_loobos.csv" then read it in with 
+## modis <- read.csv(fluxtower, header=FALSE, col.names=colnames)
 ```
 
-
 By running the lines above the MODIS data subset for the Loobos fluxtower (the Netherlands) is downloaded to the`modis` variable. 
-
 Data for a different fluxtower, a fluxtower in New South Wales, Australia, can be downloaded by changing the `fluxtower` variable using the following line:
 
 ```{r}
-fluxtower <- c("fn_autumbar.txt")
+fluxtower <- c("au_newsouthwales_tumbarumba_MOD13Q1")
 ```
 
-Now try and change the name of the flux tower site and then rerun the section above to download data for another flux tower. 
-
-The names of the flux towers for which MODIS data is available can be found in the following file available via this link: [MODISSubsetSiteInformation](https://www.dropbox.com/s/26suy1tafll8nkm/5_MODIS_Subset_Sites_Information_Collection5.csv?dl=0)
-, which you can open in Excel. The names that you need are in the `Site_ID` column.
-
-## Manual MODIS data Downloading
-
-If the above section does not work, you can download the data manually into your working directory via the following site:
-[MODIS Landsubset website](http://daac.ornl.gov/cgi-bin/MODIS/GR_col5_1/mod_viz.html) and can be loaded in R via the R script below. 
-Things to do to download the data manually:
-
-  - download the .txt file from the MODIS Land Subsets website mentioned above, go to the e.g. Loobos site, click download the ASCII file, do *save as*, **txt** file to save to a local folder, 
-  and rename the file to e.g. NDVIMOD13Q1.
-
-  - Read the data from R with the following R script lines.
-
-You can read in the data file using the following command. Now the MODIS data is loaded!
-
-```{r, eval=FALSE}
-modis <- read.csv("NDVIMOD13Q1.txt")
-```
+You can find this name via: [MODIS Site ID information](https://modis.ornl.gov/cgi-bin/sites/site.pl?id=au_newsouthwales_tumbarumba&product=MOD13Q1)
+Now try and change the name of the flux tower site and then rerun the section above to download data for another location in the world. 
 
 ## The MODIS CSV file data structure
 
 The MODIS data within the 'modis'  variable is organised so that the first six columns of the file contain information
 about filename, product (i.e. MOD13Q1), date (date of the image), Site (e.g. Loobos), Processdata, and band
-(i.e. one MODIS image has different bands = LAYERS, e.g. NDVI). For More information about the MODIS data look at, the [MODIS product table](https://lpdaac.usgs.gov/products/modis_products_table).
+(i.e. one MODIS image has different bands = LAYERS, e.g. NDVI). 
+
+For More information about the data.frame file structure see: [data_format](https://modis.ornl.gov/documentation.html#data_format).
 
 ```{r}
-str(modis[1,1:7])
+str(modis[1,1:6])
 ```
 
-The following R names() shows the names of the first 8 columns of the 'modis' variable containing all the data.
+The following R names() shows the names of the first 6 columns of the 'modis' data.frame containing all the data.
 
 ```{r}
 names(modis)[1:8]
 ```
 
-The first six columns contain info about the image (e.g. site, date, band, and when it is processed) and from the 7th each column contains information
-about each MODIS pixel within the subset. E.g the 7th column is a pixel, and the 8th is another pixel. This shows the band names of this file. The MOD13Q1 Product contains 12 Bands:
+The first six columns contain info about the image (e.g. site, date, band, and when it is processed) and from the 7th each column contains e.g. NDVI information from each MODIS pixel within the subset. E.g the 7th column is a pixel, and the 8th is another pixel. 
 
+The following R code line shows the band names of this file. The MOD13Q1 Product contains 12 Bands:
 ```{r}
 modis$Band[1:12]
 ```
@@ -243,15 +216,15 @@ rel <- modis$Band[7]
 ```
 
 We will select data for the pixel above the Loobos Fluxtower. Have a look at 
-[LoobosSiteInfo](http://daac.ornl.gov/cgi-bin/MODIS/GR_col5_1/corners.1.pl?site=fn_nlloobos&res=250m).
+[LoobosSiteInfo](https://modis.ornl.gov/cgi-bin/sites/site.pl?id=nl_gelderland_loobos&product=MOD13Q1) and see the **Pixel Numbering Scheme**:
 
-It is pixel number 436. Each column after the 6th column in the MODIS file contains data of one pixel 
+Center location is 545. Each column after the 6th column in the MODIS file contains data of one pixel 
 so to select the data above the flux tower we have to add 6 to select the correct column within the matrix.
 The code section below will select the MODIS data for one pixel, scale the NDVI data by dividing it by 10000,
 and then plot the resulting variable `ts.NDVI` using the `plot()` function:
 
 ```{r}
-j <- (436)+6 # we are adding 6 since the first data column is the 7th column  
+j <- (545)+6 # we are adding 6 since the first data column is the 7th column  
 reliability <- as.numeric(modis[modis$Band == rel, j]) # reliability data
 NDVI <- as.numeric(modis[modis$Band == ndvibandname, j]) # NDVI data
 DATUM <- modis[modis$Band == ndvibandname, 3] # dates
@@ -284,7 +257,7 @@ For bonus points and an extra challenge: Try to derive a 'noise reduced' NDVI ti
 
 ```{r, message=FALSE, warning=FALSE, fig.width=11, fig.height=6}
 ## try it out and customize for your own needs
-j <- 442:444  
+j <- 442:444  # adjust the nummers or define your own pixels with e.g. j <- c(545,..)
 t <- modis[modis$Band == ndvibandname, j] # extract NDVI data
 tt <- data.matrix(t)/10000 ## convert to a data matrix and divide by 10000
 ttt <- ts(apply(tt, 2, timeser, DATUM), start=c(2000,4), freq=23) 
@@ -388,27 +361,19 @@ Try also the following example on our MODIS data:
 
 ```{r, fig.width=12, fig.height=5}
 mon <- bfastmonitor(ts.clNDVIfilled,
-                    start = c(2010, 23),
+                    start = c(2016, 23),
                 formula = response ~ harmon + trend,
-                    history = c("ROC"))
+                    history = "all")
 plot(mon, main="bfastmonitor results")
 ```
 
 
-> **Question 9**: How long (in years) is your selected stable history period? Illustrate this with your own time series from a flux tower of your own choice.
+> **Question 9**: Start the monitoring period the end of 2016. Is 2017 an abnormal year in your own time series?
 
-> **Question 10**: Start the monitoring period the end of last year. Is the current year an abnormal year? Illustrate this with your own time series from a flux tower of your own choice.
+> **Question 10**: See the help section of bfastmonitor. Can you explain what the effect is of using a different `formula` in `bfastmonitor()`. For example, what happens if you use `response ~ trend`. Illustrate this with your own time series from a flux tower of your own choice.
 
-> **Question 11**: See the help section of bfastmonitor. Can you explain what the effect is of using a different `formula` in `bfastmonitor()`. For example, what happens if you use `response ~ trend`. Illustrate this with your own time series from a flux tower of your own choice.
-
-# For Bonus points (optional)
-
-Especially, if you want to learn how to apply BFAST on Landsat data go the [tutorial on BFASTspatial](http://www.loicdutrieux.net/bfastSpatial/). Now, try to reproduce the results shown in this tutorial and visualise the change with a magnitude smaller than -0.1 in a map for the study area (i.e. tura brick). *Tip*: Reduce the size of the Tura brick, the make sure the processing on the Tura brick takes up too much time (use the `crop` function).
-
-> **Question 12**: include a map in your report showing the changes with a magnitude smaller than -0.1. Where do they occur?
 
 # More information
-
 More information can be found on the [BFAST website](http://bfast.r-forge.r-project.org/) and in the BFAST papers mentioned on the website.
 
 
