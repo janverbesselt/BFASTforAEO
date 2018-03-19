@@ -1008,7 +1008,9 @@ modisfilename <- paste(fluxtower,".csv",sep="")
 </button>
 <pre style=""><code class="source r">fluxtower <- c("au_newsouthwales_tumbarumba_MOD13Q1")</code></pre>
 </div>
-<p>You can find this name via: <a href="https://modis.ornl.gov/cgi-bin/sites/site.pl?id=au_newsouthwales_tumbarumba&amp;product=MOD13Q1">MODIS Site ID information</a> Now try and change the name of the flux tower site and then rerun the section above to download data for another location in the world.</p>
+<p>You can find this name via the following <a href="https://modis.ornl.gov/cgi-bin/sites/site.pl?id=au_newsouthwales_tumbarumba&amp;product=MOD13Q1">link</a>. Then go to TAB <strong>Subset Summary</strong>, and then see <strong>Site ID</strong> information.</p>
+<p>You can browser for other sites via: <a href="https://modis.ornl.gov/sites/" class="uri">https://modis.ornl.gov/sites/</a></p>
+<p>Now try and change the name of the flux tower site and then rerun the section above to download data for another location in the world.</p>
 <h2 id="the-modis-csv-file-data-structure">The MODIS CSV file data structure</h2>
 <p>The MODIS data within the 'modis' variable is organised so that the first six columns of the file contain information about filename, product (i.e. MOD13Q1), date (date of the image), Site (e.g. Loobos), Processdata, and band (i.e. one MODIS image has different bands = LAYERS, e.g. NDVI).</p>
 <p>For More information about the data.frame file structure see: <a href="https://modis.ornl.gov/documentation.html#data_format">data_format</a>.</p>

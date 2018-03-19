@@ -175,7 +175,11 @@ Data for a different fluxtower, a fluxtower in New South Wales, Australia, can b
 fluxtower <- c("au_newsouthwales_tumbarumba_MOD13Q1")
 ```
 
-You can find this name via: [MODIS Site ID information](https://modis.ornl.gov/cgi-bin/sites/site.pl?id=au_newsouthwales_tumbarumba&product=MOD13Q1)
+You can find this name via the following [link](https://modis.ornl.gov/cgi-bin/sites/site.pl?id=au_newsouthwales_tumbarumba&product=MOD13Q1). Then go to TAB **Subset Summary**, and then see **Site ID** information.
+
+You can browser for other sites via:
+[https://modis.ornl.gov/sites/](https://modis.ornl.gov/sites/)
+
 Now try and change the name of the flux tower site and then rerun the section above to download data for another location in the world. 
 
 ## The MODIS CSV file data structure
