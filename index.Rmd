@@ -21,9 +21,8 @@ output:
 format(Sys.time(), '%d %B, %Y')
 ```
 
-
 This document explains how to use R scripting language for downloading MODIS data and analysing it within R. The results of the analysis of MODIS data within R are illustrated. For this time series analysis demonstration it is not required to know R details, we only use R for some practical demonstration of its great potential. In this exercise we will automatically download MODIS data for specific locations around the world. 
-First, MODIS satellite data is describd. Second, the use of R is introduced. Finally, the exercise in R is explained, step by step. 
+First, MODIS satellite data is described. Second, the use of R is introduced. Finally, the exercise in R is explained, step by step. 
 
 # Introduction to MODIS data and online analysis
 
@@ -370,7 +369,7 @@ plot(mon, main="bfastmonitor results")
 
 > **Question 9**: Start the monitoring period the end of 2016. Is 2017 an abnormal year in your own time series?
 
-> **Question 10**: See the help section of bfastmonitor. Can you explain what the effect is of using a different `formula` in `bfastmonitor()`. For example, what happens if you use `response ~ trend`. Illustrate this with your own time series from a flux tower of your own choice.
+> **Question 10**: See the help section of bfastmonitor. Can you explain what the effect is of using a different `formula` in `bfastmonitor()`. For example, what happens if you use `response ~ trend`. Illustrate this with your own time series for a location of your own choice.
 
 
 # More information
