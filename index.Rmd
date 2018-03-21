@@ -71,8 +71,8 @@ Now we are ready to get started with the MODIS time series analysis exercise in 
 First, choose your working directory (i.e. a folder on your hard drive) to which the MODIS data will be downloaded and where you will save your R script. Set your workdirectory in R using the `setwd()` command. Remark: on your computer the file path looks different on windows! In R you have to change the backslash symbol to a forward slash symbol e.g.: 
   
 ```{r, eval = FALSE}
-## "c:\student\MODIS"
-setwd(c("c:/student/MODIS/"))
+## "d:\student\MODIS"
+setwd(c("d:/student/MODIS/")) ## choose your own directory
 getwd() ## to check what your working directory is.
 ```
 
@@ -92,7 +92,7 @@ install.packages("bfast",
 
 The necessary add-on packages need to be installed within R before loading the using the `library()` function. Below we define a helper function that does installing and loading of the packages for us. 
 
-```{r, echo=FALSE, message=FALSE, eval=TRUE}
+```{r, echo=TRUE, message=FALSE, eval=TRUE}
 # pkgTest is a helper function to load packages and install packages only when they are not installed yet.
 pkgTest <- function(x)
 {

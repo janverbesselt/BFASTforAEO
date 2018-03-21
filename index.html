@@ -865,7 +865,7 @@
 <div id="header">
 <h1 class="title">MODIS NDVI time series analysis using BFAST</h1>
 <h2 class="author">Jan Verbesselt</h2>
-<h3 class="date">19 March, 2018</h3>
+<h3 class="date">21 March, 2018</h3>
 </div>
 <div id="wrap">
 <div class="container">
@@ -879,7 +879,7 @@
 <span class="glyphicon glyphicon-chevron-down"></span> R source
 </button>
 <pre style=""><code class="source r">format(Sys.time(), '%d %B, %Y')</code></pre>
-<p>[1] &quot;19 March, 2018&quot;</p>
+<p>[1] &quot;21 March, 2018&quot;</p>
 </div>
 <p>This document explains how to use R scripting language for downloading MODIS data and analysing it within R. The results of the analysis of MODIS data within R are illustrated. For this time series analysis demonstration it is not required to know R details, we only use R for some practical demonstration of its great potential. In this exercise we will automatically download MODIS data for specific locations around the world. First, MODIS satellite data is described. Second, the use of R is introduced. Finally, the exercise in R is explained, step by step.</p>
 <h1 id="introduction-to-modis-data-and-online-analysis">Introduction to MODIS data and online analysis</h1>
@@ -917,8 +917,8 @@
 <button class="source R toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> R source
 </button>
-<pre style=""><code class="source r">## "c:\student\MODIS"
-setwd(c("c:/student/MODIS/"))
+<pre style=""><code class="source r">## "d:\student\MODIS"
+setwd(c("d:/student/MODIS/")) ## choose your own directory
 getwd() ## to check what your working directory is.</code></pre>
 </div>
 <p>Second, make sure your package installed in R are up-to-date by:</p>
@@ -937,7 +937,19 @@ install.packages("bfast",
 </div>
 <p>The necessary add-on packages need to be installed within R before loading the using the <code>library()</code> function. Below we define a helper function that does installing and loading of the packages for us.</p>
 <div class="row">
-
+<button class="source R toggle btn btn-xs btn-primary">
+<span class="glyphicon glyphicon-chevron-down"></span> R source
+</button>
+<pre style=""><code class="source r"># pkgTest is a helper function to load packages and install packages only when they are not installed yet.
+pkgTest <- function(x)
+{
+  if (x %in% rownames(installed.packages()) == FALSE) {
+    install.packages(x, dependencies= TRUE)    
+  }
+  library(x, character.only = TRUE)
+}
+neededPackages <- c("strucchange","forecast","zoo", "bfast")
+for (package in neededPackages){pkgTest(package)}</code></pre>
 </div>
 <p>The two functions defined in the section below need to be run at once (select all of them in the R script window and do <strong>Crtl-Return</strong>). This will define two functions which we will need to process the MODIS data time series. So nothing will happen now in R, but the function are loaded and ready to be used in the script sections below.</p>
 <blockquote>
