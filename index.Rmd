@@ -46,7 +46,7 @@ Now go to the [MODIS Land Products](https://modis.ornl.gov/sites/):
 
   * Search for 'Netherlands' and select the 'Gelderland Loobos' Site.
   * Select the MODIS 13Q1 product by clicking on it. This requires you to log-in for having acces to the data.
-  * Create an account (this provides data access, and should take little time).
+  * Create an account. Creating an account provides data access and should (normally) be easy to create an account.
   * Here you can download the data manually but we will do that via a R script as explained below.
   * See the tab 'Location' and see how the subset has been spatially defined. This will be important for the R script as explained below.
   * Under the table 'Download' data you can also see the **Pixel Numbering Scheme** where the red pixel (i.e. 545) is the "site pixel".
