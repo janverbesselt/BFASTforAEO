@@ -26,37 +26,33 @@ First, MODIS satellite data is described. Second, the use of R is introduced. Fi
 
 # Introduction to MODIS data and online analysis
 
-The MODIS satellite data that we will download for this time series analysis exercise is available from [MODIS Subsetting Website](https://modis.ornl.gov/sites/). MODIS data is made available for speficic locations. 
+The MODIS satellite data that we will download for this time series analysis exercise is available from [MODIS Subsetting Website](https://modis.ornl.gov/sites/). MODIS data is made available for specific locations. 
 
-More specifically, we will look at the MODIS product called MOD13Q1 which are global 16-day images at a spatial resolution of 250 m. Each image contains several bands; i.e. blue, red, and near-infrared reflectances, centered at 469-nanometers, 645-nanometers, and 858-nanometers, respectively, are used to determine the MODIS vegetation indices.
+More specifically, we will look at the MODIS product called MOD13Q1 which are *global 16-day images at a spatial resolution of 250 m*. Each image contains several bands; i.e. blue, red, and near-infrared reflectances, centered at 469-nanometers, 645-nanometers, and 858-nanometers, respectively, are used to determine the MODIS vegetation indices.
 
-The MODIS Normalized Difference Vegetation Index (NDVI) complements NOAA's Advanced Very High Resolution Radiometer (AVHRR) NDVI products and provides continuity for time series historical applications. MODIS also includes a new Enhanced Vegetation Index (EVI) that minimises canopy background variations and maintains sensitivity over dense vegetation conditions. The EVI also uses the blue band to remove residual atmosphere contamination caused by smoke and sub-pixel thin clouds. The MODIS NDVI and EVI products are computed from atmospherically corrected bi-directional surface reflectances that have been masked for water, clouds, heavy aerosols, and cloud shadows.
+The MODIS Normalized Difference Vegetation Index (NDVI) complements NOAA's Advanced Very High Resolution Radiometer (AVHRR) NDVI products and provides continuity for time series historical applications. MODIS also includes a new Enhanced Vegetation Index (EVI) that minimizes canopy background variations and maintains sensitivity over dense vegetation conditions. The EVI also uses the blue band to remove residual atmosphere contamination caused by smoke and sub-pixel thin clouds. The MODIS NDVI and EVI products are computed from atmospherically corrected bi-directional surface reflectances that have been masked for water, clouds, heavy aerosols, and cloud shadows.
 
-Vegetation indices are used for global monitoring of vegetation conditions and are used in products displaying land cover and land cover changes. These data may be used as input for modeling global biogeochemical and hydrologic processes and global and regional climate. These data also may be used for characterizing land surface biophysical properties and processes, including primary production and land cover conversion.
-We will work with the MODIS NDVI band within the MOD13Q1 product. More information about this MODIS data set can be found via the [MODIS product table](https://lpdaac.usgs.gov/dataset_discovery/modis/modis_products_table/mod13q1_v006).
+Vegetation indices are used for global monitoring of vegetation conditions and are used in products displaying land cover and land cover changes. 
+We will work with the MODIS NDVI band within the MOD13Q1 product. More information about this MODIS data set can be found via the [MODIS product table].
 
 
-> **Question 1**: By what factor does the 250m MODIS NDVI image layer need to 
+> **Question 1**: Now go to the [MODIS MOD13Q1 information](https://lpdaac.usgs.gov/dataset_discovery/modis/modis_products_table/mod13q1_v006) page. \See the Data Layer Characteristics page. By what factor does the 250 m MODIS 16 days NDVI image layer need to 
 be multiplied in order to obtain values between 0 and 1?
 
-> **Question 2**: What pixel reliability (i.e. rank number) would you use to obtain *good data*?
-
-Tip: see the [MODIS user guide](https://lpdaac.usgs.gov/sites/default/files/public/product_documentation/mod13_user_guide.pdf) and search for the meaning of reliability.
+> **Question 2**: What pixel reliability (i.e. rank number) would you use to obtain *good data*? Tip: see the [MODIS user guide](https://lpdaac.usgs.gov/sites/default/files/public/product_documentation/mod13_user_guide.pdf) and search for the meaning of reliability (See Table 4).
 
 
 Now go to the [MODIS Land Products](https://modis.ornl.gov/sites/):
 
-  * Search for 'The Netherlands' and select the Gelderland Loobos Site.
-  * select the MODIS 13Q1 product
-  * here you can download the data manually but we will do that via a R script as explained below.
-  * See the tab 'location' and see how the subset has been spatially defined. This will be important for the R script as explained below.
-  
-  * Now study the NDVI and EVI time series graphs:
+  * Search for 'Netherlands' and select the 'Gelderland Loobos' Site.
+  * Select the MODIS 13Q1 product by clicking on it. This requires you to log-in for having acces to the data.
+  * Create an account (this provides data access, and should take little time).
+  * Here you can download the data manually but we will do that via a R script as explained below.
+  * See the tab 'Location' and see how the subset has been spatially defined. This will be important for the R script as explained below.
+  * Under the table 'Download' data you can also see the **Pixel Numbering Scheme** where the red pixel (i.e. 545) is the "site pixel".
+  * Now study the NDVI time series graphs.
 
-> **Question 3**: What key differences do you observe between NDVI and EVI time series visualised on the bottom of the page?
-Why do they differ?
-
-> **Question 4**: What is the key land cover type in the center of the site? (see bottom left side of the website)
+> **Question 3**: What is the key land cover type in the center of the site? (see bottom left side of the website)
 
 # Automated MODIS NDVI download and analysis via R
 
@@ -68,7 +64,7 @@ Now if need you can follow the following tutorial on getting started with [R and
 ## Getting started: install packages and define functions for MODIS data analysis
 
 Now we are ready to get started with the MODIS time series analysis exercise in R! 
-First, choose your working directory (i.e. a folder on your hard drive) to which the MODIS data will be downloaded and where you will save your R script. Set your workdirectory in R using the `setwd()` command. Remark: on your computer the file path looks different on windows! In R you have to change the backslash symbol to a forward slash symbol e.g.: 
+First, choose your working directory (i.e. a folder on your hard drive) to which the MODIS data will be downloaded and where you will save your R script. Set your work directory in R using the `setwd()` command. Remark: on your computer the file path looks different on windows! In R you have to change the backslash symbol to a forward slash symbol e.g.: 
   
 ```{r, eval = FALSE}
 ## "d:\student\MODIS"
@@ -136,7 +132,7 @@ sel <- function(y,crit){
 
 ## Downloading MODIS data using R script
 
-Now we are ready to start downloading the MODIS data. We will use this approah via R as long as the server in the U.S. is online and working (you need internet connection, and also keep in mind that the file can be more than 15Mb large).
+Now we are ready to start downloading the MODIS data. We will use this approach via R as long as the server in the U.S. is online and working (you need internet connection, and also keep in mind that the file can be more than 15Mb large).
 
 ```{r, eval = FALSE}
 getwd() ## the file is downloaded to your working directory 
@@ -168,8 +164,8 @@ modisfilename <- paste(fluxtower,".csv",sep="")
 ## modis <- read.csv(fluxtower, header=FALSE, col.names=colnames)
 ```
 
-By running the lines above the MODIS data subset for the Loobos fluxtower (the Netherlands) is downloaded to the`modis` variable. 
-Data for a different fluxtower, a fluxtower in New South Wales, Australia, can be downloaded by changing the `fluxtower` variable using the following line:
+By running the lines above the MODIS data subset for the Loobos flux tower (the Netherlands) is downloaded to the`modis` variable. 
+Data for a different flux tower, a flux tower in New South Wales, Australia, can be downloaded by changing the `fluxtower` variable using the following line:
 
 ```{r}
 fluxtower <- c("au_newsouthwales_tumbarumba_MOD13Q1")
@@ -250,7 +246,7 @@ Now plot the resulting `ts.NDVI` object:
 plot(ts.NDVI, ylab = "NDVI") 
 ```
 
-> **Question 5**: Below a code section is provided that you can use (copy/paste and customize). 
+> **Question 4**: Below a code section is provided that you can use (copy/paste and customize). 
 Select multiple pixels (e.g. 6 pixels) and derive an average, maximum, and median of the selected time series. 
 Now make a plot showing the average, maximum, or median time series. 
 Compare the median NDVI time series with the NDVI time series of the flux tower and copy paste the R plot output in your report. 
@@ -288,7 +284,7 @@ lines(sel(ts.NDVI,ts.rel > 1), col = "red", type = "p")
 legend("bottomleft","pixels with a low reliability",col=2,pch=1)
 ```
 
-> **Question 6**: Investigation of MODIS reliability scores. What happens if you select only good quality NDVI data? Can you explain what happens and why this could be? Discuss.
+> **Question 5**: Investigation of MODIS reliability scores. What happens if you select only good quality NDVI data? Can you explain what happens and why this could be? Discuss.
 
 Perform the cleaning and plot the result by running the following lines. The resulting plot will show the MODIS NDVI time series showing red section which indicate the zones that are deleted based on reliability information.
 
@@ -331,9 +327,9 @@ fit <- bfast(ts.clNDVIfilled, h=rdist,
 plot(fit, main="")
 ```
 
-> **Question 7**: copy  and paste the resulting R BFAST graph in the report and describe the detected components and change types, detected within the time series. Are there any detected breaks? How strict would you do the cleaning?
+> **Question 6**: copy  and paste the resulting R BFAST graph in the report and describe the detected components and change types, detected within the time series. Are there any detected breaks? How strict would you do the cleaning?
 
-> **Question 8**: Download data from another location on earth and run all the steps mentioned above again in order to apply the BFAST function again onto a new cleaned NDVI time series. Copy the BFAST plot to your report, mention the flux tower that you downloaded the data from and describe the difference with the graph obtained from *Question 7*.
+> **Question 7**: Download data from another location on earth and run all the steps mentioned above again in order to apply the BFAST function again onto a new cleaned NDVI time series. Copy the BFAST plot to your report, mention the flux tower that you downloaded the data from and describe the difference with the graph obtained from *Question 7*.
 
 ## Finding information and examples about BFAST
 
@@ -371,9 +367,7 @@ plot(mon, main="bfastmonitor results")
 ```
 
 
-> **Question 9**: Start the monitoring period the end of 2016. Is 2017 an abnormal year in your own time series?
-
-> **Question 10**: See the help section of bfastmonitor. Can you explain what the effect is of using a different `formula` in `bfastmonitor()`. For example, what happens if you use `response ~ trend`. Illustrate this with your own time series for a location of your own choice.
+> **Question 8**: Start the monitoring period the end of 2016. Is 2017 an abnormal year the NDVI time series you have selected for your own location? Include the graph of your location in your answer report and describe what is visualised.
 
 
 # More information
