@@ -52,13 +52,13 @@ Now go to the [MODIS Land Products](https://modis.ornl.gov/sites/):
   * Under the table 'Download' data you can also see the **Pixel Numbering Scheme** where the red pixel (i.e. 545) is the "site pixel".
   * Now study the NDVI time series graphs.
 
-> **Question 3**: What is the key land cover type in the center of the site? (see bottom left side of the website)
+> **Question 3**: What is the key land cover type in the center of the site? (see bottom left side of the website: **land cover**)
 
 # Automated MODIS NDVI download and analysis via R
 
 We will download the MODIS data for the Loobos Site via R and process the data for one location to detect changes within the time series.
 
-Now if need you can follow the following tutorial on getting started with [R and Rstudio](https://geoscripting-wur.github.io/Scripting4GeoIntro/#Basic_R_and_RStudio_setup).
+If it is the first time that you work with R or Rstudio, you can follow the following tutorial on getting started with [R and Rstudio](https://geoscripting-wur.github.io/Scripting4GeoIntro/#Basic_R_and_RStudio_setup).
 
 
 ## Getting started: install packages and define functions for MODIS data analysis
@@ -146,9 +146,7 @@ getwd() ## the file is downloaded to your working directory
 fluxtower <- "nl_gelderland_loobos_MOD13Q1"
 filename <- paste("https://modis.ornl.gov/site/",fluxtower,"/MOD13Q1.csv",sep="")
 
-# result of the paste function for loobos site"https://modis.ornl.gov/site/nl_gelderland_loobos_MOD13Q1/MOD13Q1.csv"
-
-# define column names of the file the we will download
+# define column names of the file that we will download
 colnames <- c("HDFname","Product","Date","Location","ProcessDate","Band", 1:(1095-6))
 
 modisfilename <- paste(fluxtower,".csv",sep="")
@@ -160,23 +158,25 @@ modisfilename <- paste(fluxtower,".csv",sep="")
 }
 
 ## if the above step does not work you can download the data manually via the website and name the file
-## e.g. "nl_gelderland_loobos.csv" then read it in with 
+## e.g. "nl_gelderland_loobos_MOD13Q1.csv" then read it in with 
 ## modis <- read.csv(fluxtower, header=FALSE, col.names=colnames)
 ```
 
 By running the lines above the MODIS data subset for the Loobos flux tower (the Netherlands) is downloaded to the`modis` variable. 
-Data for a different flux tower, a flux tower in New South Wales, Australia, can be downloaded by changing the `fluxtower` variable using the following line:
+Data for a different site, i.e. a flux tower in New South Wales, Australia, can be downloaded by changing the `fluxtower` variable using the following line:
 
 ```{r}
 fluxtower <- c("au_newsouthwales_tumbarumba_MOD13Q1")
 ```
 
-You can find this name via the following [link](https://modis.ornl.gov/cgi-bin/sites/site.pl?id=au_newsouthwales_tumbarumba&product=MOD13Q1). Then go to TAB **Subset Summary**, and then see **Site ID** information.
+You can find this name via the following [link](https://modis.ornl.gov/cgi-bin/sites/site.pl?id=au_newsouthwales_tumbarumba&product=MOD13Q1). 
+Then go to TAB **Subset Summary**, and then see **Site ID** information.
 
-You can browser for other sites via:
-[https://modis.ornl.gov/sites/](https://modis.ornl.gov/sites/)
 
-Now try and change the name of the flux tower site and then rerun the section above to download data for another location in the world. 
+You can search for other sites via:
+[https://modis.ornl.gov/sites/](https://modis.ornl.gov/sites/). Select a new site location and then select the *MOD13Q1* product in the product table.
+
+**To Do: Now change the name of the site and then rerun the section above to download data for another location in the world.**
 
 ## The MODIS CSV file data structure
 
@@ -196,7 +196,7 @@ The following R names() shows the names of the first 6 columns of the 'modis' da
 names(modis)[1:8]
 ```
 
-The first six columns contain info about the image (e.g. site, date, band, and when it is processed) and from the 7th each column contains e.g. NDVI information from each MODIS pixel within the subset. E.g the 7th column is a pixel, and the 8th is another pixel. 
+The first six columns contain info about the image (e.g. site, date, band, and when it is processed) and from the 7th each column contains e.g. NDVI information from each MODIS pixel within the subset: the 7th column is a pixel, and the 8th is another pixel. 
 
 The following R code line shows the band names of this file. The MOD13Q1 Product contains 12 Bands:
 ```{r}
@@ -246,31 +246,6 @@ Now plot the resulting `ts.NDVI` object:
 plot(ts.NDVI, ylab = "NDVI") 
 ```
 
-> **Question 4**: Below a code section is provided that you can use (copy/paste and customize). 
-Select multiple pixels (e.g. 6 pixels) and derive an average, maximum, and median of the selected time series. 
-Now make a plot showing the average, maximum, or median time series. 
-Compare the median NDVI time series with the NDVI time series of the flux tower and copy paste the R plot output in your report. 
-Which approach do you think would be suitable to reduce the noise within a time series? Explain why? 
-For bonus points and an extra challenge: Try to derive a 'noise reduced' NDVI time series of a 3 by 3 window around the flux tower.
-
-
-```{r, message=FALSE, warning=FALSE, fig.width=11, fig.height=6}
-## try it out and customize for your own needs
-j <- 442:444  # adjust the nummers or define your own pixels with e.g. j <- c(545,..)
-t <- modis[modis$Band == ndvibandname, j] # extract NDVI data
-tt <- data.matrix(t)/10000 ## convert to a data matrix and divide by 10000
-ttt <- ts(apply(tt, 2, timeser, DATUM), start=c(2000,4), freq=23) 
-## convert to a regular time series object
-## plot(ttt) ## plot all the time series
-## derive the statistics (max, mean):
-maxt <- ts(apply(ttt, 1, max, na.rm=TRUE), start=c(2000,4), freq=23)
-meant <- ts(apply(ttt, 1, mean, na.rm=TRUE), start=c(2000,4), freq=23)
-## plot
-plot(maxt, col="green", ylim=c(0,1))
-lines(meant, col="red")
-```
-
-
 ## Use the MODIS Reliability information to clean the NDVI time series
 
 Now, we will visualize MODIS reliability information using the `sel` function defined above. 
@@ -284,7 +259,7 @@ lines(sel(ts.NDVI,ts.rel > 1), col = "red", type = "p")
 legend("bottomleft","pixels with a low reliability",col=2,pch=1)
 ```
 
-> **Question 5**: Investigation of MODIS reliability scores. What happens if you select only good quality NDVI data? Can you explain what happens and why this could be? Discuss.
+> **Question 4**: Investigation of MODIS reliability scores. What happens if you select only good quality NDVI data?
 
 Perform the cleaning and plot the result by running the following lines. The resulting plot will show the MODIS NDVI time series showing red section which indicate the zones that are deleted based on reliability information.
 
@@ -320,6 +295,7 @@ Second, we apply the BFAST function onto the time series. We determine this mini
 Here, we set the distance to 25 time steps (i.e. 25 16-day images). Then we apply the BFAST function (`bfast()`) on the time series..
 
 ```{r, eval=FALSE}
+library(bfast)
 rdist <- 25/length(ts.clNDVIfilled)
 ## ratio of distance between breaks (time steps) and length of the time series
 fit <- bfast(ts.clNDVIfilled, h=rdist,
@@ -327,9 +303,9 @@ fit <- bfast(ts.clNDVIfilled, h=rdist,
 plot(fit, main="")
 ```
 
-> **Question 6**: copy  and paste the resulting R BFAST graph in the report and describe the detected components and change types, detected within the time series. Are there any detected breaks? How strict would you do the cleaning?
+> **Question 5**: copy  and paste the resulting R BFAST graph in the report and describe the detected components and change types, detected within the time series. Are there any detected breaks?
 
-> **Question 7**: Download data from another location on earth and run all the steps mentioned above again in order to apply the BFAST function again onto a new cleaned NDVI time series. Copy the BFAST plot to your report, mention the flux tower that you downloaded the data from and describe the difference with the graph obtained from *Question 7*.
+> **Question 6**: Download data from another location on earth and run all the steps mentioned above again in order to apply the BFAST function onto a new cleaned NDVI time series. Copy the BFAST plot to your report, mention the Site Name that you downloaded the data from and describe the difference with the BFAST graph obtained from the previous question (i.e. Loobos Site in The Netherlands).
 
 ## Finding information and examples about BFAST
 
@@ -367,7 +343,7 @@ plot(mon, main="bfastmonitor results")
 ```
 
 
-> **Question 8**: Start the monitoring period the end of 2016. Is 2017 an abnormal year the NDVI time series you have selected for your own location? Include the graph of your location in your answer report and describe what is visualised.
+> **Question 7**: Start the monitoring period the end of 2016. Is 2017 an abnormal year the NDVI time series you have selected for your own location? Include the graph of your location in your answer report and describe what is visualised.
 
 
 # More information
