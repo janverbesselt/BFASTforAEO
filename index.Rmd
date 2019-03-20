@@ -35,13 +35,9 @@ The MODIS Normalized Difference Vegetation Index (NDVI) complements NOAA's Advan
 Vegetation indices are used for global monitoring of vegetation conditions and are used in products displaying land cover and land cover changes. 
 We will work with the MODIS NDVI band within the MOD13Q1 product. More information about this MODIS data set can be found via the [MODIS product table].
 
-```{block, type="alert alert-success"}
-> **Question 1**: Now go to the [MODIS MOD13Q1 information](https://lpdaac.usgs.gov/dataset_discovery/modis/modis_products_table/mod13q1_v006) page. \See the Data Layer Characteristics page. By what factor does the 250 m MODIS 16 days NDVI image layer need to 
-be multiplied in order to obtain values between 0 and 1?
-```
 
 ```{block, type="alert alert-success"}
-> **Question 2**: What pixel reliability (i.e. rank number) would you use to obtain *good data*? Tip: see the [MODIS user guide](https://lpdaac.usgs.gov/sites/default/files/public/product_documentation/mod13_user_guide.pdf) and search for the meaning of reliability (See Table 4).
+> **Question 1**: What pixel reliability (i.e. rank number) would you use to obtain *good data*? Tip: see the [MODIS user guide](https://lpdaac.usgs.gov/sites/default/files/public/product_documentation/mod13_user_guide.pdf) and search for the meaning of reliability (See Table 4).
 ```
 
 Now go to the [MODIS Land Products](https://modis.ornl.gov/sites/):
@@ -51,7 +47,7 @@ Now go to the [MODIS Land Products](https://modis.ornl.gov/sites/):
   * Under 'Download data' tab and table you can see the **Pixel Numbering Scheme** where the blue pixel (i.e. 545) is the "site pixel" (i.e. the middle of the spatial subset).
 
 ```{block, type="alert alert-success"}
-> **Question 3**: What is the key land cover type in the center of the site? (see additional information on the bottom of the [MODIS13Q1 page](https://modis.ornl.gov/cgi-bin/sites/site/?id=nl_gelderland_loobos&product=MOD13Q1))
+> **Question 2**: What is the key land cover type in the center of the site? (see additional information on the bottom of the [MODIS13Q1 page](https://modis.ornl.gov/cgi-bin/sites/site/?id=nl_gelderland_loobos&product=MOD13Q1))
 ```
 
 # Automated MODIS NDVI download and analysis via R
@@ -104,7 +100,7 @@ pkgTest <- function(x)
   }
   library(x, character.only = TRUE)
 }
-neededPackages <- c("strucchange","zoo", "bfast", "raster")
+neededPackages <- c("strucchange","zoo", "bfast", "raster", "leaflet")
 for (package in neededPackages){pkgTest(package)}
 ```
 
@@ -119,7 +115,7 @@ library("MODISTools")
 
 Loading an extra function to create time series 
 
-```{r, message = FALSE, results='hide'}
+```{r, message = FALSE}
 timeser <- function(index, dt) {
     z <- zoo(index, dt)
     yr <- as.numeric(format(time(z), "%Y"))
@@ -135,7 +131,7 @@ timeser <- function(index, dt) {
 
 First we download the MODIS data via the `mt_subset` function and immediately create raster brick from it:
 
-```{r}
+```{r, eval=FALSE}
 VI <- mt_subset(product = "MOD13Q1",
                 site_id = "nl_gelderland_loobos",
                 band = "250m_16_days_NDVI",
@@ -155,6 +151,10 @@ QA <- mt_subset(product = "MOD13Q1",
                 site_name = "testsite",
                 internal = TRUE,
                 progress = FALSE)
+```
+
+```{r, message=FALSE, include=FALSE}
+load("DataLooBos_QA_VI_backup_20032019.RData")
 ```
 
 ## creating a raster brick and cleaning the MODIS data using the reliability layer
@@ -181,7 +181,24 @@ You can (optional!) extract data from the cleaned VI raster brick via the `click
 ```{r, eval=FALSE}
 # extract data from the cleaned raster for selected pixels
 click(VI_m, id=TRUE, xy=TRUE, cell=TRUE, n= 1)
+```
 
+```{block type="alert alert-info"}
+**Protip**: Creating a nice map with the leaflet package in R
+```
+
+
+```{r, warning=FALSE, results='asis', eval=FALSE}
+library(leaflet)
+r <- raster(VI_m,1)
+pal <- colorNumeric(c("#ffffff", "#4dff88", "#004d1a"), values(r),
+  na.color = "transparent")
+
+m <- leaflet() %>% addTiles() %>%
+  addRasterImage(r, colors = pal, opacity = 0.8) %>%
+  addLegend(pal = pal, values = values(r),
+    title = "NDVI")
+m
 ```
 
 ## Apply BFASTmonitor
@@ -206,21 +223,17 @@ plot(bfm1)
 ## Critical questions for the BFAST AEO exercise:
 
 ```{block, type="alert alert-success"}
-> **Question 4**: Now check if you detect a break in the center pixel (see pixel numbering scheme)? Do you detect a break?
-```
-
-```{block, type="alert alert-success"}
-> **Question 5**: What happens if you change the harmonic 'order' from 3 to 1? See `?bfastmonitor`. Can you explain this in two sentences ?
+> **Question 3**: Now check if you detect a break in the center pixel (see pixel numbering scheme)? What happens if you change the harmonic 'order' from 3 to 1? See `?bfastmonitor`. Can you explain this in two sentences ?
 ```
 
 
 ```{block, type="alert alert-success"}
-> **Question 6**:  What happens if you use a different *formula* in `bfastmonitor? For example, `response ∼ trend`. Explain what happens and also in which sense in 2018 an abnormal year? 
+> **Question 4**:  What happens if you use a different *formula* in `bfastmonitor? For example, `response ∼ trend`. Explain what happens and also in which sense in 2018 an abnormal year? 
 ```
 
 
 ```{block, type="alert alert-success"}
-> **Question 7**:  Now try to detect a change in 2018 for another site in the world available via the [https://modis.ornl.gov/sites/](https://modis.ornl.gov/sites/) website. In your answer, mention (1) site, (2) bfastmonitor settings, (3) pixelnumber, (4) landcover type of that pixel and (5) Add the plot of the time series together with explanation of the graph (explain the difference in seasonality between the loobos site and your choosen site)
+> **Question 5**:  Now try to detect a change in 2018 for another site in the world available via the [https://modis.ornl.gov/sites/](https://modis.ornl.gov/sites/) website. In your answer, mention (1) site, (2) bfastmonitor settings, (3) landcover type of that pixel and (4) add the plot of the time series together with explanation of the graph (explain the difference in seasonality between the loobos site and your choosen site)
 ```
 
 
