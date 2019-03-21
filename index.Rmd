@@ -100,22 +100,34 @@ pkgTest <- function(x)
   }
   library(x, character.only = TRUE)
 }
-neededPackages <- c("strucchange","zoo", "bfast", "raster", "leaflet")
+neededPackages <- c("strucchange","zoo", "bfast", "raster", "leaflet", "MODISTools")
 for (package in neededPackages){pkgTest(package)}
 ```
 
-Installing the latest MODISTools package:
-```{r, echo=TRUE, message=FALSE, eval=TRUE}
-# with the below code we install the latest version of MODISTools package
-# via https://github.com/khufkens/MODISTools
-if(!require(devtools)){install.package("devtools")}
-devtools::install_github("khufkens/MODISTools")
-library("MODISTools")
-```
 
-Loading an extra function to create time series 
+Loading extra functions to create:
+  - via `mt_to_raster` a raster stack from the MODIS subset downloaded with the `mt_subset` function
+  - via `timeser` a time series object in R `ts`
 
 ```{r, message = FALSE}
+mt_to_raster <- function (df = subset) 
+{
+    dates <- unique(df$calendar_date)
+    df$scale[df$scale == "Not Available"] <- 1
+    r <- do.call("stack", lapply(dates, function(date) {
+        m <- matrix(df$value[df$calendar_date == date] * as.numeric(df$scale[df$calendar_date == 
+            date]), df$nrows[1], df$ncols[1], byrow = TRUE)
+        return(raster::raster(m))
+    }))
+    bb <- MODISTools::mt_bbox(xllcorner = df$xllcorner[1], yllcorner = df$yllcorner[1], 
+        cellsize = df$cellsize[1], nrows = df$nrows[1], ncols = df$ncols[1])
+    bb <- as(bb, "Spatial")
+    raster::extent(r) <- raster::extent(bb)
+    raster::projection(r) <- raster::projection(bb)
+    names(r) <- as.character(dates)
+    return(r)
+}
+
 timeser <- function(index, dt) {
     z <- zoo(index, dt)
     yr <- as.numeric(format(time(z), "%Y"))
