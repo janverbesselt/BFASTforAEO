@@ -21,7 +21,7 @@ output:
 format(Sys.time(), '%d %B, %Y')
 ```
 
-This document explains how to use R scripting language for downloading MODIS data and analysing it within R. The results of the analysis of MODIS data within R are illustrated. For this time series analysis demonstration it is not required to know R details, we only use R for some practical demonstration of its great potential. In this exercise we will automatically download MODIS data for specific locations around the world. 
+This document explains how to use R scripting language for downloading MODIS data and analyzing it within R. The results of the analysis of MODIS data within R are illustrated. For this time series analysis demonstration it is not required to know R details, we only use R for some practical demonstration of its great potential. In this exercise we will automatically download MODIS data for specific locations around the world. 
 First, MODIS satellite data is described. Second, the use of R is introduced. Finally, the exercise in R is explained, step by step. 
 
 # Introduction to MODIS data and online analysis
@@ -63,7 +63,7 @@ Now we are ready to get started with the MODIS time series analysis exercise in 
 
 First, choose your working directory (i.e. a folder on your hard drive) to which the MODIS data will be downloaded and where you will save your R script.
 ```{block type="alert alert-info"}
-**Protip**: Do not hardcode `setwd()` in your R script as the path might be different on another computer, and therefore your script will not be fully reproducible by others.
+**Protip**: Do not hard code `setwd()` in your R script as the path might be different on another computer, and therefore your script will not be fully reproducible by others.
 ```
 
 In RStudio you can set your working directory this way, if you have saved your R script to your working directory:

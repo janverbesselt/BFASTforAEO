@@ -865,7 +865,7 @@
 <div id="header">
 <h1 class="title">MODIS NDVI time series analysis using BFAST</h1>
 <h2 class="author">Jan Verbesselt</h2>
-<h3 class="date">21 March, 2019</h3>
+<h3 class="date">22 March, 2019</h3>
 </div>
 <div id="wrap">
 <div class="container">
@@ -879,9 +879,9 @@
 <span class="glyphicon glyphicon-chevron-down"></span> R source
 </button>
 <pre style=""><code class="source r">format(Sys.time(), '%d %B, %Y')</code></pre>
-<p>[1] &quot;21 March, 2019&quot;</p>
+<p>[1] &quot;22 March, 2019&quot;</p>
 </div>
-<p>This document explains how to use R scripting language for downloading MODIS data and analysing it within R. The results of the analysis of MODIS data within R are illustrated. For this time series analysis demonstration it is not required to know R details, we only use R for some practical demonstration of its great potential. In this exercise we will automatically download MODIS data for specific locations around the world. First, MODIS satellite data is described. Second, the use of R is introduced. Finally, the exercise in R is explained, step by step.</p>
+<p>This document explains how to use R scripting language for downloading MODIS data and analyzing it within R. The results of the analysis of MODIS data within R are illustrated. For this time series analysis demonstration it is not required to know R details, we only use R for some practical demonstration of its great potential. In this exercise we will automatically download MODIS data for specific locations around the world. First, MODIS satellite data is described. Second, the use of R is introduced. Finally, the exercise in R is explained, step by step.</p>
 <h1 id="introduction-to-modis-data-and-online-analysis">Introduction to MODIS data and online analysis</h1>
 <p>The MODIS satellite data that we will download for this time series analysis exercise is available from <a href="https://modis.ornl.gov/sites/">MODIS Subsetting Website</a>. MODIS data is made available for specific locations.</p>
 <p>More specifically, we will look at the MODIS product called MOD13Q1 which are <em>global 16-day images at a spatial resolution of 250 m</em>. Each image contains several bands; i.e. blue, red, and near-infrared reflectances, centered at 469-nanometers, 645-nanometers, and 858-nanometers, respectively, are used to determine the MODIS vegetation indices.</p>
@@ -920,7 +920,7 @@ First, choose your working directory (i.e. a folder on your hard drive) to which
 <div class="row">
 <div class="alert alert-info">
 <p>
-<strong>Protip</strong>: Do not hardcode <code>setwd()</code> in your R script as the path might be different on another computer, and therefore your script will not be fully reproducible by others.
+<strong>Protip</strong>: Do not hard code <code>setwd()</code> in your R script as the path might be different on another computer, and therefore your script will not be fully reproducible by others.
 </p>
 </div>
 </div>
