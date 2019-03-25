@@ -251,6 +251,35 @@ plot(bfm1)
 # More information
 More information can be found on the [BFAST website](http://bfast.r-forge.r-project.org/) and in the BFAST papers mentioned on the website.
 
+## seasonlity monitoring using harmonics
+
+```{r}
+library(bfast)
+## a demo ndvi time series:
+ndvi <- ts(rowSums(simts$time.series))
+tsp(ndvi) <- tsp(simts$time.series)
+## input variable for the sinus and cosinus functions
+f <- 23
+w <- 1/f
+tl <- 1:length(ndvi)
+## 3th order harmonic model
+co <- cos(2 * pi * tl * w)
+si <- sin(2 * pi * tl * w)
+co2 <- cos(2 * pi * tl * w * 2)
+si2 <- sin(2 * pi * tl * w * 2)
+co3 <- cos(2 * pi * tl * w * 3)
+si3 <- sin(2 * pi * tl * w * 3)
+# fit the seasonal model using linear regression
+fitm<- lm(ndvi~co+si+co2+si2+co3+si3) 
+predm <- fitted(fitm) ## predict based on the modelfit
+plot(co, type = "l", ylab = "cos and sin")
+lines(si, type = "l", lty = 2)
+#create time series bfast on the 3th order harmonic function
+predm <- ts(as.numeric(predm), start=c(2000,4), frequency=23) 
+plot(ndvi, lwd = 3, col = "grey", ylab = "NDVI")
+lines(predm, type = "l", col = "red") # fitted
+```
+
 
 <br><br>
 <br><br>
