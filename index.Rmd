@@ -70,19 +70,6 @@ Check your working directory by
 getwd() # check if you working directory is correctly set
 ```
 
-Second, make sure your package installed in R are up-to-date by:
-
-```{r, eval=FALSE, echo=TRUE}
-update.packages(ask=FALSE)
-
-## we install the latest bfast package from the R-forge website
-install.packages("bfast", dependencies=TRUE)
-
-## for mac users you can do
-install.packages("bfast", 
-                 dependencies=TRUE, type = "source")
-
-```
 
 The necessary add-on packages need to be installed within R before loading the using the `library()` function. Below we define a helper function that does installing and loading of the packages for us. 
 
@@ -138,7 +125,7 @@ timeser <- function(index, dt) {
 
 First we download the MODIS data via the `mt_subset` function and immediately create raster brick from it:
 
-```{r, eval=TRUE}
+```{r, eval=FALSE}
 VI <- mt_subset(product = "MOD13Q1",
                 site_id = "nl_gelderland_loobos",
                 band = "250m_16_days_NDVI",
@@ -160,11 +147,14 @@ QA <- mt_subset(product = "MOD13Q1",
                 progress = FALSE)
 ```
 
-```{r, message=FALSE, include=FALSE, eval=FALSE}
+```{r, message=FALSE, include=FALSE, eval=TRUE}
 load("DataLooBos_QA_VI_backup_20152019.RData")
 ```
 
 ## creating a raster brick and cleaning the MODIS data using the reliability layer
+
+More information about the pixel reliability can be found here (see table 4):
+https://vip.arizona.edu/documents/MODIS/MODIS_VI_UsersGuide_June_2015_C6.pdf
 
 ```{r}
 # convert df to raster

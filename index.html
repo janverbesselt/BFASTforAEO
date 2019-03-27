@@ -923,20 +923,6 @@ First, choose your working directory (i.e. a folder on your hard drive) to which
 </button>
 <pre style=""><code class="source r">getwd() # check if you working directory is correctly set</code></pre>
 </div>
-<p>Second, make sure your package installed in R are up-to-date by:</p>
-<div class="row">
-<button class="source R toggle btn btn-xs btn-primary">
-<span class="glyphicon glyphicon-chevron-down"></span> R source
-</button>
-<pre style=""><code class="source r">update.packages(ask=FALSE)
-
-## we install the latest bfast package from the R-forge website
-install.packages("bfast", dependencies=TRUE)
-
-## for mac users you can do
-install.packages("bfast", 
-                 dependencies=TRUE, type = "source")</code></pre>
-</div>
 <p>The necessary add-on packages need to be installed within R before loading the using the <code>library()</code> function. Below we define a helper function that does installing and loading of the packages for us.</p>
 <div class="row">
 <button class="source R toggle btn btn-xs btn-primary">
@@ -1013,6 +999,7 @@ QA <- mt_subset(product = "MOD13Q1",
                 progress = FALSE)</code></pre>
 </div>
 <h2 id="creating-a-raster-brick-and-cleaning-the-modis-data-using-the-reliability-layer">creating a raster brick and cleaning the MODIS data using the reliability layer</h2>
+<p>More information about the pixel reliability can be found here (see table 4): https://vip.arizona.edu/documents/MODIS/MODIS_VI_UsersGuide_June_2015_C6.pdf</p>
 <div class="row">
 <button class="source R toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> R source
