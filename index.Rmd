@@ -203,8 +203,9 @@ m
 Below we extract the data from the raster as a vector and create a time series using the `timeser` function:
 ```{r}
 ## check VI data at a certain pixel e.g. 1 row, complete left hand site:
-## the dimensions of the raster are: 33x33 
-px <- 33
+## the dimensions of the raster are: 33x33
+
+px <- 33 # pixel number so adjust this number to select the center pixel
 tspx <- timeser(as.vector(VI_m[px]),as.Date(names(VI_m), "X%Y.%m.%d")) # convert pixel 1 to a time series
 plot(tspx, main = 'NDVI') # NDVI time series cleaned using the "reliability informaiton"
 ```
