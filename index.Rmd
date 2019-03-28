@@ -129,7 +129,7 @@ First we download the MODIS data via the `mt_subset` function and immediately cr
 VI <- mt_subset(product = "MOD13Q1",
                 site_id = "nl_gelderland_loobos",
                 band = "250m_16_days_NDVI",
-                start = "2015-01-01",
+                start = "2000-01-01",
                 km_lr = 2,
                 km_ab = 2,
                 site_name = "testsite",
@@ -139,7 +139,7 @@ VI <- mt_subset(product = "MOD13Q1",
 QA <- mt_subset(product = "MOD13Q1",
                 site_id = "nl_gelderland_loobos",
                 band = "250m_16_days_pixel_reliability",
-                start = "2015-01-01",
+                start = "2000-01-01",
                 km_lr = 2,
                 km_ab = 2,
                 site_name = "testsite",
@@ -148,7 +148,7 @@ QA <- mt_subset(product = "MOD13Q1",
 ```
 
 ```{r, message=FALSE, include=FALSE, eval=TRUE}
-load("DataLooBos_QA_VI_backup_20152019.RData")
+load("DataLooBos_QA_VI_backup_20002019.RData")
 ```
 
 ## creating a raster brick and cleaning the MODIS data using the reliability layer
