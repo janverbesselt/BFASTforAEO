@@ -226,7 +226,7 @@ plot(bfm1)
 
 
 ```{block, type="alert alert-success"}
-> **Question 3**:  What happens if you use a different *formula* in `bfastmonitor? For example, `response ∼ trend`. Explain what happens and also in which sense in 2018 an abnormal year? 
+> **Question 3**:  What happens if you use a different *formula* in `bfastmonitor? For example, `response ∼ trend`. Explain what happens and also in which sense is 2018 an abnormal year? 
 ```
 
 
