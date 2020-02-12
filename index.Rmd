@@ -78,11 +78,12 @@ The necessary add-on packages need to be installed within R before loading the u
 pkgTest <- function(x)
 {
   if (x %in% rownames(installed.packages()) == FALSE) {
-    install.packages(x, dependencies= TRUE)    
+    if (x == "bfastSpatial") devtools::install_github("loicdtx/bfastSpatial") else
+        install.packages(x, dependencies= TRUE)
   }
   library(x, character.only = TRUE)
 }
-neededPackages <- c("strucchange","zoo", "bfast", "raster", "leaflet", "MODISTools")
+neededPackages <- c("strucchange","zoo", "bfast", "raster", "leaflet", "MODISTools", "devtools", "bfastSpatial")
 for (package in neededPackages){pkgTest(package)}
 ```
 
@@ -96,7 +97,7 @@ mt_to_raster <- function (df = subset)
 {
     dates <- unique(df$calendar_date)
     df$scale[df$scale == "Not Available"] <- 1
-    r <- do.call("stack", lapply(dates, function(date) {
+    r <- do.call(raster::stack, lapply(dates, function(date) {
         m <- matrix(df$value[df$calendar_date == date] * as.numeric(df$scale[df$calendar_date == 
             date]), df$nrows[1], df$ncols[1], byrow = TRUE)
         return(raster::raster(m))
@@ -125,7 +126,7 @@ timeser <- function(index, dt) {
 
 First we download the MODIS data via the `mt_subset` function and immediately create raster brick from it:
 
-```{r, eval=FALSE}
+```{r, eval=TRUE}
 VI <- mt_subset(product = "MOD13Q1",
                 site_id = "nl_gelderland_loobos",
                 band = "250m_16_days_NDVI",
@@ -147,7 +148,7 @@ QA <- mt_subset(product = "MOD13Q1",
                 progress = FALSE)
 ```
 
-```{r, message=FALSE, include=FALSE, eval=TRUE}
+```{r, message=FALSE, include=FALSE, eval=FALSE}
 load("DataLooBos_QA_VI_backup_20002019.RData")
 ```
 
@@ -216,7 +217,13 @@ bfm1 <- bfastmonitor(tspx, response ~ trend + harmon, order = 3, start = c(2018,
 plot(bfm1)
 ```
 
+Let's run it on all pixels now:
 
+```{r}
+bfmS = bfmSpatial(VI_m, dates=as.Date(names(VI_m), "X%Y.%m.%d"), formula=response ~ trend + harmon, order = 3, start = c(2018,1))
+plot(bfmS[[1]]) # Break date
+plot(bfmS[[2]]) # Break magnitude
+```
 
 ## Critical questions for the BFAST AEO exercise:
 
