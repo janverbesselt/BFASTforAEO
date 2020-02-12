@@ -13,12 +13,12 @@ output:
 
 # MODIS based time series analysis using BFAST
 
-![WUR logo](http://www.wur.nl/upload/b43b7095-e452-482a-8969-fed9a50393a8_WUR_RGB_standard.png)
+![WUR logo](https://www.wur.nl/upload/5e55a1d9-47c3-4149-9384-26d5147ee2d7_WUR_RGB_standard.png)
 
 [Jan Verbesselt](http://www.wur.eu/changemonitor)
 
 ```{r, eval=TRUE, echo=TRUE, include=TRUE, results='asis'}
-format(Sys.time(), '%d %B, %Y')
+format(Sys.time(), '%d-%m-%Y')
 ```
 
 This document explains how to use R scripting language for downloading MODIS data and analyzing it within R. The results of the analysis of MODIS data within R are illustrated. For this time series analysis demonstration it is not required to know R details, we only use R for some practical demonstration of its great potential. In this exercise we will automatically download MODIS data for specific locations around the world. 
