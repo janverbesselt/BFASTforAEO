@@ -78,19 +78,19 @@ The necessary add-on packages need to be installed within R before loading the u
 pkgTest <- function(x)
 {
   if (x %in% rownames(installed.packages()) == FALSE) {
-    if (x == "bfastSpatial") devtools::install_github("loicdtx/bfastSpatial") else
-        install.packages(x, dependencies= TRUE)
+    install.packages(x, dependencies= TRUE)
   }
   library(x, character.only = TRUE)
 }
-neededPackages <- c("strucchange","zoo", "bfast", "raster", "leaflet", "MODISTools", "devtools", "bfastSpatial")
+neededPackages <- c("strucchange","zoo", "bfast", "raster", "leaflet", "MODISTools")
 for (package in neededPackages){pkgTest(package)}
 ```
 
 
 Loading extra functions to create:
-  - via `mt_to_raster` a raster stack from the MODIS subset downloaded with the `mt_subset` function
-  - via `timeser` a time series object in R `ts`
+
+- via `mt_to_raster` a raster stack from the MODIS subset downloaded with the `mt_subset` function
+- via `timeser` a time series object in R `ts`
 
 ```{r, message = FALSE}
 mt_to_raster <- function (df = subset) 
@@ -126,7 +126,7 @@ timeser <- function(index, dt) {
 
 First we download the MODIS data via the `mt_subset` function and immediately create raster brick from it:
 
-```{r, eval=TRUE}
+```{r, eval=TRUE, results="hide"}
 VI <- mt_subset(product = "MOD13Q1",
                 site_id = "nl_gelderland_loobos",
                 band = "250m_16_days_NDVI",
@@ -135,7 +135,7 @@ VI <- mt_subset(product = "MOD13Q1",
                 km_ab = 2,
                 site_name = "testsite",
                 internal = TRUE,
-                progress = FALSE)
+                progress = TRUE)
 
 QA <- mt_subset(product = "MOD13Q1",
                 site_id = "nl_gelderland_loobos",
@@ -145,7 +145,7 @@ QA <- mt_subset(product = "MOD13Q1",
                 km_ab = 2,
                 site_name = "testsite",
                 internal = TRUE,
-                progress = FALSE)
+                progress = TRUE)
 ```
 
 ```{r, message=FALSE, include=FALSE, eval=FALSE}
@@ -220,6 +220,19 @@ plot(bfm1)
 Let's run it on all pixels now:
 
 ```{r}
+dates <- as.Date(names(VI_m), "X%Y.%m.%d")
+
+bfmRaster = function(pixels)
+{
+    tspx <- timeser(pixels, dates)
+    return(bfastmonitor(tspx, response ~ trend + harmon, order = 3, start = c(2018,1))$breakpoint)
+}
+
+bfmR <- calc(VI_m, bfmRaster)
+plot(bfmR, main="Date of detected break in time series")
+```
+
+```{r, include=FALSE, eval=FALSE}
 bfmS = bfmSpatial(VI_m, dates=as.Date(names(VI_m), "X%Y.%m.%d"), formula=response ~ trend + harmon, order = 3, start = c(2018,1))
 plot(bfmS[[1]]) # Break date
 plot(bfmS[[2]]) # Break magnitude
