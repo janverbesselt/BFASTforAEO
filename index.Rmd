@@ -29,7 +29,7 @@ The MODIS satellite data that we will download for this time series analysis exe
 
 More specifically, we will look at the MODIS product called MOD13Q1 which are *global 16-day images at a spatial resolution of 250 m*. Each image contains several bands; i.e. blue, red, and near-infrared reflectances, centered at 469-nanometers, 645-nanometers, and 858-nanometers, respectively, are used to determine the MODIS vegetation indices.
 
-The MODIS Normalized Difference Vegetation Index (NDVI) complements NOAA's Advanced Very High Resolution Radiometer (AVHRR) NDVI products and provides continuity for time series historical applications. MODIS also includes a new Enhanced Vegetation Index (EVI) that minimizes canopy background variations and maintains sensitivity over dense vegetation conditions. The EVI also uses the blue band to remove residual atmosphere contamination caused by smoke and sub-pixel thin clouds. The MODIS NDVI and EVI products are computed from atmospherically corrected bi-directional surface reflectances that have been masked for water, clouds, heavy aerosols, and cloud shadows.
+The MODIS Normalized Difference Vegetation Index (NDVI) complements NOAA's Advanced Very High Resolution Radiometer (AVHRR) NDVI products and provides continuity for time series historical applications. MODIS also includes a new Enhanced Vegetation Index (EVI) that minimizes canopy background variations and maintains sensitivity over dense vegetation conditions. The EVI also uses the blue band to remove residual atmosphere contamination caused by smoke and sub-pixel thin clouds. The MODIS NDVI and EVI products are computed from atmospherically corrected surface reflectances that have been masked for water, clouds, heavy aerosols, and cloud shadows.
 
 Vegetation indices are used for global monitoring of vegetation conditions and are used in products displaying land cover and land cover changes. 
 We will work with the MODIS NDVI band within the MOD13Q1 product. More information about this MODIS data set can be found via the [MODIS product table].
@@ -49,7 +49,7 @@ Now go to the [MODIS Land Products](https://modis.ornl.gov/sites/):
 
 We will download the MODIS data for the Loobos Site via R and process the data for one location to detect changes within the time series.
 
-If it is the first time that you work with R or Rstudio, you can follow the following tutorial on getting started with [R and Rstudio](https://geoscripting-wur.github.io/Scripting4GeoIntro/#Basic_R_and_RStudio_setup).
+If it is the first time that you work with R or Rstudio, you can follow the following tutorial on getting started with [R and Rstudio](https://geoscripting-wur.github.io/Scripting4GeoIntro/).
 
 
 ## Getting started: install packages and load the necessary functions for MODIS data analysis
@@ -67,11 +67,13 @@ In RStudio you can set your working directory this way, if you have saved your R
 Check your working directory by
 
 ```{r, eval = FALSE}
-getwd() # check if you working directory is correctly set
+getwd() # check if your working directory is correctly set
 ```
 
 
-The necessary add-on packages need to be installed within R before loading the using the `library()` function. Below we define a helper function that does installing and loading of the packages for us. 
+The necessary add-on packages need to be installed within R before loading the package 
+using the `library()` function. 
+Below we define a helper function that installs the R package if it is not installed yet, and then also loads it using the `library` function:
 
 ```{r, echo=TRUE, message=FALSE, eval=TRUE}
 # pkgTest is a helper function to load packages and install packages only when they are not installed yet.
@@ -87,29 +89,27 @@ for (package in neededPackages){pkgTest(package)}
 ```
 
 
-Loading extra functions to create:
-
-- via `mt_to_raster` a raster stack from the MODIS subset downloaded with the `mt_subset` function
-- via `timeser` a time series object in R `ts`
+Loading extra function to create a time series object in R via `timeser` function:
+(via `mt_to_raster` a raster stack from the MODIS subset (downloaded with the `mt_subset` function))
 
 ```{r, message = FALSE}
-mt_to_raster <- function (df = subset) 
-{
-    dates <- unique(df$calendar_date)
-    df$scale[df$scale == "Not Available"] <- 1
-    r <- do.call(raster::stack, lapply(dates, function(date) {
-        m <- matrix(df$value[df$calendar_date == date] * as.numeric(df$scale[df$calendar_date == 
-            date]), df$nrows[1], df$ncols[1], byrow = TRUE)
-        return(raster::raster(m))
-    }))
-    bb <- MODISTools::mt_bbox(xllcorner = df$xllcorner[1], yllcorner = df$yllcorner[1], 
-        cellsize = df$cellsize[1], nrows = df$nrows[1], ncols = df$ncols[1])
-    bb <- as(bb, "Spatial")
-    raster::extent(r) <- raster::extent(bb)
-    raster::projection(r) <- raster::projection(bb)
-    names(r) <- as.character(dates)
-    return(r)
-}
+# mt_to_raster <- function (df = subset) 
+# {
+#     dates <- unique(df$calendar_date)
+#     df$scale[df$scale == "Not Available"] <- 1
+#     r <- do.call(raster::stack, lapply(dates, function(date) {
+#         m <- matrix(df$value[df$calendar_date == date] * as.numeric(df$scale[df$calendar_date == 
+#             date]), df$nrows[1], df$ncols[1], byrow = TRUE)
+#         return(raster::raster(m))
+#     }))
+#     bb <- MODISTools::mt_bbox(xllcorner = df$xllcorner[1], yllcorner = df$yllcorner[1], 
+#         cellsize = df$cellsize[1], nrows = df$nrows[1], ncols = df$ncols[1])
+#     bb <- as(bb, "Spatial")
+#     raster::extent(r) <- raster::extent(bb)
+#     raster::projection(r) <- raster::projection(bb)
+#     names(r) <- as.character(dates)
+#     return(r)
+# }
 
 timeser <- function(index, dt) {
     z <- zoo(index, dt)
@@ -124,7 +124,7 @@ timeser <- function(index, dt) {
 
 ## Downloading MODIS data using the MODISTools package
 
-First we download the MODIS data via the `mt_subset` function and immediately create raster brick from it:
+First we download the MODIS data via the `mt_subset` function and immediately create raster brick from it with the `mt_to_raster` function:
 
 ```{r, eval=TRUE, results="hide"}
 VI <- mt_subset(product = "MOD13Q1",
@@ -208,7 +208,7 @@ Below we extract the data from the raster as a vector and create a time series u
 
 px <- 33 # pixel number so adjust this number to select the center pixel
 tspx <- timeser(as.vector(VI_m[px]),as.Date(names(VI_m), "X%Y.%m.%d")) # convert pixel 1 to a time series
-plot(tspx, main = 'NDVI') # NDVI time series cleaned using the "reliability informaiton"
+plot(tspx, main = 'NDVI') # NDVI time series cleaned using the "reliability information"
 ```
 
 Now we apply the `bfastmonitor` function using a `trend + harmon` model with `order 3` for the harmonics (i.e. seasonality modelling):
