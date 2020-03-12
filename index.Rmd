@@ -13,12 +13,12 @@ output:
 
 # MODIS based time series analysis using BFAST
 
-![WUR logo](http://www.wur.nl/upload/b43b7095-e452-482a-8969-fed9a50393a8_WUR_RGB_standard.png)
+![WUR logo](https://www.wur.nl/upload/5e55a1d9-47c3-4149-9384-26d5147ee2d7_WUR_RGB_standard.png)
 
 [Jan Verbesselt](http://www.wur.eu/changemonitor)
 
 ```{r, eval=TRUE, echo=TRUE, include=TRUE, results='asis'}
-format(Sys.time(), '%d %B, %Y')
+format(Sys.time(), '%d-%m-%Y')
 ```
 
 This document explains how to use R scripting language for downloading MODIS data and analyzing it within R. The results of the analysis of MODIS data within R are illustrated. For this time series analysis demonstration it is not required to know R details, we only use R for some practical demonstration of its great potential. In this exercise we will automatically download MODIS data for specific locations around the world. 
@@ -78,7 +78,7 @@ The necessary add-on packages need to be installed within R before loading the u
 pkgTest <- function(x)
 {
   if (x %in% rownames(installed.packages()) == FALSE) {
-    install.packages(x, dependencies= TRUE)    
+    install.packages(x, dependencies= TRUE)
   }
   library(x, character.only = TRUE)
 }
@@ -88,15 +88,16 @@ for (package in neededPackages){pkgTest(package)}
 
 
 Loading extra functions to create:
-  - via `mt_to_raster` a raster stack from the MODIS subset downloaded with the `mt_subset` function
-  - via `timeser` a time series object in R `ts`
+
+- via `mt_to_raster` a raster stack from the MODIS subset downloaded with the `mt_subset` function
+- via `timeser` a time series object in R `ts`
 
 ```{r, message = FALSE}
 mt_to_raster <- function (df = subset) 
 {
     dates <- unique(df$calendar_date)
     df$scale[df$scale == "Not Available"] <- 1
-    r <- do.call("stack", lapply(dates, function(date) {
+    r <- do.call(raster::stack, lapply(dates, function(date) {
         m <- matrix(df$value[df$calendar_date == date] * as.numeric(df$scale[df$calendar_date == 
             date]), df$nrows[1], df$ncols[1], byrow = TRUE)
         return(raster::raster(m))
@@ -125,7 +126,7 @@ timeser <- function(index, dt) {
 
 First we download the MODIS data via the `mt_subset` function and immediately create raster brick from it:
 
-```{r, eval=FALSE}
+```{r, eval=TRUE, results="hide"}
 VI <- mt_subset(product = "MOD13Q1",
                 site_id = "nl_gelderland_loobos",
                 band = "250m_16_days_NDVI",
@@ -134,7 +135,7 @@ VI <- mt_subset(product = "MOD13Q1",
                 km_ab = 2,
                 site_name = "testsite",
                 internal = TRUE,
-                progress = FALSE)
+                progress = TRUE)
 
 QA <- mt_subset(product = "MOD13Q1",
                 site_id = "nl_gelderland_loobos",
@@ -144,10 +145,10 @@ QA <- mt_subset(product = "MOD13Q1",
                 km_ab = 2,
                 site_name = "testsite",
                 internal = TRUE,
-                progress = FALSE)
+                progress = TRUE)
 ```
 
-```{r, message=FALSE, include=FALSE, eval=TRUE}
+```{r, message=FALSE, include=FALSE, eval=FALSE}
 load("DataLooBos_QA_VI_backup_20002019.RData")
 ```
 
@@ -216,7 +217,26 @@ bfm1 <- bfastmonitor(tspx, response ~ trend + harmon, order = 3, start = c(2018,
 plot(bfm1)
 ```
 
+Let's run it on all pixels now:
 
+```{r}
+dates <- as.Date(names(VI_m), "X%Y.%m.%d")
+
+bfmRaster = function(pixels)
+{
+    tspx <- timeser(pixels, dates)
+    return(bfastmonitor(tspx, response ~ trend + harmon, order = 3, start = c(2018,1))$breakpoint)
+}
+
+bfmR <- calc(VI_m, bfmRaster)
+plot(bfmR, main="Date of detected break in time series")
+```
+
+```{r, include=FALSE, eval=FALSE}
+bfmS = bfmSpatial(VI_m, dates=as.Date(names(VI_m), "X%Y.%m.%d"), formula=response ~ trend + harmon, order = 3, start = c(2018,1))
+plot(bfmS[[1]]) # Break date
+plot(bfmS[[2]]) # Break magnitude
+```
 
 ## Critical questions for the BFAST AEO exercise:
 
