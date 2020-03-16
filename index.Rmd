@@ -32,17 +32,17 @@ More specifically, we will look at the MODIS product called MOD13Q1 which are *g
 The MODIS Normalized Difference Vegetation Index (NDVI) complements NOAA's Advanced Very High Resolution Radiometer (AVHRR) NDVI products and provides continuity for time series historical applications. MODIS also includes a new Enhanced Vegetation Index (EVI) that minimizes canopy background variations and maintains sensitivity over dense vegetation conditions. The EVI also uses the blue band to remove residual atmosphere contamination caused by smoke and sub-pixel thin clouds. The MODIS NDVI and EVI products are computed from atmospherically corrected surface reflectances that have been masked for water, clouds, heavy aerosols, and cloud shadows.
 
 Vegetation indices are used for global monitoring of vegetation conditions and are used in products displaying land cover and land cover changes. 
-We will work with the MODIS NDVI band within the MOD13Q1 product. More information about this MODIS data set can be found via the [MODIS product table].
+We will work with the MODIS NDVI band within the MOD13Q1 product. More information about this MODIS data set can be found via the [MODIS product table](https://lpdaac.usgs.gov/products/mod13q1v006/).
 
 
 Now go to the [MODIS Land Products](https://modis.ornl.gov/sites/):
 
   * Search for 'Netherlands' and select the 'Gelderland Loobos' Site.
-  * Select the MODIS 13Q1 product by clicking on it.There is no immediate need to create an account unless you want to manually download the MODIS data via this website. In this tutorial we will download MODIS NDVI data via an R script as explained below.
-  * Under 'Download data' tab and table you can see the **Pixel Numbering Scheme** where the blue pixel (i.e. 545) is the "site pixel" (i.e. the middle of the spatial subset).
+  * Select the MODIS 13Q1 product by clicking on it.There is no immediate need to create an account unless you want to manually download the MODIS data via this website. In the below explanation, we will download MODIS NDVI data via an R script.
+  * Under 'Download data' tab and table, via the website, you can see the **Pixel Numbering Scheme** where the blue pixel (i.e. 545) is the "site pixel" (i.e. the middle of the spatial subset).
 
 ```{block, type="alert alert-success"}
-> **Question 1**: What is the key land cover type in the center of the site? (see additional information on the bottom of the [MODIS13Q1 page](https://modis.ornl.gov/cgi-bin/sites/site/?id=nl_gelderland_loobos&product=MOD13Q1))
+> **Question 1**: What are the three main land cover types close to the center of the site? (see additional information on the bottom of the [MODIS13Q1 page](https://modis.ornl.gov/cgi-bin/sites/site/?id=nl_gelderland_loobos&product=MOD13Q1)). Which land cover type is correct and which one not?
 ```
 
 # Automated MODIS NDVI download and analysis via R
@@ -93,24 +93,6 @@ Loading extra function to create a time series object in R via `timeser` functio
 (via `mt_to_raster` a raster stack from the MODIS subset (downloaded with the `mt_subset` function))
 
 ```{r, message = FALSE}
-# mt_to_raster <- function (df = subset) 
-# {
-#     dates <- unique(df$calendar_date)
-#     df$scale[df$scale == "Not Available"] <- 1
-#     r <- do.call(raster::stack, lapply(dates, function(date) {
-#         m <- matrix(df$value[df$calendar_date == date] * as.numeric(df$scale[df$calendar_date == 
-#             date]), df$nrows[1], df$ncols[1], byrow = TRUE)
-#         return(raster::raster(m))
-#     }))
-#     bb <- MODISTools::mt_bbox(xllcorner = df$xllcorner[1], yllcorner = df$yllcorner[1], 
-#         cellsize = df$cellsize[1], nrows = df$nrows[1], ncols = df$ncols[1])
-#     bb <- as(bb, "Spatial")
-#     raster::extent(r) <- raster::extent(bb)
-#     raster::projection(r) <- raster::projection(bb)
-#     names(r) <- as.character(dates)
-#     return(r)
-# }
-
 timeser <- function(index, dt) {
     z <- zoo(index, dt)
     yr <- as.numeric(format(time(z), "%Y"))
@@ -135,7 +117,7 @@ VI <- mt_subset(product = "MOD13Q1",
                 km_ab = 2,
                 site_name = "testsite",
                 internal = TRUE,
-                progress = TRUE)
+                progress = FALSE)
 
 QA <- mt_subset(product = "MOD13Q1",
                 site_id = "nl_gelderland_loobos",
@@ -145,7 +127,7 @@ QA <- mt_subset(product = "MOD13Q1",
                 km_ab = 2,
                 site_name = "testsite",
                 internal = TRUE,
-                progress = TRUE)
+                progress = FALSE)
 ```
 
 ```{r, message=FALSE, include=FALSE, eval=FALSE}

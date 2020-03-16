@@ -870,7 +870,7 @@
 <div id="header">
 <h1 class="title">MODIS NDVI time series analysis using BFAST</h1>
 <h2 class="author">Jan Verbesselt</h2>
-<h3 class="date">12 March, 2020</h3>
+<h3 class="date">16 March, 2020</h3>
 </div>
 <div id="wrap">
 <div class="container">
@@ -884,25 +884,25 @@
 <span class="glyphicon glyphicon-chevron-down"></span> R source
 </button>
 <pre style=""><code class="source r">format(Sys.time(), '%d-%m-%Y')</code></pre>
-<p>[1] “12-03-2020”</p>
+<p>[1] “16-03-2020”</p>
 </div>
 <p>This document explains how to use R scripting language for downloading MODIS data and analyzing it within R. The results of the analysis of MODIS data within R are illustrated. For this time series analysis demonstration it is not required to know R details, we only use R for some practical demonstration of its great potential. In this exercise we will automatically download MODIS data for specific locations around the world.</p>
 <h1 id="introduction-to-modis-data-and-online-analysis">Introduction to MODIS data and online analysis</h1>
 <p>The MODIS satellite data that we will download for this time series analysis exercise is available from <a href="https://modis.ornl.gov/sites/">MODIS Subsetting Website</a>. MODIS data is made available for specific locations.</p>
 <p>More specifically, we will look at the MODIS product called MOD13Q1 which are <em>global 16-day images at a spatial resolution of 250 m</em>. Each image contains several bands; i.e. blue, red, and near-infrared reflectances, centered at 469-nanometers, 645-nanometers, and 858-nanometers, respectively, are used to determine the MODIS vegetation indices.</p>
 <p>The MODIS Normalized Difference Vegetation Index (NDVI) complements NOAA’s Advanced Very High Resolution Radiometer (AVHRR) NDVI products and provides continuity for time series historical applications. MODIS also includes a new Enhanced Vegetation Index (EVI) that minimizes canopy background variations and maintains sensitivity over dense vegetation conditions. The EVI also uses the blue band to remove residual atmosphere contamination caused by smoke and sub-pixel thin clouds. The MODIS NDVI and EVI products are computed from atmospherically corrected surface reflectances that have been masked for water, clouds, heavy aerosols, and cloud shadows.</p>
-<p>Vegetation indices are used for global monitoring of vegetation conditions and are used in products displaying land cover and land cover changes. We will work with the MODIS NDVI band within the MOD13Q1 product. More information about this MODIS data set can be found via the [MODIS product table].</p>
+<p>Vegetation indices are used for global monitoring of vegetation conditions and are used in products displaying land cover and land cover changes. We will work with the MODIS NDVI band within the MOD13Q1 product. More information about this MODIS data set can be found via the <a href="https://lpdaac.usgs.gov/products/mod13q1v006/">MODIS product table</a>.</p>
 <p>Now go to the <a href="https://modis.ornl.gov/sites/">MODIS Land Products</a>:</p>
 <ul>
 <li>Search for ‘Netherlands’ and select the ‘Gelderland Loobos’ Site.</li>
-<li>Select the MODIS 13Q1 product by clicking on it.There is no immediate need to create an account unless you want to manually download the MODIS data via this website. In this tutorial we will download MODIS NDVI data via an R script as explained below.</li>
-<li>Under ‘Download data’ tab and table you can see the <strong>Pixel Numbering Scheme</strong> where the blue pixel (i.e. 545) is the “site pixel” (i.e. the middle of the spatial subset).</li>
+<li>Select the MODIS 13Q1 product by clicking on it.There is no immediate need to create an account unless you want to manually download the MODIS data via this website. In the below explanation, we will download MODIS NDVI data via an R script.</li>
+<li>Under ‘Download data’ tab and table, via the website, you can see the <strong>Pixel Numbering Scheme</strong> where the blue pixel (i.e. 545) is the “site pixel” (i.e. the middle of the spatial subset).</li>
 </ul>
 <div class="row">
 <div class="alert alert-success">
 <blockquote>
 <p>
-<strong>Question 1</strong>: What is the key land cover type in the center of the site? (see additional information on the bottom of the <a href="https://modis.ornl.gov/cgi-bin/sites/site/?id=nl_gelderland_loobos&amp;product=MOD13Q1">MODIS13Q1 page</a>)
+<strong>Question 1</strong>: What are the three main land cover types close to the center of the site? (see additional information on the bottom of the <a href="https://modis.ornl.gov/cgi-bin/sites/site/?id=nl_gelderland_loobos&amp;product=MOD13Q1">MODIS13Q1 page</a>). Which land cover type is correct and which one not?
 </p>
 </blockquote>
 </div>
@@ -949,25 +949,7 @@ for (package in neededPackages){pkgTest(package)}</code></pre>
 <button class="source R toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> R source
 </button>
-<pre style=""><code class="source r"># mt_to_raster <- function (df = subset) 
-# {
-#     dates <- unique(df$calendar_date)
-#     df$scale[df$scale == "Not Available"] <- 1
-#     r <- do.call(raster::stack, lapply(dates, function(date) {
-#         m <- matrix(df$value[df$calendar_date == date] * as.numeric(df$scale[df$calendar_date == 
-#             date]), df$nrows[1], df$ncols[1], byrow = TRUE)
-#         return(raster::raster(m))
-#     }))
-#     bb <- MODISTools::mt_bbox(xllcorner = df$xllcorner[1], yllcorner = df$yllcorner[1], 
-#         cellsize = df$cellsize[1], nrows = df$nrows[1], ncols = df$ncols[1])
-#     bb <- as(bb, "Spatial")
-#     raster::extent(r) <- raster::extent(bb)
-#     raster::projection(r) <- raster::projection(bb)
-#     names(r) <- as.character(dates)
-#     return(r)
-# }
-
-timeser <- function(index, dt) {
+<pre style=""><code class="source r">timeser <- function(index, dt) {
     z <- zoo(index, dt)
     yr <- as.numeric(format(time(z), "%Y"))
     jul <- as.numeric(format(time(z), "%j"))
@@ -991,16 +973,9 @@ timeser <- function(index, dt) {
                 km_ab = 2,
                 site_name = "testsite",
                 internal = TRUE,
-                progress = TRUE)</code></pre>
-<button class="message R toggle btn btn-xs btn-info">
-<span class="glyphicon glyphicon-chevron-down"></span> R message
-</button>
-<pre style=""><code class="message r">## Downloading chunks:
-</code></pre>
-<button class="source R toggle btn btn-xs btn-primary">
-<span class="glyphicon glyphicon-chevron-down"></span> R source
-</button>
-<pre style=""><code class="source r">QA <- mt_subset(product = "MOD13Q1",
+                progress = FALSE)
+
+QA <- mt_subset(product = "MOD13Q1",
                 site_id = "nl_gelderland_loobos",
                 band = "250m_16_days_pixel_reliability",
                 start = "2000-01-01",
@@ -1008,12 +983,7 @@ timeser <- function(index, dt) {
                 km_ab = 2,
                 site_name = "testsite",
                 internal = TRUE,
-                progress = TRUE)</code></pre>
-<button class="message R toggle btn btn-xs btn-info">
-<span class="glyphicon glyphicon-chevron-down"></span> R message
-</button>
-<pre style=""><code class="message r">## Downloading chunks:
-</code></pre>
+                progress = FALSE)</code></pre>
 </div>
 <h2 id="creating-a-raster-brick-and-cleaning-the-modis-data-using-the-reliability-layer">creating a raster brick and cleaning the MODIS data using the reliability layer</h2>
 <p>More information about the pixel reliability can be found here (see table 4): https://vip.arizona.edu/documents/MODIS/MODIS_VI_UsersGuide_June_2015_C6.pdf</p>
