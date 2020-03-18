@@ -944,7 +944,7 @@ pkgTest <- function(x)
 neededPackages <- c("strucchange","zoo", "bfast", "raster", "leaflet", "MODISTools")
 for (package in neededPackages){pkgTest(package)}</code></pre>
 </div>
-<p>Loading extra function to create a time series object in R via <code>timeser</code> function: (via <code>mt_to_raster</code> a raster stack from the MODIS subset (downloaded with the <code>mt_subset</code> function))</p>
+<p>Loading extra function to create a time series object in R via <code>timeser</code> function:</p>
 <div class="row">
 <button class="source R toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> R source
@@ -960,7 +960,7 @@ for (package in neededPackages){pkgTest(package)}</code></pre>
   }</code></pre>
 </div>
 <h2 id="downloading-modis-data-using-the-modistools-package">Downloading MODIS data using the MODISTools package</h2>
-<p>First we download the MODIS data via the <code>mt_subset</code> function and immediately create raster brick from it with the <code>mt_to_raster</code> function:</p>
+<p>First we download the MODIS data via the <code>mt_subset</code> function:</p>
 <div class="row">
 <button class="source R toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> R source

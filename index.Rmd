@@ -90,7 +90,7 @@ for (package in neededPackages){pkgTest(package)}
 
 
 Loading extra function to create a time series object in R via `timeser` function:
-(via `mt_to_raster` a raster stack from the MODIS subset (downloaded with the `mt_subset` function))
+
 
 ```{r, message = FALSE}
 timeser <- function(index, dt) {
@@ -106,9 +106,9 @@ timeser <- function(index, dt) {
 
 ## Downloading MODIS data using the MODISTools package
 
-First we download the MODIS data via the `mt_subset` function and immediately create raster brick from it with the `mt_to_raster` function:
+First we download the MODIS data via the `mt_subset` function:
 
-```{r, eval=TRUE, results="hide"}
+```{r, eval=FALSE, results="hide"}
 VI <- mt_subset(product = "MOD13Q1",
                 site_id = "nl_gelderland_loobos",
                 band = "250m_16_days_NDVI",
@@ -130,8 +130,17 @@ QA <- mt_subset(product = "MOD13Q1",
                 progress = FALSE)
 ```
 
-```{r, message=FALSE, include=FALSE, eval=FALSE}
-load("DataLooBos_QA_VI_backup_20002019.RData")
+```{r, message=FALSE, include=FALSE, eval=TRUE}
+runfast <- TRUE
+if (runfast) {
+  fname <- "data/DataLooBos_QA_VI_backup_2020.RData"
+  if (!file.exists(fname)) {
+    save(QA, VI, file = fname)
+  } else {
+    load(fname)
+  }
+}
+
 ```
 
 ## creating a raster brick and cleaning the MODIS data using the reliability layer
