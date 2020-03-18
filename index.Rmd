@@ -233,7 +233,7 @@ plot(bfmS[[2]]) # Break magnitude
 
 
 ```{block, type="alert alert-success"}
-> **Question 4**:  Now try to detect a change in 2018 for another site in the world available via the [https://modis.ornl.gov/sites/](https://modis.ornl.gov/sites/) website. In your answer, mention (1) site, (2) bfastmonitor settings, (3) landcover type of that pixel and the pixel number (4) add the plot of the time series together with explanation of the difference in seasonality and detected change between the loobos site and your choosen site.
+> **Question 4**:  Now try to detect a change in 2018 for another site in the world available via the [https://modis.ornl.gov/sites/](https://modis.ornl.gov/sites/) website. In your answer, mention (a) site, (b) bfastmonitor settings, (c) landcover type of that pixel and the pixel number (d) add the plot of the time series. (e) Then explain why you detect a change or what there is no change detected (max 3 sentences). (f) how could the change detection be optimised?
 ```
 
 
