@@ -27,7 +27,7 @@ This document explains how to use R scripting language for downloading MODIS dat
 
 The MODIS satellite data that we will download for this time series analysis exercise is available from [MODIS Subsetting Website](https://modis.ornl.gov/sites/). MODIS data is made available for specific locations. 
 
-More specifically, we will look at the MODIS product called MOD13Q1 which are *global 16-day images at a spatial resolution of 250 m*. Each image contains several bands; i.e. blue, red, and near-infrared reflectances, centered at 469-nanometers, 645-nanometers, and 858-nanometers, respectively, are used to determine the MODIS vegetation indices.
+More specifically, we will look at the MODIS product called MOD13Q1 which are *global 16-day images at a spatial resolution of 250 m*. Each image contains several bands; i.e. blue, red, and near-infrared reflectances, centered at 469-nanometers, 645-nanometers, and 858-nanometers, respectively. These bands are used to determine the MODIS vegetation indices.
 
 The MODIS Normalized Difference Vegetation Index (NDVI) complements NOAA's Advanced Very High Resolution Radiometer (AVHRR) NDVI products and provides continuity for time series historical applications. MODIS also includes a new Enhanced Vegetation Index (EVI) that minimizes canopy background variations and maintains sensitivity over dense vegetation conditions. The EVI also uses the blue band to remove residual atmosphere contamination caused by smoke and sub-pixel thin clouds. The MODIS NDVI and EVI products are computed from atmospherically corrected surface reflectances that have been masked for water, clouds, heavy aerosols, and cloud shadows.
 
@@ -232,7 +232,7 @@ plot(bfmS[[2]]) # Break magnitude
 ## Critical questions for the BFAST AEO exercise:
 
 ```{block, type="alert alert-success"}
-> **Question 2**: Now check if you detect a break in the center pixel (see pixel numbering scheme)? What happens if you change the harmonic 'order' from 3 to 1? See `?bfastmonitor`. Can you explain this in two sentences ?
+> **Question 2**: Now check if you detect a break in the center pixel (see pixel numbering scheme). What happens if you change the harmonic 'order' from 3 to 1? See `?bfastmonitor`. Can you explain this in two sentences ?
 ```
 
 
@@ -242,7 +242,7 @@ plot(bfmS[[2]]) # Break magnitude
 
 
 ```{block, type="alert alert-success"}
-> **Question 4**:  Now try to detect a change in 2018 for another site in the world available via the [https://modis.ornl.gov/sites/](https://modis.ornl.gov/sites/) website. In your answer, mention (a) site, (b) bfastmonitor settings, (c) landcover type of that pixel and the pixel number (d) add the plot of the time series. (e) Then explain why you detect a change or what there is no change detected (max 3 sentences). (f) how could the change detection be optimised?
+> **Question 4**:  Now try to detect a change in 2018 for another site in the world available via the [https://modis.ornl.gov/sites/](https://modis.ornl.gov/sites/) website. In your answer, mention (a) site, (b) bfastmonitor settings, (c) landcover type of that pixel and the pixel number, (d) and add the plot of the time series. (e) Then explain why you detected a change or why there is no change detected (max 3 sentences). (f) How could the change detection be optimised?
 ```
 
 
