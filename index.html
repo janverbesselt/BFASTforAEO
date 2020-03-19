@@ -870,7 +870,7 @@
 <div id="header">
 <h1 class="title">MODIS NDVI time series analysis using BFAST</h1>
 <h2 class="author">Jan Verbesselt</h2>
-<h3 class="date">18 March, 2020</h3>
+<h3 class="date">19 March, 2020</h3>
 </div>
 <div id="wrap">
 <div class="container">
@@ -884,12 +884,12 @@
 <span class="glyphicon glyphicon-chevron-down"></span> R source
 </button>
 <pre style=""><code class="source r">format(Sys.time(), '%d-%m-%Y')</code></pre>
-<p>[1] “18-03-2020”</p>
+<p>[1] “19-03-2020”</p>
 </div>
 <p>This document explains how to use R scripting language for downloading MODIS data and analyzing it within R. The results of the analysis of MODIS data within R are illustrated. For this time series analysis demonstration it is not required to know R details, we only use R for some practical demonstration of its great potential. In this exercise we will automatically download MODIS data for specific locations around the world.</p>
 <h1 id="introduction-to-modis-data-and-online-analysis">Introduction to MODIS data and online analysis</h1>
 <p>The MODIS satellite data that we will download for this time series analysis exercise is available from <a href="https://modis.ornl.gov/sites/">MODIS Subsetting Website</a>. MODIS data is made available for specific locations.</p>
-<p>More specifically, we will look at the MODIS product called MOD13Q1 which are <em>global 16-day images at a spatial resolution of 250 m</em>. Each image contains several bands; i.e. blue, red, and near-infrared reflectances, centered at 469-nanometers, 645-nanometers, and 858-nanometers, respectively, are used to determine the MODIS vegetation indices.</p>
+<p>More specifically, we will look at the MODIS product called MOD13Q1 which are <em>global 16-day images at a spatial resolution of 250 m</em>. Each image contains several bands; i.e. blue, red, and near-infrared reflectances, centered at 469-nanometers, 645-nanometers, and 858-nanometers, respectively. These bands are used to determine the MODIS vegetation indices.</p>
 <p>The MODIS Normalized Difference Vegetation Index (NDVI) complements NOAA’s Advanced Very High Resolution Radiometer (AVHRR) NDVI products and provides continuity for time series historical applications. MODIS also includes a new Enhanced Vegetation Index (EVI) that minimizes canopy background variations and maintains sensitivity over dense vegetation conditions. The EVI also uses the blue band to remove residual atmosphere contamination caused by smoke and sub-pixel thin clouds. The MODIS NDVI and EVI products are computed from atmospherically corrected surface reflectances that have been masked for water, clouds, heavy aerosols, and cloud shadows.</p>
 <p>Vegetation indices are used for global monitoring of vegetation conditions and are used in products displaying land cover and land cover changes. We will work with the MODIS NDVI band within the MOD13Q1 product. More information about this MODIS data set can be found via the <a href="https://lpdaac.usgs.gov/products/mod13q1v006/">MODIS product table</a>.</p>
 <p>Now go to the <a href="https://modis.ornl.gov/sites/">MODIS Land Products</a>:</p>
@@ -1107,7 +1107,7 @@ plot(bfmR, main="Date of detected break in time series")</code></pre>
 <div class="alert alert-success">
 <blockquote>
 <p>
-<strong>Question 2</strong>: Now check if you detect a break in the center pixel (see pixel numbering scheme)? What happens if you change the harmonic ‘order’ from 3 to 1? See <code>?bfastmonitor</code>. Can you explain this in two sentences ?
+<strong>Question 2</strong>: Now check if you detect a break in the center pixel (see pixel numbering scheme). What happens if you change the harmonic ‘order’ from 3 to 1? See <code>?bfastmonitor</code>. Can you explain this in two sentences ?
 </p>
 </blockquote>
 </div>
@@ -1125,7 +1125,7 @@ plot(bfmR, main="Date of detected break in time series")</code></pre>
 <div class="alert alert-success">
 <blockquote>
 <p>
-<strong>Question 4</strong>: Now try to detect a change in 2018 for another site in the world available via the <a href="https://modis.ornl.gov/sites/">https://modis.ornl.gov/sites/</a> website. In your answer, mention (a) site, (b) bfastmonitor settings, (c) landcover type of that pixel and the pixel number (d) add the plot of the time series. (e) Then explain why you detect a change or what there is no change detected (max 3 sentences). (f) how could the change detection be optimised?
+<strong>Question 4</strong>: Now try to detect a change in 2018 for another site in the world available via the <a href="https://modis.ornl.gov/sites/">https://modis.ornl.gov/sites/</a> website. In your answer, mention (a) site, (b) bfastmonitor settings, (c) landcover type of that pixel and the pixel number, (d) and add the plot of the time series. (e) Then explain why you detected a change or why there is no change detected (max 3 sentences). (f) How could the change detection be optimised?
 </p>
 </blockquote>
 </div>
