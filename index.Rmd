@@ -145,21 +145,25 @@ if (runfast) {
 
 ## creating a raster brick and cleaning the MODIS data using the reliability layer
 
-More information about the pixel reliability can be found here (see table 4):
-[link](https://vip.arizona.edu/documents/MODIS/MODIS_VI_UsersGuide_June_2015_C6.pdf)
+Second, we create a raster brick using the `mt_to_raster` function that is included in the new *MODISTools* package (version 1.1.1). 
 
 ```{r}
 # convert df to raster
 VI_r <- mt_to_raster(df = VI)
 QA_r <- mt_to_raster(df = QA)
+```
 
+Now check also the pixel reliability information in Table 4 available via the following [link to the MODIS VI User Guide c6 version](https://vip.arizona.edu/documents/MODIS/MODIS_VI_UsersGuide_June_2015_C6.pdf). This is important to understand how this works for the following question!
+
+Third, we clean the MODIS NDVI data using pixel reliability information:
+```{r}
 ## clean the data
 # create mask on pixel reliability flag set all values <0 or >1 NA
 m <- QA_r
 m[(QA_r < 0 | QA_r > 1)] <- NA # continue working with QA 0 (good data), and 1 (marginal data)
 
 # mask all values from VI raster NA
-VI_m <- mask(VI_r, m,maskvalue=NA, updatevalue=NA)
+VI_m <- mask(VI_r, m, maskvalue=NA, updatevalue=NA)
 
 # plot the first image
 plot(m,1) # plot mask
@@ -167,7 +171,11 @@ plot(VI_m,1) # plot cleaned NDVI raster
 ```
 
 ```{block, type="alert alert-success"}
-> **Question 2**: Now what would happen if you would only work with "good" quality data? Include the new plot of the mask and the cleaned NDVI raster as an answer!
+> **Question 2**: Now what would happen if you would only work with "good" quality data? Include the new plot of the cleaned NDVI raster that only includes *good quality data" as an answer!
+```
+
+```{block type="alert alert-info"}
+*Important*: Continue the exercise with "good and marginal data quality" as defined via the above code section in the tutorial (just rerun this section). 
 ```
 
 You can (optional!) extract data from the cleaned VI raster brick via the `click` function:
@@ -177,9 +185,8 @@ click(VI_m, id=TRUE, xy=TRUE, cell=TRUE, n= 1)
 ```
 
 ```{block type="alert alert-info"}
-**Protip**: Creating a nice map with the leaflet package in R
+**Protip**: Creating a nice map with the leaflet package in R using the below R code section:
 ```
-
 
 ```{r, warning=FALSE, results='asis', eval=FALSE}
 library(leaflet)
@@ -201,7 +208,7 @@ Below we extract the data from the raster as a vector and create a time series u
 ## check VI data at a certain pixel e.g. 1 row, complete left hand site:
 ## the dimensions of the raster are: 33x33
 
-px <- 33 # pixel number so adjust this number to select the center pixel
+px <- 78 # pixel number so adjust this number to select the center pixel
 tspx <- timeser(as.vector(VI_m[px]),as.Date(names(VI_m), "X%Y.%m.%d")) # convert pixel 1 to a time series
 plot(tspx, main = 'NDVI') # NDVI time series cleaned using the "reliability information"
 ```
@@ -209,20 +216,30 @@ plot(tspx, main = 'NDVI') # NDVI time series cleaned using the "reliability info
 
 Now we apply the `bfastmonitor` function using a `trend + harmon` model with `order 3` for the harmonics (i.e. seasonality modelling):
 ```{r}
-bfm1 <- bfastmonitor(tspx, response ~ trend + harmon, order = 3, start = c(2018,1))
+bfm1 <- bfastmonitor(tspx, response ~ trend + harmon, order = 3, start = c(2019,1))
 plot(bfm1)
 ```
 
 ```{block, type="alert alert-success"}
-> **Question 3**: A valid data range of NDVI is between 0 and 1. So we should actually set NDVI values smaller then 0 to NA. Now, do that for this question and run bfastmonitor on this further cleaned NDVI time series.  You can use this R code for that
-`tspx[tspx < 0] <- NA` and include the new bfm1 plot in your answer. Describe shortly what happens. How is bfastmonitor analysis influenced by this further cleaning?
+> **Question 3**: A valid data range of NDVI is between 0 and 1. So we should actually set NDVI values smaller than 0 to NA. Now, do that for this question and run bfastmonitor on this further cleaned NDVI time series.  You can use this R code snippet for that
+`tspx[tspx < 0] <- NA` and include the new bfm1 plot in your answer. Describe shortly what happens. Is this type of cleaning influencing the `bfastmonitor` analysis? Yes or No, explain in one sentence.
 ```
 
-Let's run it on all pixels now:
+```{block, type="alert alert-success"}
+> **Question 4**: Now check if you detect a break in the center pixel (see pixel numbering scheme). Is there a change detected in the center pixel? Include the `plot(bmf1)` result for the center pixel in your answer.
+```
+
+
+```{block, type="alert alert-success"}
+> **Question 5**:  What happens if you use a different *formula* in `bfastmonitor`? For example, `response ∼ trend`. Explain what happens and also in which sense is 2019 an abnormal year? Include the bfastmonitor plot in your answer.
+```
+
+Let's run the `bfastmonitor` code on the full raster `brick` spatially using the `calc` function:
 
 ```{r}
 dates <- as.Date(names(VI_m), "X%Y.%m.%d")
 
+# here we define the function that we will apply across the brick using the calc function:
 bfmRaster = function(pixels)
 {
     tspx <- timeser(pixels, dates)
@@ -230,44 +247,40 @@ bfmRaster = function(pixels)
     return(c(bfm$breakpoint, bfm$magnitude))
 }
 
+# calc function 
 bfmR <- calc(VI_m, bfmRaster)
 names(bfmR) <- c('time of break', 'magnitude of change')
-plot(bfmR)
+plot(bfmR) # resulting time and magnitude of change
 ```
 
-```{r, include=FALSE, eval=FALSE}
-bfmRaster = function(pixels)
-{
-    tspx <- timeser(pixels, dates)
-    return(bfastmonitor(tspx, response ~ trend + harmon, order = 3, start = c(2018,1))$breakpoint)
-}
-
-bfmR <- calc(VI_m, bfmRaster)
-plot(bfmR, main="Date of detected break in time series")
-
-bfmS = bfmSpatial(VI_m, dates=as.Date(names(VI_m), "X%Y.%m.%d"), formula=response ~ trend + harmon, order = 3, start = c(2018,1))
-plot(bfmS[[1]]) # Break date
-plot(bfmS[[2]]) # Break magnitude
-```
-
-## Critical questions for the BFAST AEO exercise:
-
-```{block, type="alert alert-success"}
-> **Question 4**: Now check if you detect a break in the center pixel (see pixel numbering scheme). What happens if you change the harmonic 'order' from 3 to 1? See `?bfastmonitor`. Can you explain this in two sentences ?
-```
 
 
 ```{block, type="alert alert-success"}
-> **Question 5**:  What happens if you use a different *formula* in `bfastmonitor`? For example, `response ∼ trend`. Explain what happens and also in which sense is 2019 an abnormal year? Include the bfastmonitor plot in your answer
+> **Question 6**:  Now try to detect a change in 2019 for another site in the world available via the [https://modis.ornl.gov/sites/](https://modis.ornl.gov/sites/) website. In your answer, mention (a) site, (b) bfastmonitor settings, (c) landcover type of that pixel and the pixel number, (d) and add the plot of the time series. (e) Then explain why you detected a change or why there is no change detected in an example time series for a selected pixel. (f) How could the change detection be optimised?
+```
+
+Example R code to select pixel select with a break detected by using the `click` function and click on pixels with a break (i.e. where a time of break is estimated).
+```{r, eval = FALSE}
+plot(bfmR,1)
+click(VI_m, id=FALSE, xy=FALSE, cell=TRUE, n= 1)
+```
+
+Here we selected one pixel, and do the `bfastmonitor` analysis for that pixels:
+```{r, eval = TRUE}
+px <- 460 # pixel number so adjust this number to select the center pixel
+tspx <- timeser(as.vector(VI_m[px]),as.Date(names(VI_m), "X%Y.%m.%d")) # convert pixel 1 to a time series
+plot(tspx, main = 'NDVI') # NDVI time series cleaned using the "reliability information"
+tspx[tspx < 0] <- NA
+bfm <- bfastmonitor(tspx, response ~ trend + harmon, order = 3, start = c(2019,1))
+plot(bfm)
 ```
 
 
-```{block, type="alert alert-success"}
-> **Question 6**:  Now try to detect a change in 2019 for another site in the world available via the [https://modis.ornl.gov/sites/](https://modis.ornl.gov/sites/) website. In your answer, mention (a) site, (b) bfastmonitor settings, (c) landcover type of that pixel and the pixel number, (d) and add the plot of the time series. (e) Then explain why you detected a change or why there is no change detected (max 3 sentences). (f) How could the change detection be optimised?
-```
+
 
 # More information
 More information can be found on the [BFAST website](http://bfast.r-forge.r-project.org/) and in the BFAST papers mentioned on the website.
+
 
 ## seasonlity monitoring using harmonics
 
@@ -296,6 +309,22 @@ lines(si, type = "l", lty = 2)
 predm <- ts(as.numeric(predm), start=c(2000,4), frequency=23) 
 plot(ndvi, lwd = 3, col = "grey", ylab = "NDVI")
 lines(predm, type = "l", col = "red") # fitted
+```
+
+```{r, include=FALSE, eval=FALSE}
+#backup
+bfmRaster = function(pixels)
+{
+    tspx <- timeser(pixels, dates)
+    return(bfastmonitor(tspx, response ~ trend + harmon, order = 3, start = c(2018,1))$breakpoint)
+}
+
+bfmR <- calc(VI_m, bfmRaster)
+plot(bfmR, main="Date of detected break in time series")
+
+bfmS = bfmSpatial(VI_m, dates=as.Date(names(VI_m), "X%Y.%m.%d"), formula=response ~ trend + harmon, order = 3, start = c(2018,1))
+plot(bfmS[[1]]) # Break date
+plot(bfmS[[2]]) # Break magnitude
 ```
 
 
