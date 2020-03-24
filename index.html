@@ -870,7 +870,7 @@
 <div id="header">
 <h1 class="title">MODIS NDVI time series analysis using BFAST</h1>
 <h2 class="author">Jan Verbesselt</h2>
-<h3 class="date">23 March, 2020</h3>
+<h3 class="date">24 March, 2020</h3>
 </div>
 <div id="wrap">
 <div class="container">
@@ -884,7 +884,7 @@
 <span class="glyphicon glyphicon-chevron-down"></span> R source
 </button>
 <pre style=""><code class="source r">format(Sys.time(), '%d-%m-%Y')</code></pre>
-<p>[1] “23-03-2020”</p>
+<p>[1] “24-03-2020”</p>
 </div>
 <p>This document explains how to use R scripting language for downloading MODIS data and analyzing it within R. The results of the analysis of MODIS data within R are illustrated. For this time series analysis demonstration it is not required to know R details, we only use R for some practical demonstration of its great potential. In this exercise we will automatically download MODIS data for specific locations around the world.</p>
 <h1 id="introduction-to-modis-data-and-online-analysis">Introduction to MODIS data and online analysis</h1>
@@ -1107,7 +1107,7 @@ plot(bfm1)</code></pre>
 <div class="alert alert-success">
 <blockquote>
 <p>
-<strong>Question 3</strong>: A valid data range of NDVI is between 0 and 1. So we should actually set NDVI values smaller than 0 to NA. Now, do that for this question and run bfastmonitor on this further cleaned NDVI time series. You can use this R code snippet for that <code>tspx[tspx &lt; 0] &lt;- NA</code> and include the new bfm1 plot in your answer. Describe shortly what happens. Is this type of cleaning influencing the <code>bfastmonitor</code> analysis? Yes or No, explain in one sentence.
+<strong>Question 3</strong>: A valid data range of NDVI is between 0 and 1. So we should actually set NDVI values smaller than 0 to NA. Now, do that for pixel nr. 33 and run bfastmonitor on this further cleaned NDVI time series. You can use this R code snippet for that <code>tspx[tspx &lt; 0] &lt;- NA</code> and include the new bfm1 plot in your answer. Describe shortly what happens. Is this type of cleaning influencing the <code>bfastmonitor</code> analysis? Yes or No, and explain in one sentence.
 </p>
 </blockquote>
 </div>
@@ -1116,7 +1116,7 @@ plot(bfm1)</code></pre>
 <div class="alert alert-success">
 <blockquote>
 <p>
-<strong>Question 4</strong>: Now check if you detect a break in the center pixel (see pixel numbering scheme). Is there a change detected in the center pixel? Include the <code>plot(bmf1)</code> result for the center pixel in your answer.
+<strong>Question 4</strong>: Now check if you detect a break in the center pixel (see pixel numbering scheme). Yes or no, include the <code>plot(bmf1)</code> result for the center pixel in your answer.
 </p>
 </blockquote>
 </div>
@@ -1125,7 +1125,7 @@ plot(bfm1)</code></pre>
 <div class="alert alert-success">
 <blockquote>
 <p>
-<strong>Question 5</strong>: What happens if you use a different <em>formula</em> in <code>bfastmonitor</code>? For example, <code>response ∼ trend</code>. Explain what happens and also in which sense is 2019 an abnormal year? Include the bfastmonitor plot in your answer.
+<strong>Question 5</strong>: What happens if you use a different <em>formula</em> in <code>bfastmonitor</code> for the center pixel? For example, <code>response ∼ trend</code>. Explain what happens and also in which sense is 2019 an abnormal year? Include the bfastmonitor plot in your answer.
 </p>
 </blockquote>
 </div>

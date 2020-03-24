@@ -108,7 +108,7 @@ timeser <- function(index, dt) {
 
 First we download the MODIS data via the `mt_subset` function:
 
-```{r, eval=FALSE, results="hide"}
+```{r, eval=TRUE, results="hide"}
 VI <- mt_subset(product = "MOD13Q1",
                 site_id = "nl_gelderland_loobos",
                 band = "250m_16_days_NDVI",
@@ -131,7 +131,7 @@ QA <- mt_subset(product = "MOD13Q1",
 ```
 
 ```{r, message=FALSE, include=FALSE, eval=TRUE}
-runfast <- TRUE
+runfast <- FALSE
 if (runfast) {
   fname <- "data/DataLooBos_QA_VI_backup_2020.RData"
   if (!file.exists(fname)) {
@@ -221,17 +221,17 @@ plot(bfm1)
 ```
 
 ```{block, type="alert alert-success"}
-> **Question 3**: A valid data range of NDVI is between 0 and 1. So we should actually set NDVI values smaller than 0 to NA. Now, do that for this question and run bfastmonitor on this further cleaned NDVI time series.  You can use this R code snippet for that
-`tspx[tspx < 0] <- NA` and include the new bfm1 plot in your answer. Describe shortly what happens. Is this type of cleaning influencing the `bfastmonitor` analysis? Yes or No, explain in one sentence.
+> **Question 3**: A valid data range of NDVI is between 0 and 1. So we should actually set NDVI values smaller than 0 to NA. Now, do that for pixel nr. 33 and run bfastmonitor on this further cleaned NDVI time series.  You can use this R code snippet for that
+`tspx[tspx < 0] <- NA` and include the new bfm1 plot in your answer. Describe shortly what happens. Is this type of cleaning influencing the `bfastmonitor` analysis? Yes or No, and explain in one sentence.
 ```
 
 ```{block, type="alert alert-success"}
-> **Question 4**: Now check if you detect a break in the center pixel (see pixel numbering scheme). Is there a change detected in the center pixel? Include the `plot(bmf1)` result for the center pixel in your answer.
+> **Question 4**: Now check if you detect a break in the center pixel (see pixel numbering scheme). Yes or no, include the `plot(bmf1)` result for the center pixel in your answer.
 ```
 
 
 ```{block, type="alert alert-success"}
-> **Question 5**:  What happens if you use a different *formula* in `bfastmonitor`? For example, `response ∼ trend`. Explain what happens and also in which sense is 2019 an abnormal year? Include the bfastmonitor plot in your answer.
+> **Question 5**:  What happens if you use a different *formula* in `bfastmonitor` for the center pixel? For example, `response ∼ trend`. Explain what happens and also in which sense is 2019 an abnormal year? Include the bfastmonitor plot in your answer.
 ```
 
 Let's run the `bfastmonitor` code on the full raster `brick` spatially using the `calc` function:
@@ -252,8 +252,6 @@ bfmR <- calc(VI_m, bfmRaster)
 names(bfmR) <- c('time of break', 'magnitude of change')
 plot(bfmR) # resulting time and magnitude of change
 ```
-
-
 
 ```{block, type="alert alert-success"}
 > **Question 6**:  Now try to detect a change in 2019 for another site in the world available via the [https://modis.ornl.gov/sites/](https://modis.ornl.gov/sites/) website. In your answer, mention (a) site, (b) bfastmonitor settings, (c) landcover type of that pixel and the pixel number, (d) and add the plot of the time series. (e) Then explain why you detected a change or why there is no change detected in an example time series for a selected pixel. (f) How could the change detection be optimised?
