@@ -93,13 +93,16 @@ Loading extra function to create a time series object in R via `timeser` functio
 
 
 ```{r, message = FALSE}
-timeser <- function(index, dt) {
-    z <- zoo(index, dt)
-    yr <- as.numeric(format(time(z), "%Y"))
-    jul <- as.numeric(format(time(z), "%j"))
-    delta <- min(unlist(tapply(jul, yr, diff))) # 16
-    zz <- aggregate(z, yr + (jul - 1) / delta / 23)
-    (tso <- as.ts(zz))
+# Function to create time series object
+# val_array: data array for one single pixel (length is number of time steps)
+# time_array: array with dates at which raster data is recorded (same length as val_array)
+timeser <- function(val_array, time_array) {
+    z <- zoo(val_array, time_array) # create zoo object
+    yr <- as.numeric(format(time(z), "%Y")) # extract the year numbers
+    jul <- as.numeric(format(time(z), "%j")) # extract the day numbers (1-365)
+    delta <- min(unlist(tapply(jul, yr, diff))) # calculate minimum time difference (days) between observations
+    zz <- aggregate(z, yr + (jul - 1) / delta / 23) # aggregate into decimal year timestamps
+    (tso <- as.ts(zz)) # convert into timeseries object
     return(tso)
   }
 ```
@@ -109,6 +112,7 @@ timeser <- function(index, dt) {
 First we download the MODIS data via the `mt_subset` function:
 
 ```{r, eval=FALSE, results="hide"}
+# Downloading the NVDI data, starting from 2000-01-01
 VI <- mt_subset(product = "MOD13Q1",
                 site_id = "nl_gelderland_loobos",
                 band = "250m_16_days_NDVI",
@@ -119,6 +123,7 @@ VI <- mt_subset(product = "MOD13Q1",
                 internal = TRUE,
                 progress = FALSE)
 
+# Downloading the NVDI data, starting from 2000-01-01
 QA <- mt_subset(product = "MOD13Q1",
                 site_id = "nl_gelderland_loobos",
                 band = "250m_16_days_pixel_reliability",
@@ -194,11 +199,11 @@ r <- raster(VI_m,1)
 pal <- colorNumeric(c("#ffffff", "#4dff88", "#004d1a"), values(r),
   na.color = "transparent")
 
-m <- leaflet() %>% addTiles() %>%
+map <- leaflet() %>% addTiles() %>%
   addRasterImage(r, colors = pal, opacity = 0.8) %>%
   addLegend(pal = pal, values = values(r),
     title = "NDVI")
-m
+map
 ```
 
 ## Apply BFASTmonitor
@@ -216,7 +221,7 @@ plot(tspx, main = 'NDVI') # NDVI time series cleaned using the "reliability info
 
 Now we apply the `bfastmonitor` function using a `trend + harmon` model with `order 3` for the harmonics (i.e. seasonality modelling):
 ```{r}
-bfm1 <- bfastmonitor(tspx, response ~ trend + harmon, order = 3, start = c(2019,1))
+bfm1 <- bfastmonitor(tspx, response ~ trend + harmon, order = 3, start = c(2019,1)) # Note: the first observation in 2019 marks the transition from 'history' to 'monitoring'
 plot(bfm1)
 ```
 
@@ -242,9 +247,9 @@ dates <- as.Date(names(VI_m), "X%Y.%m.%d")
 # here we define the function that we will apply across the brick using the calc function:
 bfmRaster = function(pixels)
 {
-    tspx <- timeser(pixels, dates)
-    bfm <- bfastmonitor(tspx, response ~ trend + harmon, order = 3, start = c(2019,1))
-    return(c(bfm$breakpoint, bfm$magnitude))
+    tspx <- timeser(pixels, dates) # create a timeseries of all pixels
+    bfm <- bfastmonitor(tspx, response ~ trend + harmon, order = 3, start = c(2019,1)) # run bfast on all pixels
+    return(c(bfm$breakpoint, bfm$magnitude)) 
 }
 
 # calc function 
