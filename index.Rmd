@@ -108,7 +108,7 @@ timeser <- function(index, dt) {
 
 First we download the MODIS data via the `mt_subset` function:
 
-```{r, eval=FALSE, results="hide"}
+```{r, eval=TRUE, results="hide"}
 VI <- mt_subset(product = "MOD13Q1",
                 site_id = "nl_gelderland_loobos",
                 band = "250m_16_days_NDVI",
@@ -130,7 +130,7 @@ QA <- mt_subset(product = "MOD13Q1",
                 progress = FALSE)
 ```
 
-```{r, message=FALSE, include=FALSE, eval=TRUE}
+```{r, message=FALSE, include=FALSE, eval=FALSE}
 runfast <- TRUE
 if (runfast) {
   fname <- "data/DataLooBos_QA_VI_backup_2020.RData"
