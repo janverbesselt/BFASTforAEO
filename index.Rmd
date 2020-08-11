@@ -11,28 +11,33 @@ output:
     highlight.chooser: TRUE
 ---
 
+```{r setup, echo=FALSE}
+# Disable printing warnings; with new package versions we get a lot of warnings about unknown CRS
+knitr::opts_chunk$set(warning = FALSE)
+```
+
 # MODIS based time series analysis using BFASTmonitor
 
 ![WUR logo](https://www.wur.nl/upload/5e55a1d9-47c3-4149-9384-26d5147ee2d7_WUR_RGB_standard.png)
 
 [Jan Verbesselt](http://www.wur.eu/changemonitor)
 
-```{r, eval=TRUE, echo=TRUE, include=TRUE, results='asis'}
-format(Sys.time(), '%d-%m-%Y')
+```{r, eval=TRUE, echo=FALSE, include=TRUE, results='asis'}
+cat(c(format(Sys.time(), '%d-%m-%Y')), "\n")
 ```
 
-This document explains how to use R scripting language for downloading MODIS data and analyzing it within R. The results of the analysis of MODIS data within R are illustrated. For this time series analysis demonstration it is not required to know R details, we only use R for some practical demonstration of its great potential. In this exercise we will automatically download MODIS data for specific locations around the world. 
+This document explains how to use the R scripting language for downloading MODIS data and analyzing it within R. The results of the analysis of MODIS data within R are illustrated. For this time series analysis demonstration it is not required to know R details, we only use R for some practical demonstration of its great potential. In this exercise we will automatically download MODIS data for specific locations around the world. 
 
 # Introduction to MODIS data and online analysis
 
-The MODIS satellite data that we will download for this time series analysis exercise is available from [MODIS Subsetting Website](https://modis.ornl.gov/sites/). MODIS data is made available for specific locations. 
+The MODIS satellite data that we will download for this time series analysis exercise is available from the [MODIS Subsetting Website](https://modis.ornl.gov/sites/). MODIS data is made available for specific locations. 
 
-More specifically, we will look at the MODIS product called MOD13Q1 which are *global 16-day images at a spatial resolution of 250 m*. Each image contains several bands; i.e. blue, red, and near-infrared reflectances, centered at 469-nanometers, 645-nanometers, and 858-nanometers, respectively. These bands are used to determine the MODIS vegetation indices.
+More specifically, we will look at the MODIS product called MOD13Q1 which are *global 16-day images at a spatial resolution of 250 m*. Each image contains several bands; i.e. blue, red, and near-infrared reflectances, centered at 469 nanometers, 645 nanometers, and 858 nanometers, respectively. These bands are used to determine the MODIS vegetation indices.
 
-The MODIS Normalized Difference Vegetation Index (NDVI) complements NOAA's Advanced Very High Resolution Radiometer (AVHRR) NDVI products and provides continuity for time series historical applications. MODIS also includes a new Enhanced Vegetation Index (EVI) that minimizes canopy background variations and maintains sensitivity over dense vegetation conditions. The EVI also uses the blue band to remove residual atmosphere contamination caused by smoke and sub-pixel thin clouds. The MODIS NDVI and EVI products are computed from atmospherically corrected surface reflectances that have been masked for water, clouds, heavy aerosols, and cloud shadows.
+The MODIS Normalized Difference Vegetation Index (NDVI) complements NOAA's Advanced Very High Resolution Radiometer (AVHRR) NDVI products and provides continuity for applications requiring long time series. MODIS also includes a new Enhanced Vegetation Index (EVI) that minimizes canopy background variations and maintains sensitivity over dense vegetation conditions. The EVI also uses the blue band to remove residual atmosphere contamination caused by smoke, sub-pixel and thin clouds. The MODIS NDVI and EVI products are computed from atmospherically corrected surface reflectances that have been masked for water, clouds, heavy aerosols, and cloud shadows.
 
-Vegetation indices are used for global monitoring of vegetation conditions and are used in products displaying land cover and land cover changes. 
-We will work with the MODIS NDVI band within the MOD13Q1 product. More information about this MODIS data set can be found via the [MODIS product table](https://lpdaac.usgs.gov/products/mod13q1v006/).
+Vegetation indices are used for global monitoring of vegetation conditions and are used in products displaying land cover and its changes.
+We will work with the MODIS NDVI band of the MOD13Q1 product. More information about this MODIS data set can be found via the [MODIS product table](https://lpdaac.usgs.gov/products/mod13q1v006/).
 
 
 Now go to the [MODIS Land Products](https://modis.ornl.gov/sites/):
@@ -111,8 +116,8 @@ timeser <- function(val_array, time_array) {
 
 First we download the MODIS data via the `mt_subset` function:
 
-```{r, eval=TRUE, results="hide"}
-# Downloading the NVDI data, starting from 2000-01-01
+```{r mtsubset, eval=TRUE, cache=TRUE, results="hide"}
+# Downloading the NDVI data, starting from 2000-01-01
 VI <- mt_subset(product = "MOD13Q1",
                 site_id = "nl_gelderland_loobos",
                 band = "250m_16_days_NDVI",
@@ -123,7 +128,7 @@ VI <- mt_subset(product = "MOD13Q1",
                 internal = TRUE,
                 progress = FALSE)
 
-# Downloading the NVDI data, starting from 2000-01-01
+# Downloading the pixel reliability data, starting from 2000-01-01
 QA <- mt_subset(product = "MOD13Q1",
                 site_id = "nl_gelderland_loobos",
                 band = "250m_16_days_pixel_reliability",
@@ -133,6 +138,10 @@ QA <- mt_subset(product = "MOD13Q1",
                 site_name = "testsite",
                 internal = TRUE,
                 progress = FALSE)
+```
+
+```{block type="alert alert-info"}
+**Note**: In case the LP DAAC servers are down for maintenance and downloading via the above command fails, you can download a cached version from [here](data/DataLooBos_QA_VI_backup_2020.RData), and then see `?load`.
 ```
 
 ```{r, message=FALSE, include=FALSE, eval=FALSE}
@@ -148,11 +157,11 @@ if (runfast) {
 
 ```
 
-## creating a raster brick and cleaning the MODIS data using the reliability layer
+## Creating a raster brick and cleaning the MODIS data using the reliability layer
 
 Second, we create a raster brick using the `mt_to_raster` function that is included in the new *MODISTools* package (version 1.1.1). 
 
-```{r}
+```{r mttoraster}
 # convert df to raster
 VI_r <- mt_to_raster(df = VI)
 QA_r <- mt_to_raster(df = QA)
@@ -167,7 +176,7 @@ Third, we clean the MODIS NDVI data using pixel reliability information:
 m <- QA_r
 m[(QA_r < 0 | QA_r > 1)] <- NA # continue working with QA 0 (good data), and 1 (marginal data)
 
-# mask all values from VI raster NA
+# apply the mask to the NDVI raster
 VI_m <- mask(VI_r, m, maskvalue=NA, updatevalue=NA)
 
 # plot the first image
@@ -186,7 +195,7 @@ plot(VI_m,1) # plot cleaned NDVI raster
 You can (optional!) extract data from the cleaned VI raster brick via the `click` function:
 ```{r, eval=FALSE}
 # extract data from the cleaned raster for selected pixels
-click(VI_m, id=TRUE, xy=TRUE, cell=TRUE, n= 1)
+click(VI_m, id=TRUE, xy=TRUE, cell=TRUE, n=1)
 ```
 
 ```{block type="alert alert-info"}
@@ -266,13 +275,13 @@ plot(bfmR) # resulting time and magnitude of change
 > **Question 7**:  Now try to detect a change in 2019 for another site in the world available via the [https://modis.ornl.gov/sites/](https://modis.ornl.gov/sites/) website. In your answer, mention (a) site, (b) bfastmonitor settings, (c) landcover type of that pixel and the pixel number, (d) include the the time.of.break and magnitude.of.change plots in your answer, (e)  briefly discuss the main differences and/or similarities (in magnitude) of your site with the loobos site.
 ```
 
-Example R code to select pixel select with a break detected by using the `click` function and click on pixels with a break (i.e. where a time of break is estimated).
+Here is example R code to get the pixel number. When you run `click()`, click in the plot on a pixel with a break (i.e. where an estimated time of break is available).
 ```{r, eval = FALSE}
 plot(bfmR,1)
-click(VI_m, id=FALSE, xy=FALSE, cell=TRUE, n= 1)
+click(VI_m, id=FALSE, xy=FALSE, cell=TRUE, n=1)
 ```
 
-Here we selected one pixel, and do the `bfastmonitor` analysis for that pixels:
+Here we selected one pixel, and do the `bfastmonitor` analysis for that pixel:
 ```{r, eval = TRUE}
 px <- 460 # pixel number so adjust this number to select the center pixel
 tspx <- timeser(as.vector(VI_m[px]),as.Date(names(VI_m), "X%Y.%m.%d")) # convert pixel 1 to a time series
@@ -283,10 +292,10 @@ plot(bfm)
 ```
 
 # More information
-More information can be found on the [BFAST website](http://bfast.r-forge.r-project.org/) and in the BFAST papers mentioned on the website.
+More information can be found on the [BFAST website](https://bfast2.github.io/) and in the BFAST papers mentioned on the website.
 
 
-## seasonlity monitoring using harmonics
+## Seasonlity monitoring using harmonics
 
 ```{r}
 library(bfast)
