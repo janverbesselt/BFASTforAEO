@@ -295,7 +295,7 @@ plot(bfm)
 More information can be found on the [BFAST website](https://bfast2.github.io/) and in the BFAST papers mentioned on the website.
 
 
-## Seasonlity monitoring using harmonics
+## Seasonality monitoring using harmonics
 
 ```{r}
 library(bfast)
