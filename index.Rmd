@@ -250,7 +250,7 @@ plot(bfm1)
 
 Let's run the `bfastmonitor` code on the full raster `brick` spatially using the `calc` function:
 
-```{r}
+```{r calc}
 dates <- as.Date(names(VI_m), "X%Y.%m.%d")
 
 # here we define the function that we will apply across the brick using the calc function:
@@ -294,6 +294,47 @@ plot(bfm)
 # More information
 More information can be found on the [BFAST website](https://bfast2.github.io/) and in the BFAST papers mentioned on the website.
 
+## BFAST0N
+
+BFAST Monitor is made to *detect the first break at the end of a time series*.
+If you need to detect more than one break, then you need to use a different algorithm: either BFAST or BFAST0N.
+In this example, we will run BFAST0N (a lightweight version of BFAST that can handle NA values) on the same data.
+At the moment it is only available in the development version of the `bfast` package, so install it first:
+
+```{r, eval=FALSE}
+pkgTest("remotes")
+remotes::install_github("bfast2/bfast")
+detach("package:bfast", unload=TRUE)
+library(bfast) # If you get errors, then you need to restart your R session and rerun the code above
+```
+
+Next, let's run `bfast0n` on our data from the previous step:
+
+```{r}
+breaks <- bfast0n(tspx, response ~ trend + harmon, order = 3)
+breaks
+```
+
+What if we try another pixel:
+```{r}
+px <- 92
+tspx <- timeser(as.vector(VI_m[px]),as.Date(names(VI_m), "X%Y.%m.%d"))
+breaks <- bfast0n(tspx, response ~ trend + harmon, order = 3)
+breaks
+```
+
+Which date is the break on?
+
+```{r}
+dates.no.na <- as.numeric(time(tspx))
+dates.no.na[is.na(tspx)] <- NA
+dates.no.na <- na.omit(dates.no.na)
+dates.no.na[breaks$breakpoints[1]]
+
+# Plot it
+plot(tspx)
+abline(v=dates.no.na[breaks$breakpoints[1]], col="red")
+```
 
 ## Seasonality monitoring using harmonics
 
