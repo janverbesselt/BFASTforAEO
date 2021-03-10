@@ -1,6 +1,6 @@
 ---
 title: "MODIS NDVI time series analysis using BFAST"
-author: "Jan Verbesselt"
+author: "Jan Verbesselt, Dainius Masiliūnas"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
   knitrBootstrap::bootstrap_document:
@@ -16,11 +16,11 @@ output:
 knitr::opts_chunk$set(warning = FALSE)
 ```
 
-# MODIS based time series analysis using BFASTmonitor
+# MODIS based time series analysis using BFAST Monitor and BFAST Lite
 
 ![WUR logo](https://www.wur.nl/upload/5e55a1d9-47c3-4149-9384-26d5147ee2d7_WUR_RGB_standard.png)
 
-[Jan Verbesselt](http://www.wur.eu/changemonitor)
+[Jan Verbesselt, Dainius Masiliūnas](http://www.wur.eu/changemonitor)
 
 ```{r, eval=TRUE, echo=FALSE, include=TRUE, results='asis'}
 cat(c(format(Sys.time(), '%d-%m-%Y')), "\n")
@@ -44,17 +44,17 @@ Now go to the [MODIS Land Products](https://modis.ornl.gov/sites/):
 
   * Search for 'Netherlands' and select the 'Gelderland Loobos' Site.
   * Select the MODIS 13Q1 product by clicking on it.There is no immediate need to create an account unless you want to manually download the MODIS data via this website. In the below explanation, we will download MODIS NDVI data via an R script.
-  * Under 'Download data' tab and table, via the website, you can see the **Pixel Numbering Scheme** where the blue pixel (i.e. 545) is the "site pixel" (i.e. the middle of the spatial subset).
+  * Under 'Download data' tab and table, via the website, you can see a small link named **Pixel Numbering Scheme**, Click it to see that the blue pixel (i.e. pixel number 545) is the "site pixel" (i.e. the middle of the spatial subset). This is where a flux tower is located.
 
 ```{block, type="alert alert-success"}
-> **Question 1**: What are the three main land cover types close to the center of the site? (see additional information on the bottom of the [MODIS13Q1 page](https://modis.ornl.gov/cgi-bin/sites/site/?id=nl_gelderland_loobos&product=MOD13Q1)). Which land cover type is correct and which one not?
+> **Question 1**: What are the three main land cover types close to the center of the site? (See the integrated legend in the maps below.) Which land cover types are correct and which are not?
 ```
 
 # Automated MODIS NDVI download and analysis via R
 
 We will download the MODIS data for the Loobos Site via R and process the data for one location to detect changes within the time series.
 
-If it is the first time that you work with R or Rstudio, you can follow the following tutorial on getting started with [R and Rstudio](https://geoscripting-wur.github.io/Scripting4GeoIntro/).
+<!--If it is the first time that you work with R or RStudio, you can follow the following tutorial on getting started with [R and RStudio](https://geoscripting-wur.github.io/Scripting4GeoIntro/).-->
 
 
 ## Getting started: install packages and load the necessary functions for MODIS data analysis
@@ -94,7 +94,7 @@ for (package in neededPackages){pkgTest(package)}
 ```
 
 
-Loading extra function to create a time series object in R via `timeser` function:
+Loading extra function `timeser()` to create a time series object in R:
 
 
 ```{r, message = FALSE}
@@ -126,7 +126,7 @@ VI <- mt_subset(product = "MOD13Q1",
                 km_ab = 2,
                 site_name = "testsite",
                 internal = TRUE,
-                progress = FALSE)
+                progress = TRUE)
 
 # Downloading the pixel reliability data, starting from 2000-01-01
 QA <- mt_subset(product = "MOD13Q1",
@@ -137,7 +137,7 @@ QA <- mt_subset(product = "MOD13Q1",
                 km_ab = 2,
                 site_name = "testsite",
                 internal = TRUE,
-                progress = FALSE)
+                progress = TRUE)
 ```
 
 ```{block type="alert alert-info"}
@@ -222,20 +222,20 @@ Below we extract the data from the raster as a vector and create a time series u
 ## check VI data at a certain pixel e.g. 1 row, complete left hand site:
 ## the dimensions of the raster are: 33x33
 
-px <- 78 # pixel number so adjust this number to select the center pixel
-tspx <- timeser(as.vector(VI_m[px]),as.Date(names(VI_m), "X%Y.%m.%d")) # convert pixel 1 to a time series
+px <- 78 # pixel number; adjust this number to select the center pixel
+tspx <- timeser(as.vector(VI_m[px]),as.Date(names(VI_m), "X%Y.%m.%d")) # convert pixel "px" to a time series
 plot(tspx, main = 'NDVI') # NDVI time series cleaned using the "reliability information"
 ```
 
 
 Now we apply the `bfastmonitor` function using a `trend + harmon` model with `order 3` for the harmonics (i.e. seasonality modelling):
 ```{r}
-bfm1 <- bfastmonitor(tspx, response ~ trend + harmon, order = 3, start = c(2019,1)) # Note: the first observation in 2019 marks the transition from 'history' to 'monitoring'
+bfm1 <- bfastmonitor(tspx, response ~ trend + harmon, order = 3, start = c(2018,1)) # Note: the first observation in 2018 marks the transition from 'history' to 'monitoring'
 plot(bfm1)
 ```
 
 ```{block, type="alert alert-success"}
-> **Question 3**: A valid data range of NDVI is between 0 and 1. So we should actually set NDVI values smaller than 0 to NA. Now, do that for pixel nr. 33 and run bfastmonitor on this further cleaned NDVI time series.  You can use this R code snippet for that
+> **Question 3**: A valid data range of NDVI in vegetation is between 0 and 1. So we should actually set NDVI values smaller than 0 to NA, as those are very likely to be invalid values. Now, do that for pixel nr. 33 and run bfastmonitor on this further cleaned NDVI time series.  You can use this R code snippet for that
 `tspx[tspx < 0] <- NA` and include the new bfm1 plot in your answer. Describe shortly what happens. Is this type of cleaning influencing the `bfastmonitor` analysis? Yes or No, and explain in one sentence.
 ```
 
@@ -245,7 +245,7 @@ plot(bfm1)
 
 
 ```{block, type="alert alert-success"}
-> **Question 5**:  What happens if you use a different *formula* in `bfastmonitor` for the center pixel? For example, `response ∼ trend`. Explain what happens and also in which sense is 2019 an abnormal year? Include the bfastmonitor plot in your answer.
+> **Question 5**: Now check pixel 78. What happens if you use a different *formula* in `bfastmonitor` for the pixel? For example, `response ∼ trend`. Explain what happens and also in which sense is 2019 an abnormal year? Include the bfastmonitor plots in your answer.
 ```
 
 Let's run the `bfastmonitor` code on the full raster `brick` spatially using the `calc` function:
@@ -294,21 +294,23 @@ plot(bfm)
 # More information
 More information can be found on the [BFAST website](https://bfast2.github.io/) and in the BFAST papers mentioned on the website.
 
-## BFAST0N
+The following sections give extra information about how to use BFAST Lite and about the concept of seasonality monitoring using harmonic analysis. There are no questions from the following sections, but they may prove to be insightful, especially if you'd like to continue working on time series analysis in the future.
+
+## BFAST Lite
 
 BFAST Monitor is made to *detect the first break at the end of a time series*.
-If you need to detect more than one break, then you need to use a different algorithm: either BFAST or BFAST0N.
-In this example, we will run BFAST0N (a lightweight version of BFAST that can handle NA values) on the same data.
+If you need to detect more than one break, then you need to use a different algorithm: either BFAST or BFAST Lite.
+In this example, we will run BFAST Lite (a lightweight version of BFAST that can handle NA values) on the same data.
 At the moment it is only available in the development version of the `bfast` package, so install it first:
 
 ```{r, eval=FALSE}
+detach("package:bfast", unload=TRUE)
 pkgTest("remotes")
 remotes::install_github("bfast2/bfast")
-detach("package:bfast", unload=TRUE)
-library(bfast) # If you get errors, then you need to restart your R session and rerun the code above
+library(bfast) # If you get errors about a corrupt database, then you need to restart your R session and rerun the code above
 ```
 
-Next, let's run `bfast0n` on our data from the previous step:
+Next, let's run the function `bfast0n` (the codename for BFAST Lite) on our data from the previous step:
 
 ```{r}
 breaks <- bfast0n(tspx, response ~ trend + harmon, order = 3)
@@ -335,6 +337,30 @@ dates.no.na[breaks$breakpoints[1]]
 plot(tspx)
 abline(v=dates.no.na[breaks$breakpoints[1]], col="red")
 ```
+
+Plot the model on top:
+
+```{r}
+plot(tspx)
+abline(v=dates.no.na[breaks$breakpoints[1]], col="red")
+lines(fitted(breaks)~dates.no.na, col="blue")
+```
+
+Why did the model decide to place a break there? Let's take a look at the statistics:
+
+```{r}
+summary(breaks)
+```
+
+The above shows that the model tried putting up to 5 breaks in the time series at the particular observation numbers, and selected by minimum BIC that there should be one break. To see that information visually, plot the model:
+
+```{r}
+plot(breaks)
+```
+
+The residual sum of squares keeps decreasing with more breakpoints, as that makes the model more flexible and thus fit the data better, but BIC and other information criteria apply a penalty for adding more breaks than really necessary, thus limiting the number of false detections.
+
+The plot above also shows that the difference between 0 and 1 break is little, therefore the model is not certain which of the two should be picked. In the summary we see that the difference is around 3, which is borderline significant. We can visually see that the break is indeed quite small.
 
 ## Seasonality monitoring using harmonics
 
