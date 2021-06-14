@@ -22,6 +22,9 @@ knitr::opts_chunk$set(warning = FALSE)
 body {
   max-width: 100%;
 }
+a, a:visited {
+  color: #d9230f;
+}
 
 </style>
 
