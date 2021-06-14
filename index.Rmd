@@ -16,6 +16,15 @@ output:
 knitr::opts_chunk$set(warning = FALSE)
 ```
 
+<!-- Fix for strange issue where the page becomes extremely narrow -->
+<style type="text/css">
+
+body {
+  max-width: 100%;
+}
+
+</style>
+
 # MODIS based time series analysis using BFAST Monitor and BFAST Lite
 
 ![WUR logo](https://www.wur.nl/upload/5e55a1d9-47c3-4149-9384-26d5147ee2d7_WUR_RGB_standard.png)
@@ -28,7 +37,7 @@ cat(c(format(Sys.time(), '%d-%m-%Y')), "\n")
 
 This document explains how to use the R scripting language for downloading MODIS data and analyzing it within R. The results of the analysis of MODIS data within R are illustrated. For this time series analysis demonstration it is not required to know R details, we only use R for some practical demonstration of its great potential. In this exercise we will automatically download MODIS data for specific locations around the world. 
 
-# Introduction to MODIS data and online analysis
+## Introduction to MODIS data and online analysis
 
 The MODIS satellite data that we will download for this time series analysis exercise is available from the [MODIS Subsetting Website](https://modis.ornl.gov/sites/). MODIS data is made available for specific locations. 
 
@@ -50,14 +59,14 @@ Now go to the [MODIS Land Products](https://modis.ornl.gov/sites/):
 > **Question 1**: What are the three main land cover types close to the center of the site? (See the integrated legend in the maps below.) Which land cover types are correct and which are not?
 ```
 
-# Automated MODIS NDVI download and analysis via R
+## Automated MODIS NDVI download and analysis via R
 
 We will download the MODIS data for the Loobos Site via R and process the data for one location to detect changes within the time series.
 
 <!--If it is the first time that you work with R or RStudio, you can follow the following tutorial on getting started with [R and RStudio](https://geoscripting-wur.github.io/Scripting4GeoIntro/).-->
 
 
-## Getting started: install packages and load the necessary functions for MODIS data analysis
+### Getting started: install packages and load the necessary functions for MODIS data analysis
 
 Now we are ready to get started with the MODIS time series analysis exercise in R! 
 
@@ -89,7 +98,7 @@ pkgTest <- function(x)
   }
   library(x, character.only = TRUE)
 }
-neededPackages <- c("strucchange","zoo", "bfast", "raster", "leaflet", "MODISTools")
+neededPackages <- c("zoo", "bfast", "raster", "leaflet", "MODISTools")
 for (package in neededPackages){pkgTest(package)}
 ```
 
@@ -112,7 +121,7 @@ timeser <- function(val_array, time_array) {
   }
 ```
 
-## Downloading MODIS data using the MODISTools package
+### Downloading MODIS data using the MODISTools package
 
 First we download the MODIS data via the `mt_subset` function:
 
@@ -157,7 +166,7 @@ if (runfast) {
 
 ```
 
-## Creating a raster brick and cleaning the MODIS data using the reliability layer
+### Creating a raster brick and cleaning the MODIS data using the reliability layer
 
 Second, we create a raster brick using the `mt_to_raster` function that is included in the new *MODISTools* package (version 1.1.1). 
 
@@ -215,7 +224,7 @@ map <- leaflet() %>% addTiles() %>%
 map
 ```
 
-## Apply BFASTmonitor
+### Apply BFASTmonitor
 
 Below we extract the data from the raster as a vector and create a time series using the `timeser` function:
 ```{r}
@@ -291,37 +300,30 @@ bfm <- bfastmonitor(tspx, response ~ trend + harmon, order = 3, start = c(2019,1
 plot(bfm)
 ```
 
-# More information
+## More information
 More information can be found on the [BFAST website](https://bfast2.github.io/) and in the BFAST papers mentioned on the website.
 
 The following sections give extra information about how to use BFAST Lite and about the concept of seasonality monitoring using harmonic analysis. There are no questions from the following sections, but they may prove to be insightful, especially if you'd like to continue working on time series analysis in the future.
 
-## BFAST Lite
+### BFAST Lite
 
 BFAST Monitor is made to *detect the first break at the end of a time series*.
 If you need to detect more than one break, then you need to use a different algorithm: either BFAST or BFAST Lite.
 In this example, we will run BFAST Lite (a lightweight version of BFAST that can handle NA values) on the same data.
-At the moment it is only available in the development version of the `bfast` package, so install it first:
 
-```{r, eval=FALSE}
-detach("package:bfast", unload=TRUE)
-pkgTest("remotes")
-remotes::install_github("bfast2/bfast")
-library(bfast) # If you get errors about a corrupt database, then you need to restart your R session and rerun the code above
-```
-
-Next, let's run the function `bfast0n` (the codename for BFAST Lite) on our data from the previous step:
+Let's run the function `bfastlite()` on our data from the previous step.
+Setting the parameter `breaks` to `BIC` results in more liberal detection of breaks compared to the default, `LWZ`.
 
 ```{r}
-breaks <- bfast0n(tspx, response ~ trend + harmon, order = 3)
+breaks <- bfastlite(tspx, response ~ trend + harmon, order = 3, breaks = "BIC")
 breaks
 ```
 
 What if we try another pixel:
 ```{r}
-px <- 92
+px <- 82
 tspx <- timeser(as.vector(VI_m[px]),as.Date(names(VI_m), "X%Y.%m.%d"))
-breaks <- bfast0n(tspx, response ~ trend + harmon, order = 3)
+breaks <- bfastlite(tspx, response ~ trend + harmon, order = 3, breaks = "BIC")
 breaks
 ```
 
@@ -331,38 +333,98 @@ Which date is the break on?
 dates.no.na <- as.numeric(time(tspx))
 dates.no.na[is.na(tspx)] <- NA
 dates.no.na <- na.omit(dates.no.na)
-dates.no.na[breaks$breakpoints[1]]
-
-# Plot it
-plot(tspx)
-abline(v=dates.no.na[breaks$breakpoints[1]], col="red")
+dates.no.na[breaks$breakpoints$breakpoints[1]]
 ```
 
-Plot the model on top:
-
-```{r}
-plot(tspx)
-abline(v=dates.no.na[breaks$breakpoints[1]], col="red")
-lines(fitted(breaks)~dates.no.na, col="blue")
-```
-
-Why did the model decide to place a break there? Let's take a look at the statistics:
-
-```{r}
-summary(breaks)
-```
-
-The above shows that the model tried putting up to 5 breaks in the time series at the particular observation numbers, and selected by minimum BIC that there should be one break. To see that information visually, plot the model:
+Plot the model and the break(s):
 
 ```{r}
 plot(breaks)
 ```
 
+Why did the model decide to place a break there? Let's take a look at the statistics:
+
+```{r}
+summary(breaks$breakpoints)
+```
+
+The above shows that the model tried putting up to 5 breaks in the time series at the particular observation numbers, and selected by minimum BIC that there should be one break. To see that information visually, plot the breakpoints component:
+
+```{r}
+plot(breaks$breakpoints)
+```
+
 The residual sum of squares keeps decreasing with more breakpoints, as that makes the model more flexible and thus fit the data better, but BIC and other information criteria apply a penalty for adding more breaks than really necessary, thus limiting the number of false detections.
+In this case, both BIC and LWZ agree that 1 is the optimal number of breaks.
 
-The plot above also shows that the difference between 0 and 1 break is little, therefore the model is not certain which of the two should be picked. In the summary we see that the difference is around 3, which is borderline significant. We can visually see that the break is indeed quite small.
+We can visually see that the identified break is indeed quite significant.
+We can also look at it from a statistical point of view by using the function `magnitude()`:
 
-## Seasonality monitoring using harmonics
+```{r}
+magnitude(breaks$breakpoints)
+```
+
+This shows that the difference between the actual observations and the predictions of the models on both sides of the break, when extrapolated to the other side, is fairly high (0.22 RMSD and MAD, thus at the magnitude of 0.22 NDVI units).
+
+```{block eval=FALSE, include=FALSE, type="alert alert-success"}
+> **Question 3**: A valid data range of NDVI in vegetation is between 0 and 1. So we should actually set NDVI values smaller than 0 to NA, as those are very likely to be invalid values. Now, do that for pixel nr. 33 and run bfastlite on this further cleaned NDVI time series.  You can use this R code snippet for that
+`tspx[tspx < 0] <- NA` and include the new bfm1 plot in your answer. Describe shortly what happens. Is this type of cleaning influencing the `bfastlite` analysis? Yes or No, and explain in one sentence.
+```
+
+Let's try to run BFAST Lite on the whole raster now.
+There is one problem with that: since the number of breaks is variable, we don't have a variable number of layers.
+Thus, let's plot only the break that is the most significant, so that we get two layers as output.
+
+```{r spatialbfl}
+# The code for getting a date from above, in a function
+# index is which breakpoint to list, tspx is the original time series
+IndexToDate <- function(index, tspx, breaks) {
+  dates.no.na <- as.numeric(time(tspx))
+  dates.no.na[is.na(tspx)] <- NA
+  dates.no.na <- na.omit(dates.no.na)
+  dates.no.na[breaks$breakpoints$breakpoints[index]]
+}
+
+bflRaster <- function(pixels) {
+  tspx <- timeser(pixels, as.Date(names(VI_m), "X%Y.%m.%d"))
+  breaks <- bfastlite(tspx, response ~ trend + harmon, order = 3, breaks = "BIC")
+  
+  # If no break, return NAs
+  if (is.na(breaks$breakpoints$breakpoints))
+    return(c(NA,NA))
+  
+  # Get break with highest magnitude
+  mags <- magnitude(breaks$breakpoints)
+  maxMag <- which.max(mags$Mag[,"RMSD"])
+  
+  return(c(IndexToDate(maxMag, tspx, breaks), mags$Mag[maxMag, "RMSD"]))
+}
+```
+```{r run-spatialbfl, cache=TRUE}
+# This will take a while: BFAST Lite is not as fast as BFAST Monitor
+bflR <- calc(VI_m, bflRaster)
+```
+
+Plot the results (optionally compare with BFAST Monitor results above):
+
+```{r}
+names(bflR) <- c('time of break', 'magnitude of change')
+plot(bflR)
+```
+
+```{block, type="alert alert-success", eval=FALSE, include=FALSE}
+> **Question 4**: Now check if you detect a break in the center pixel (see pixel numbering scheme). Yes or no, include the `plot(bmf1)` result for the center pixel in your answer.
+```
+
+
+```{block, type="alert alert-success", eval=FALSE, include=FALSE}
+> **Question 5**: Now check pixel 78. What happens if you use a different *formula* in `bfastmonitor` for the pixel? For example, `response ∼ trend`. Explain what happens and also in which sense is 2019 an abnormal year? Include the bfastmonitor plots in your answer.
+```
+
+
+<!--We also set the `h` parameter (minimum time between two breaks) to 23 observations, i.e. one year, which means that we can detect the first break one year after the start of the time series and the last break one year before the end of the time series.-->
+
+### Seasonality monitoring using harmonics
 
 ```{r}
 library(bfast)
