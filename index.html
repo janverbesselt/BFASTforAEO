@@ -1029,7 +1029,7 @@ a, a:visited {
 <div class="row">
 <p>14-06-2021</p>
 </div>
-<p>This document explains how to use the R scripting language for downloading MODIS data and analyzing it within R. The results of the analysis of MODIS data within R are illustrated. For this time series analysis demonstration it is not required to know R details, we only use R for some practical demonstration of its great potential. In this exercise we will automatically download MODIS data for specific locations around the world.</p>
+<p>This document explains how to use the R scripting language for downloading MODIS data and analyzing its time series within R. By the end of the tutorial, you will be able to download and preprocess MODIS data, and apply a time series break detection algorithm to automatically determine changes in time series. For this time series analysis demonstration it is not required to know R details, we only use R for some practical demonstration of its great potential. In this exercise we will automatically download MODIS data for specific locations around the world. You can then apply, at your own choice, one of the two algorithms for break detection: BFAST Monitor or BFAST Lite.</p>
 <h2 id="introduction-to-modis-data-and-online-analysis">Introduction to MODIS data and online analysis</h2>
 <p>The MODIS satellite data that we will download for this time series analysis exercise is available from the <a href="https://modis.ornl.gov/sites/">MODIS Subsetting Website</a>. MODIS data is made available for specific locations.</p>
 <p>More specifically, we will look at the MODIS product called MOD13Q1 which are <em>global 16-day images at a spatial resolution of 250 m</em>. Each image contains several bands; i.e. blue, red, and near-infrared reflectances, centered at 469 nanometers, 645 nanometers, and 858 nanometers, respectively. These bands are used to determine the MODIS vegetation indices.</p>
@@ -1050,7 +1050,7 @@ a, a:visited {
 </blockquote>
 </div>
 </div>
-<h2 id="automated-modis-ndvi-download-and-analysis-via-r">Automated MODIS NDVI download and analysis via R</h2>
+<h2 id="preprocessing-automated-modis-ndvi-download-and-analysis-via-r">Preprocessing: automated MODIS NDVI download and analysis via R</h2>
 <p>We will download the MODIS data for the Loobos Site via R and process the data for one location to detect changes within the time series.</p>
 <!--If it is the first time that you work with R or RStudio, you can follow the following tutorial on getting started with [R and RStudio](https://geoscripting-wur.github.io/Scripting4GeoIntro/).-->
 <h3 id="getting-started-install-packages-and-load-the-necessary-functions-for-modis-data-analysis">Getting started: install packages and load the necessary functions for MODIS data analysis</h3>
@@ -1239,7 +1239,6 @@ map <- leaflet() %>% addTiles() %>%
     title = "NDVI")
 map</code></pre>
 </div>
-<h3 id="apply-bfastmonitor">Apply BFASTmonitor</h3>
 Below we extract the data from the raster as a vector and create a time series using the <code>timeser</code> function:
 <div class="row">
 <button class="source R toggle btn btn-xs btn-primary">
@@ -1257,6 +1256,8 @@ plot(tspx, main = 'NDVI') # NDVI time series cleaned using the "reliability info
 </div>
 </div>
 </div>
+<p>Now we are ready to detect breaks in the time series! You can now choose: either use BFAST Monitor (“Option 1”, the following section) to detect a single break at the end of the time series, or use BFAST Lite (“Option 2”, the section after that) to detect all breaks in the middle of the time series. If you are interested, you can do both, but it’s not necessary to answer both sets of questions.</p>
+<h2 id="option-1-detect-break-at-the-end-of-the-time-series-with-bfast-monitor">Option 1: detect break at the end of the time series with BFAST Monitor</h2>
 Now we apply the <code>bfastmonitor</code> function using a <code>trend + harmon</code> model with <code>order 3</code> for the harmonics (i.e. seasonality modelling):
 <div class="row">
 <button class="source R toggle btn btn-xs btn-primary">
@@ -1373,12 +1374,10 @@ plot(bfm)</code></pre>
 </div>
 </div>
 </div>
-<h2 id="more-information">More information</h2>
-<p>More information can be found on the <a href="https://bfast2.github.io/">BFAST website</a> and in the BFAST papers mentioned on the website.</p>
-<p>The following sections give extra information about how to use BFAST Lite and about the concept of seasonality monitoring using harmonic analysis. There are no questions from the following sections, but they may prove to be insightful, especially if you’d like to continue working on time series analysis in the future.</p>
-<h3 id="bfast-lite">BFAST Lite</h3>
-<p>BFAST Monitor is made to <em>detect the first break at the end of a time series</em>. If you need to detect more than one break, then you need to use a different algorithm: either BFAST or BFAST Lite. In this example, we will run BFAST Lite (a lightweight version of BFAST that can handle NA values) on the same data.</p>
-<p>Let’s run the function <code>bfastlite()</code> on our data from the previous step. Setting the parameter <code>breaks</code> to <code>BIC</code> results in more liberal detection of breaks compared to the default, <code>LWZ</code>.</p>
+<h2 id="option-2-detecting-all-breaks-in-the-middle-of-a-time-series-with-bfast-lite">Option 2: detecting all breaks in the middle of a time series with BFAST Lite</h2>
+<p>BFAST Monitor is made to <em>detect the first break at the end of a time series</em>. If you need to detect more than one break, then you need to use a different algorithm: either BFAST or BFAST Lite. In this example, we will run BFAST Lite (a lightweight version of BFAST that can handle NA values) on the same data as we did above.</p>
+<p>Let’s run the function <code>bfastlite()</code> on our data from the previous steps. Setting the parameter <code>breaks</code> to <code>BIC</code> results in more liberal detection of breaks compared to the default, <code>LWZ</code>.</p>
+<!--We also set the `h` parameter (minimum time between two breaks) to 23 observations, i.e. one year, which means that we can detect the first break one year after the start of the time series and the last break one year before the end of the time series.-->
 <div class="row">
 <button class="source R toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> R source
@@ -1453,7 +1452,7 @@ dates.no.na[breaks$breakpoints$breakpoints[1]]</code></pre>
 </div>
 </div>
 </div>
-<p>Why did the model decide to place a break there? Let’s take a look at the statistics:</p>
+<p>Why did the model decide to place one break? Let’s take a look at the statistics:</p>
 <div class="row">
 <button class="source R toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> R source
@@ -1544,6 +1543,33 @@ dates.no.na[breaks$breakpoints$breakpoints[1]]</code></pre>
 </code></pre>
 </div>
 <p>This shows that the difference between the actual observations and the predictions of the models on both sides of the break, when extrapolated to the other side, is fairly high (0.22 RMSD and MAD, thus at the magnitude of 0.22 NDVI units).</p>
+<div class="row">
+<div class="alert alert-success">
+<blockquote>
+<p>
+<strong>Question 3</strong>: Try changing the parameter <code>breaks</code> in the <code>bfastlite()</code> function to <code>LWZ</code> and to an integer number, and rerun the code. What is the result? How is it different from what we had above? Explain in one sentence.
+</p>
+</blockquote>
+</div>
+</div>
+<div class="row">
+<div class="alert alert-success">
+<blockquote>
+<p>
+<strong>Question 4</strong>: Now check if you detect a break in the center pixel (see pixel numbering scheme). Yes or no, include the <code>plot(breaks)</code> result for the center pixel in your answer.
+</p>
+</blockquote>
+</div>
+</div>
+<div class="row">
+<div class="alert alert-success">
+<blockquote>
+<p>
+<strong>Question 5</strong>: Now check pixel 82 again. What happens if you use a different <em>formula</em> in <code>bfastlite</code> for the pixel? For example, <code>response ∼ trend</code>. Explain what happens and also in which sense is 2016 an abnormal year? Include the bfastlite plots in your answer.
+</p>
+</blockquote>
+</div>
+</div>
 <p>Let’s try to run BFAST Lite on the whole raster now. There is one problem with that: since the number of breaks is variable, we don’t have a variable number of layers. Thus, let’s plot only the break that is the most significant, so that we get two layers as output.</p>
 <div class="row">
 <button class="source R toggle btn btn-xs btn-primary">
@@ -1593,7 +1619,27 @@ plot(bflR)</code></pre>
 </div>
 </div>
 </div>
-<!--We also set the `h` parameter (minimum time between two breaks) to 23 observations, i.e. one year, which means that we can detect the first break one year after the start of the time series and the last break one year before the end of the time series.-->
+<div class="row">
+<div class="alert alert-success">
+<blockquote>
+<p>
+<strong>Question 6</strong>: Explain what you see in these two plots (created with the above code section). Do you think these plots imply major changes for the loobos site? Justify why.
+</p>
+</blockquote>
+</div>
+</div>
+<div class="row">
+<div class="alert alert-success">
+<blockquote>
+<p>
+<strong>Question 7</strong>: Now try to detect a change for another site in the world available via the <a href="https://modis.ornl.gov/sites/">https://modis.ornl.gov/sites/</a> website. In your answer, mention (a) site, (b) bfastlite settings, (c) landcover type of that pixel and the pixel number, (d) include the the time.of.break and magnitude.of.change plots in your answer, (e) briefly discuss the main differences and/or similarities (in magnitude) of your site with the loobos site.
+</p>
+</blockquote>
+</div>
+</div>
+<h2 id="more-information">More information</h2>
+<p>More information can be found on the <a href="https://bfast2.github.io/">BFAST website</a> and in the BFAST papers mentioned on the website.</p>
+<p>The following section gives extra information about the concept of seasonality monitoring using harmonic analysis. There are no questions from this section, it’s for your interest only,</p>
 <h3 id="seasonality-monitoring-using-harmonics">Seasonality monitoring using harmonics</h3>
 <div class="row">
 <button class="source R toggle btn btn-xs btn-primary">
