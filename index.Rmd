@@ -30,7 +30,7 @@ a, a:visited {
 
 # MODIS based time series analysis using BFAST Monitor and BFAST Lite
 
-![WUR logo](https://www.wur.nl/upload/5e55a1d9-47c3-4149-9384-26d5147ee2d7_WUR_RGB_standard.png)
+<img src="https://www.wur.nl/upload/99f85964-d53b-4dc7-b3ff-fb62abc648ce_WUR_RGB_standard_2021-site.svg" alt="WUR logo" style="height: 35px;"/>
 
 [Jan Verbesselt, Dainius Masiliūnas](http://www.wur.eu/changemonitor)
 
@@ -102,7 +102,7 @@ pkgTest <- function(x)
   }
   library(x, character.only = TRUE)
 }
-neededPackages <- c("zoo", "bfast", "raster", "leaflet", "MODISTools")
+neededPackages <- c("zoo", "bfast", "terra", "raster", "leaflet", "MODISTools")
 for (package in neededPackages){pkgTest(package)}
 ```
 
@@ -111,9 +111,9 @@ Loading extra function `timeser()` to create a time series object in R:
 
 
 ```{r, message = FALSE}
-# Function to create time series object
+# Utility function to create time series object from a numeric vector
 # val_array: data array for one single pixel (length is number of time steps)
-# time_array: array with dates at which raster data is recorded (same length as val_array)
+# time_array: array with Dates at which raster data is recorded (same length as val_array)
 timeser <- function(val_array, time_array) {
     z <- zoo(val_array, time_array) # create zoo object
     yr <- as.numeric(format(time(z), "%Y")) # extract the year numbers
@@ -176,8 +176,8 @@ Second, we create a raster brick using the `mt_to_raster` function that is inclu
 
 ```{r mttoraster}
 # convert df to raster
-VI_r <- mt_to_raster(df = VI)
-QA_r <- mt_to_raster(df = QA)
+VI_r <- rast(mt_to_raster(df = VI))
+QA_r <- rast(mt_to_raster(df = QA))
 ```
 
 Now check also the pixel reliability information in Table 4 available via the following [link to the MODIS VI User Guide c6 version](https://vip.arizona.edu/documents/MODIS/MODIS_VI_UsersGuide_June_2015_C6.pdf). This is important to understand how this works for the following question!
@@ -198,14 +198,17 @@ plot(VI_m,1) # plot cleaned NDVI raster
 ```
 
 ```{block, type="alert alert-success"}
-> **Question 2**: Now what would happen if you would only work with "good" quality data? Include the new plot of the cleaned NDVI raster that only includes *good quality data" as an answer!
+> **Question 2**: Now what would happen if you would only work with "good" quality data (`QA_r == 0`)? Compare the plots with both good and marginal data to the plots with only good data.
 ```
 
 ```{block type="alert alert-info"}
 *Important*: Continue the exercise with "good and marginal data quality" as defined via the above code section in the tutorial (just rerun this section). 
 ```
 
-You can (optional!) extract data from the cleaned VI raster brick via the `click` function:
+You can (optional!) extract data from the cleaned VI raster brick via the `click` function.
+Note: it will wait for you to click on the plot to select the pixel whose values it will print!
+While it's waiting for you, no other code can be run.
+If you want to cancel without clicking, press the Esc button on your keyboard.
 ```{r, eval=FALSE}
 # extract data from the cleaned raster for selected pixels
 click(VI_m, id=TRUE, xy=TRUE, cell=TRUE, n=1)
@@ -217,7 +220,7 @@ click(VI_m, id=TRUE, xy=TRUE, cell=TRUE, n=1)
 
 ```{r, warning=FALSE, results='asis', eval=FALSE}
 library(leaflet)
-r <- raster(VI_m,1)
+r <- raster(VI_m)[[1]] # Select only the first layer (as a RasterLayer)
 pal <- colorNumeric(c("#ffffff", "#4dff88", "#004d1a"), values(r),
   na.color = "transparent")
 
@@ -234,7 +237,7 @@ Below we extract the data from the raster as a vector and create a time series u
 ## the dimensions of the raster are: 33x33
 
 px <- 78 # pixel number; adjust this number to select the center pixel
-tspx <- timeser(as.vector(VI_m[px]),as.Date(names(VI_m), "X%Y.%m.%d")) # convert pixel "px" to a time series
+tspx <- timeser(unlist(VI_m[px]),as.Date(names(VI_m), "X%Y.%m.%d")) # convert pixel "px" to a time series
 plot(tspx, main = 'NDVI') # NDVI time series cleaned using the "reliability information"
 ```
 
@@ -251,12 +254,13 @@ plot(bfm1)
 ```
 
 ```{block, type="alert alert-success"}
-> **Question 3**: A valid data range of NDVI in vegetation is between 0 and 1. So we should actually set NDVI values smaller than 0 to NA, as those are very likely to be invalid values. Now, do that for pixel nr. 33 and run bfastmonitor on this further cleaned NDVI time series.  You can use this R code snippet for that
-`tspx[tspx < 0] <- NA` and include the new bfm1 plot in your answer. Describe shortly what happens. Is this type of cleaning influencing the `bfastmonitor` analysis? Yes or No, and explain in one sentence.
+> **Question 3**: A valid data range of NDVI in vegetation is between 0 and 1. So we should actually set NDVI values smaller than 0 to NA, as those are very likely to be invalid values.
+Now, do that for pixel nr. 33 and run bfastmonitor on this further cleaned NDVI time series.  You can use this R code snippet for that
+`tspx[tspx < 0] <- NA` and check the result by plotting the time series before and after. Describe what happens. Is this type of cleaning influencing the `bfastmonitor` analysis?
 ```
 
 ```{block, type="alert alert-success"}
-> **Question 4**: Now check if you detect a break in the center pixel (see pixel numbering scheme). Yes or no, include the `plot(bmf1)` result for the center pixel in your answer.
+> **Question 4**: Now check if you detect a break in the center pixel (see pixel numbering scheme in the website above question 1). Check the `plot(bmf1)` result for the center pixel.
 ```
 
 
