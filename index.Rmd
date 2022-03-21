@@ -154,20 +154,7 @@ QA <- mt_subset(product = "MOD13Q1",
 ```
 
 ```{block type="alert alert-info"}
-**Note**: In case the LP DAAC servers are down for maintenance and downloading via the above command fails, you can download a cached version from [here](data/DataLooBos_QA_VI_backup_2020.RData), and then see `?load`.
-```
-
-```{r, message=FALSE, include=FALSE, eval=FALSE}
-runfast <- TRUE
-if (runfast) {
-  fname <- "data/DataLooBos_QA_VI_backup_2020.RData"
-  if (!file.exists(fname)) {
-    save(QA, VI, file = fname)
-  } else {
-    load(fname)
-  }
-}
-
+**Note**: In case the LP DAAC servers are down for maintenance and downloading via the above command fails, you can download a cached version from [here](https://github.com/verbe039/BFASTforAEO/releases), and then see `?readRDS`.
 ```
 
 ### Creating a raster brick and cleaning the MODIS data using the reliability layer
@@ -220,7 +207,7 @@ click(VI_m, id=TRUE, xy=TRUE, cell=TRUE, n=1)
 
 ```{r, warning=FALSE, results='asis', eval=FALSE}
 library(leaflet)
-r <- raster(VI_m)[[1]] # Select only the first layer (as a RasterLayer)
+r <- raster(VI_m[[1]]) # Select only the first layer (as a RasterLayer)
 pal <- colorNumeric(c("#ffffff", "#4dff88", "#004d1a"), values(r),
   na.color = "transparent")
 
@@ -265,15 +252,15 @@ Now, do that for pixel nr. 33 and run bfastmonitor on this further cleaned NDVI 
 
 
 ```{block, type="alert alert-success"}
-> **Question 5**: Now check pixel 78. What happens if you use a different *formula* in `bfastmonitor` for the pixel? For example, `response ∼ trend`. Explain what happens and also in which sense is 2019 an abnormal year? Include the bfastmonitor plots in your answer.
+> **Question 5**: Now check pixel 78. What happens if you use a different *formula* in `bfastmonitor` for the pixel? For example, `response ∼ trend`. Check what happens and also in which sense is 2019 an abnormal year? Check the bfastmonitor plots.
 ```
 
-Let's run the `bfastmonitor` code on the full raster `brick` spatially using the `calc` function:
+Let's run the `bfastmonitor` code on the full raster time series spatially using the `app` function:
 
 ```{r calc}
 dates <- as.Date(names(VI_m), "X%Y.%m.%d")
 
-# here we define the function that we will apply across the brick using the calc function:
+# here we define the function that we will apply across the brick using the `app` function:
 bfmRaster = function(pixels)
 {
     tspx <- timeser(pixels, dates) # create a timeseries of all pixels
@@ -281,18 +268,25 @@ bfmRaster = function(pixels)
     return(c(bfm$breakpoint, bfm$magnitude)) 
 }
 
-# calc function 
-bfmR <- calc(VI_m, bfmRaster)
+# apply the function to each raster cell (time series)
+# Optionally you can supply an argument cores=n (where n is the number of cores on your computer) for a potential speed boost
+bfmR <- app(VI_m, bfmRaster)
 names(bfmR) <- c('time of break', 'magnitude of change')
 plot(bfmR) # resulting time and magnitude of change
 ```
 
 ```{block, type="alert alert-success"}
-> **Question 6**:  Explain what you see in these two plots (created with the above code section). Do you think these plots imply major changes for the loobos site? Justify why.  
+> **Question 6**:  Think about what you see in these two plots (created with the above code section).
+Do you think these plots imply major changes for the loobos site?
+See `?bfastmonitor` for a description of the returned values. 
 ```
 
 ```{block, type="alert alert-success"}
-> **Question 7**:  Now try to detect a change in 2019 for another site in the world available via the [https://modis.ornl.gov/sites/](https://modis.ornl.gov/sites/) website. In your answer, mention (a) site, (b) bfastmonitor settings, (c) landcover type of that pixel and the pixel number, (d) include the the time.of.break and magnitude.of.change plots in your answer, (e)  briefly discuss the main differences and/or similarities (in magnitude) of your site with the loobos site.
+> **Question 7**:  Now try to detect a change in 2019 for the Victoria Zigzag Creek site in Australia, available via the [https://modis.ornl.gov/sites/](https://modis.ornl.gov/sites/) website.
+For your answer, (a) check what BFAST Monitor parameters are most appropriate for the pixel 1077 of the site,
+(b) what is the landcover type of this pixel,
+(c) check the the time of break and magnitude of change plots,
+(d) think about the main differences and/or similarities (in magnitude) of this site with the loobos site.
 ```
 
 Here is example R code to get the pixel number. When you run `click()`, click in the plot on a pixel with a break (i.e. where an estimated time of break is available).
@@ -304,7 +298,7 @@ click(VI_m, id=FALSE, xy=FALSE, cell=TRUE, n=1)
 Here we selected one pixel, and do the `bfastmonitor` analysis for that pixel:
 ```{r, eval = TRUE}
 px <- 460 # pixel number so adjust this number to select the center pixel
-tspx <- timeser(as.vector(VI_m[px]),as.Date(names(VI_m), "X%Y.%m.%d")) # convert pixel 1 to a time series
+tspx <- timeser(unlist(VI_m[px]),as.Date(names(VI_m), "X%Y.%m.%d")) # convert pixel 1 to a time series
 plot(tspx, main = 'NDVI') # NDVI time series cleaned using the "reliability information"
 tspx[tspx < 0] <- NA
 bfm <- bfastmonitor(tspx, response ~ trend + harmon, order = 3, start = c(2019,1))
@@ -330,7 +324,7 @@ breaks
 What if we try another pixel:
 ```{r}
 px <- 82
-tspx <- timeser(as.vector(VI_m[px]),as.Date(names(VI_m), "X%Y.%m.%d"))
+tspx <- timeser(unlist(VI_m[px]),as.Date(names(VI_m), "X%Y.%m.%d"))
 breaks <- bfastlite(tspx, response ~ trend + harmon, order = 3, breaks = "BIC")
 breaks
 ```
@@ -375,7 +369,8 @@ magnitude(breaks$breakpoints)
 This shows that the difference between the actual observations and the predictions of the models on both sides of the break, when extrapolated to the other side, is fairly high (0.22 RMSD and MAD, thus at the magnitude of 0.22 NDVI units).
 
 ```{block, type="alert alert-success"}
-> **Question 3**: Try changing the parameter `breaks` in the `bfastlite()` function to `LWZ` and to an integer number, and rerun the code. What is the result? How is it different from what we had above? Explain in one sentence.
+> **Question 3**: Try changing the parameter `breaks` in the `bfastlite()` function to `LWZ` and to an integer number, such as 2, and rerun the line of code.
+What is the result? How is it different from what we had above?
 ```
 
 ```{block, type="alert alert-success"}
@@ -416,8 +411,9 @@ bflRaster <- function(pixels) {
 }
 ```
 ```{r run-spatialbfl, cache=TRUE}
-# This will take a while: BFAST Lite is not as fast as BFAST Monitor
-bflR <- calc(VI_m, bflRaster)
+# This will take a while: BFAST Lite is not as fast as BFAST Monitor.
+# Best to use all cores! But then you have to include the definition of `timeser()` in `bflRaster`.
+bflR <- app(VI_m, bflRaster)
 ```
 
 Plot the results (optionally compare with BFAST Monitor results above):
