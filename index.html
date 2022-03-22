@@ -872,7 +872,7 @@
 <div id="header">
 <h1 class="title">MODIS NDVI time series analysis using BFAST</h1>
 <h2 class="author">Jan Verbesselt, Dainius Masiliūnas</h2>
-<h3 class="date">21 March, 2022</h3>
+<h3 class="date">22 March, 2022</h3>
 </div>
 <div id="wrap">
 <div class="container">
@@ -896,7 +896,7 @@ a, a:visited {
 <p><img src="https://www.wur.nl/upload/99f85964-d53b-4dc7-b3ff-fb62abc648ce_WUR_RGB_standard_2021-site.svg" alt="WUR logo" style="height: 35px;"/></p>
 <p><a href="http://www.wur.eu/changemonitor">Jan Verbesselt, Dainius Masiliūnas</a></p>
 <div class="row">
-<p>21-03-2022</p>
+<p>22-03-2022</p>
 </div>
 <p>This document explains how to use the R scripting language for downloading MODIS data and analyzing its time series within R. By the end of the tutorial, you will be able to download and preprocess MODIS data, and apply a time series break detection algorithm to automatically determine changes in time series. For this time series analysis demonstration it is not required to know R details, we only use R for some practical demonstration of its great potential. In this exercise we will automatically download MODIS data for specific locations around the world. You can then apply, at your own choice, one of the two algorithms for break detection: BFAST Monitor or BFAST Lite.</p>
 <h2 id="introduction-to-modis-data-and-online-analysis">Introduction to MODIS data and online analysis</h2>
@@ -1206,7 +1206,7 @@ plot(bfmR) # resulting time and magnitude of change</code></pre>
 <div class="alert alert-success">
 <blockquote>
 <p>
-<strong>Question 7</strong>: Now try to detect a change in 2019 for the Victoria Zigzag Creek site in Australia, available via the <a href="https://modis.ornl.gov/sites/">https://modis.ornl.gov/sites/</a> website. For your answer, (a) check what BFAST Monitor parameters are most appropriate for the pixel 1077 of the site, (b) what is the landcover type of this pixel, (c) check the the time of break and magnitude of change plots, (d) think about the main differences and/or similarities (in magnitude) of this site with the loobos site.
+<strong>Question 7</strong>: Now try to detect a change in 2019 for the pixel 1077 of the Victoria Zigzag Creek site in Australia, available via the <a href="https://modis.ornl.gov/sites/">https://modis.ornl.gov/sites/</a> website. For your answer, (a) check what BFAST Monitor parameters are most appropriate for the site, (b) what is the landcover type of pixel 1077, (c) check the the time of break and magnitude of change plots, (d) think about the main differences and/or similarities (in magnitude) of this site with the loobos site.
 </p>
 </blockquote>
 </div>
@@ -1426,7 +1426,7 @@ dates.no.na[breaks$breakpoints$breakpoints[1]]</code></pre>
 <div class="alert alert-success">
 <blockquote>
 <p>
-<strong>Question 4</strong>: Now check if you detect a break in the center pixel (see pixel numbering scheme). Yes or no, include the <code>plot(breaks)</code> result for the center pixel in your answer.
+<strong>Question 4</strong>: Now check if you detect a break in the center pixel (see pixel numbering scheme).
 </p>
 </blockquote>
 </div>
@@ -1435,7 +1435,7 @@ dates.no.na[breaks$breakpoints$breakpoints[1]]</code></pre>
 <div class="alert alert-success">
 <blockquote>
 <p>
-<strong>Question 5</strong>: Now check pixel 82 again. What happens if you use a different <em>formula</em> in <code>bfastlite</code> for the pixel? For example, <code>response ∼ trend</code>. Explain what happens and also in which sense is 2016 an abnormal year? Include the bfastlite plots in your answer.
+<strong>Question 5</strong>: Now check pixel 82 again and use BIC for choosing the optimal number of breaks. What happens if you use a different <em>formula</em> in <code>bfastlite</code> for the pixel? For example, <code>response ∼ trend</code>. Think about what happens and also in which sense is 2016 an abnormal year?
 </p>
 </blockquote>
 </div>
@@ -1454,8 +1454,10 @@ IndexToDate <- function(index, tspx, breaks) {
   dates.no.na[breaks$breakpoints$breakpoints[index]]
 }
 
-bflRaster <- function(pixels) {
-  tspx <- timeser(pixels, as.Date(names(VI_m), "X%Y.%m.%d"))
+bflRaster <- function(pixels, dates, timeser, IndexToDate) {
+  library(zoo)
+  library(bfast)
+  tspx <- timeser(pixels, dates)
   breaks <- bfastlite(tspx, response ~ trend + harmon, order = 3, breaks = "BIC")
   
   # If no break, return NAs
@@ -1469,13 +1471,37 @@ bflRaster <- function(pixels) {
   return(c(IndexToDate(maxMag, tspx, breaks), mags$Mag[maxMag, "RMSD"]))
 }</code></pre>
 </div>
+<p>Let’s apply the function above to the whole raster! Note that <code>system.time()</code> is just there to show you how long the command execution taskes. You can also safely skip it if you don’t want to know. The <code>timeser</code> and <code>IndexToDate</code> arguments are also only necessary for parallel execution, you can remove them if you only want to run the processing on one core. Run on a single core:</p>
 <div class="row">
 <button class="source R toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> R source
 </button>
 <pre style=""><code class="source r"># This will take a while: BFAST Lite is not as fast as BFAST Monitor.
-# Best to use all cores! But then you have to include the definition of `timeser()` in `bflRaster`.
-bflR <- app(VI_m, bflRaster)</code></pre>
+system.time({
+bflR <- app(VI_m, bflRaster, dates=as.Date(names(VI_m), "X%Y.%m.%d"), timeser=timeser, IndexToDate=IndexToDate)
+})</code></pre>
+<button class="output R toggle btn btn-xs btn-success">
+<span class="glyphicon glyphicon-chevron-down"></span> R output
+</button>
+<pre style=""><code class="output r">##    user  system elapsed 
+## 684.921   0.594 697.333
+</code></pre>
+</div>
+<p>Run on 4 cores is two times faster:</p>
+<div class="row">
+<button class="source R toggle btn btn-xs btn-primary">
+<span class="glyphicon glyphicon-chevron-down"></span> R source
+</button>
+<pre style=""><code class="source r"># Best to use all cores! But then you have to include the definition of `timeser()` in `bflRaster`.
+system.time({
+bflR <- app(VI_m, bflRaster, dates=as.Date(names(VI_m), "X%Y.%m.%d"), timeser=timeser, IndexToDate=IndexToDate, cores=4)
+})</code></pre>
+<button class="output R toggle btn btn-xs btn-success">
+<span class="glyphicon glyphicon-chevron-down"></span> R output
+</button>
+<pre style=""><code class="output r">##    user  system elapsed 
+##   6.870   0.012 342.180
+</code></pre>
 </div>
 <p>Plot the results (optionally compare with BFAST Monitor results above):</p>
 <div class="row">
@@ -1494,7 +1520,7 @@ plot(bflR)</code></pre>
 <div class="alert alert-success">
 <blockquote>
 <p>
-<strong>Question 6</strong>: Explain what you see in these two plots (created with the above code section). Do you think these plots imply major changes for the loobos site? Justify why.
+<strong>Question 6</strong>: Think about what you see in these two plots (created with the above code section). Do you think these plots imply major changes for the loobos site?
 </p>
 </blockquote>
 </div>
@@ -1503,7 +1529,7 @@ plot(bflR)</code></pre>
 <div class="alert alert-success">
 <blockquote>
 <p>
-<strong>Question 7</strong>: Now try to detect a change for another site in the world available via the <a href="https://modis.ornl.gov/sites/">https://modis.ornl.gov/sites/</a> website. In your answer, mention (a) site, (b) bfastlite settings, (c) landcover type of that pixel and the pixel number, (d) include the the time.of.break and magnitude.of.change plots in your answer, (e) briefly discuss the main differences and/or similarities (in magnitude) of your site with the loobos site.
+<strong>Question 7</strong>: Now try to detect a change in the pixel 1077 of the Victoria Zigzag Creek site in Australia, available via the <a href="https://modis.ornl.gov/sites/">https://modis.ornl.gov/sites/</a> website. For your answer, (a) check what BFAST Lite parameters are most appropriate for the site, (b) what is the landcover type of the pixel 1077, (c) check the the time of break and magnitude of change plots, (d) think about the main differences and/or similarities (in magnitude) of this site with the loobos site.
 </p>
 </blockquote>
 </div>
