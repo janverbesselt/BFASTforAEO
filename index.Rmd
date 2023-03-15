@@ -159,12 +159,12 @@ QA <- mt_subset(product = "MOD13Q1",
 
 ### Creating a raster brick and cleaning the MODIS data using the reliability layer
 
-Second, we create a raster brick using the `mt_to_raster` function that is included in the new *MODISTools* package (version 1.1.1). 
+Second, we create a raster brick using the `mt_to_terra` function that is included in the new *MODISTools* package (version 1.1.4). 
 
 ```{r mttoraster}
 # convert df to raster
-VI_r <- rast(mt_to_raster(df = VI))
-QA_r <- rast(mt_to_raster(df = QA))
+VI_r <- rast(mt_to_terra(df = VI))
+QA_r <- rast(mt_to_terra(df = QA))
 ```
 
 Now check also the pixel reliability information in Table 4 available via the following [link to the MODIS VI User Guide c6 version](https://vip.arizona.edu/documents/MODIS/MODIS_VI_UsersGuide_June_2015_C6.pdf). This is important to understand how this works for the following question!
