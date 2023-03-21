@@ -1172,7 +1172,7 @@ plot(bfm1)</code></pre>
 <button class="source R toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> R source
 </button>
-<pre style=""><code class="source r">dates <- as.Date(names(VI_m), "X%Y.%m.%d")
+<pre style=""><code class="source r">dates <- as.Date(names(VI_m), "%Y-%m-%d")
 
 # here we define the function that we will apply across the brick using the `app` function:
 bfmRaster = function(pixels)
