@@ -224,7 +224,7 @@ Below we extract the data from the raster as a vector and create a time series u
 ## the dimensions of the raster are: 33x33
 
 px <- 78 # pixel number; adjust this number to select the center pixel
-tspx <- timeser(unlist(VI_m[px]),as.Date(names(VI_m), "X%Y.%m.%d")) # convert pixel "px" to a time series
+tspx <- timeser(unlist(VI_m[px]),as.Date(names(VI_m), "%Y-%m-%d")) # convert pixel "px" to a time series
 plot(tspx, main = 'NDVI') # NDVI time series cleaned using the "reliability information"
 ```
 
@@ -258,7 +258,7 @@ Now, do that for pixel nr. 33 and run bfastmonitor on this further cleaned NDVI 
 Let's run the `bfastmonitor` code on the full raster time series spatially using the `app` function:
 
 ```{r calc}
-dates <- as.Date(names(VI_m), "X%Y.%m.%d")
+dates <- as.Date(names(VI_m), "%Y-%m-%d")
 
 # here we define the function that we will apply across the brick using the `app` function:
 bfmRaster = function(pixels)
@@ -424,7 +424,7 @@ Run on a single core:
 ```{r run-spatialbfl, cache=TRUE}
 # This will take a while: BFAST Lite is not as fast as BFAST Monitor.
 system.time({
-bflR <- app(VI_m, bflRaster, dates=as.Date(names(VI_m), "X%Y.%m.%d"), timeser=timeser, IndexToDate=IndexToDate)
+bflR <- app(VI_m, bflRaster, dates=as.Date(names(VI_m), "%Y-%m-%d"), timeser=timeser, IndexToDate=IndexToDate)
 })
 ```
 
@@ -433,7 +433,7 @@ Run on 4 cores is two times faster:
 ```{r run-spatialbfl-multicore}
 # Best to use all cores! But then you have to include the definition of `timeser()` in `bflRaster`.
 system.time({
-bflR <- app(VI_m, bflRaster, dates=as.Date(names(VI_m), "X%Y.%m.%d"), timeser=timeser, IndexToDate=IndexToDate, cores=4)
+bflR <- app(VI_m, bflRaster, dates=as.Date(names(VI_m), "%Y-%m-%d"), timeser=timeser, IndexToDate=IndexToDate, cores=4)
 })
 ```
 
