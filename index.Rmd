@@ -163,8 +163,8 @@ Second, we create a raster brick using the `mt_to_terra` function that is includ
 
 ```{r mttoraster}
 # convert df to raster
-VI_r <- rast(mt_to_terra(df = VI))
-QA_r <- rast(mt_to_terra(df = QA))
+VI_r <- mt_to_terra(df = VI)
+QA_r <- mt_to_terra(df = QA)
 ```
 
 Now check also the pixel reliability information in Table 4 available via the following [link to the MODIS VI User Guide c6 version](https://vip.arizona.edu/documents/MODIS/MODIS_VI_UsersGuide_June_2015_C6.pdf). This is important to understand how this works for the following question!
