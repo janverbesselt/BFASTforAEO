@@ -298,7 +298,7 @@ click(VI_m, id=FALSE, xy=FALSE, cell=TRUE, n=1)
 Here we selected one pixel, and do the `bfastmonitor` analysis for that pixel:
 ```{r, eval = TRUE}
 px <- 460 # pixel number so adjust this number to select the center pixel
-tspx <- timeser(unlist(VI_m[px]),as.Date(names(VI_m), "X%Y.%m.%d")) # convert pixel 1 to a time series
+tspx <- timeser(unlist(VI_m[px]),as.Date(names(VI_m), "%Y-%m-%d")) # convert pixel 1 to a time series
 plot(tspx, main = 'NDVI') # NDVI time series cleaned using the "reliability information"
 tspx[tspx < 0] <- NA
 bfm <- bfastmonitor(tspx, response ~ trend + harmon, order = 3, start = c(2019,1))
@@ -324,7 +324,7 @@ breaks
 What if we try another pixel:
 ```{r}
 px <- 82
-tspx <- timeser(unlist(VI_m[px]),as.Date(names(VI_m), "X%Y.%m.%d"))
+tspx <- timeser(unlist(VI_m[px]),as.Date(names(VI_m), "%Y-%m-%d"))
 breaks <- bfastlite(tspx, response ~ trend + harmon, order = 3, breaks = "BIC")
 breaks
 ```
