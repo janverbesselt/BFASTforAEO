@@ -1028,8 +1028,8 @@ QA <- mt_subset(product = "MOD13Q1",
 <span class="glyphicon glyphicon-chevron-down"></span> R source
 </button>
 <pre style=""><code class="source r"># convert df to raster
-VI_r <- rast(mt_to_terra(df = VI))
-QA_r <- rast(mt_to_terra(df = QA))</code></pre>
+VI_r <- mt_to_terra(df = VI)
+QA_r <- mt_to_terra(df = QA)</code></pre>
 </div>
 <p>Now check also the pixel reliability information in Table 4 available via the following <a href="https://vip.arizona.edu/documents/MODIS/MODIS_VI_UsersGuide_June_2015_C6.pdf">link to the MODIS VI User Guide c6 version</a>. This is important to understand how this works for the following question!</p>
 Third, we clean the MODIS NDVI data using pixel reliability information:
