@@ -405,6 +405,10 @@ bflRaster <- function(pixels, dates, timeser, IndexToDate) {
   tspx <- timeser(pixels, dates)
   breaks <- bfastlite(tspx, response ~ trend + harmon, order = 3, breaks = "BIC")
   
+   #if two breaks are recorded keep the break with the largest magnitude
+  if (length(breaks$breakpoints$breakpoints)>1)
+      breaks$breakpoints$breakpoints<-which.max(breaks$breakpoints$breakpoints)
+  
   # If no break, return NAs
   if (is.na(breaks$breakpoints$breakpoints))
     return(c(NA,NA))
