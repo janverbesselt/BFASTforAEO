@@ -1238,7 +1238,7 @@ plot(tspx, main = 'NDVI') # NDVI time series cleaned using the "reliability info
 <span class="glyphicon glyphicon-chevron-down"></span> R source
 </button>
 <pre style=""><code class="source r">tspx[tspx < 0] <- NA
-bfm <- bfastmonitor(tspx, response ~ trend + harmon, order = 3, start = c(2019,1))
+bfm <- bfastmonitor(tspx, response ~ trend + harmon, order = 3, start = c(2019,2))
 plot(bfm)</code></pre>
 <div class="row">
 <div class="col-md-offset-3 col-md-6">
