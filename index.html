@@ -1134,7 +1134,7 @@ Now we apply the <code>bfastmonitor</code> function using a <code>trend + harmon
 <button class="source R toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> R source
 </button>
-<pre style=""><code class="source r">bfm1 <- bfastmonitor(tspx, response ~ trend + harmon, order = 3, start = c(2018,1)) # Note: the first observation in 2018 marks the transition from 'history' to 'monitoring'
+<pre style=""><code class="source r">bfm1 <- bfastmonitor(tspx, response ~ trend + harmon, order = 3, start = c(2018,3)) # Note: the third observation in 2018 marks the transition from 'history' to 'monitoring'
 plot(bfm1)</code></pre>
 <div class="row">
 <div class="col-md-offset-3 col-md-6">
