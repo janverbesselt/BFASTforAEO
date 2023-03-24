@@ -244,7 +244,7 @@ plot(bfm1)
 
 ```{block, type="alert alert-success"}
 > **Question 3**: A valid data range of NDVI in vegetation is between 0 and 1. So we should actually set NDVI values smaller than 0 to NA, as those are very likely to be invalid values.
-Now, do that for pixel nr. 33 and run bfastmonitor on this further cleaned NDVI time series.  You can use this R code snippet for that
+Now, do that for pixel nr. 492 and run bfastmonitor on this further cleaned NDVI time series.  You can use this R code snippet for that
 `tspx[tspx < 0] <- NA` and check the result by plotting the time series before and after. Describe what happens. Is this type of cleaning influencing the `bfastmonitor` analysis?
 ```
 
