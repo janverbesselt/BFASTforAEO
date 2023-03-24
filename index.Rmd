@@ -238,7 +238,7 @@ If you are interested, you can do both, but it's not necessary to answer both se
 
 Now we apply the `bfastmonitor` function using a `trend + harmon` model with `order 3` for the harmonics (i.e. seasonality modelling):
 ```{r}
-bfm1 <- bfastmonitor(tspx, response ~ trend + harmon, order = 3, start = c(2018,1)) # Note: the first observation in 2018 marks the transition from 'history' to 'monitoring'
+bfm1 <- bfastmonitor(tspx, response ~ trend + harmon, order = 3, start = c(2018,3)) # Note: the third observation in 2018 marks the transition from 'history' to 'monitoring'
 plot(bfm1)
 ```
 
