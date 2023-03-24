@@ -303,7 +303,7 @@ px <- 460 # pixel number so adjust this number to select the center pixel
 tspx <- timeser(unlist(VI_m[px]),as.Date(names(VI_m), "%Y-%m-%d")) # convert pixel 1 to a time series
 plot(tspx, main = 'NDVI') # NDVI time series cleaned using the "reliability information"
 tspx[tspx < 0] <- NA
-bfm <- bfastmonitor(tspx, response ~ trend + harmon, order = 3, start = c(2019,1))
+bfm <- bfastmonitor(tspx, response ~ trend + harmon, order = 3, start = c(2019,2))
 plot(bfm)
 ```
 
