@@ -1,14 +1,11 @@
 ---
-title: "MODIS NDVI time series analysis using BFAST"
+pagetitle: "MODIS NDVI time series analysis using BFAST"
 author: "Jan Verbesselt, Dainius Masiliūnas"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
-  knitrBootstrap::bootstrap_document:
-    theme: "simplex"
-    highlight: Tomorrow Night Bright
-    menu: FALSE
-    theme.chooser: TRUE
-    highlight.chooser: TRUE
+  rmdformats::html_clean:
+    title: "MODIS NDVI time series analysis using BFAST"
+    highlight: zenburn
 ---
 
 ```{r setup, echo=FALSE}
@@ -16,17 +13,20 @@ output:
 knitr::opts_chunk$set(warning = FALSE)
 ```
 
-<!-- Fix for strange issue where the page becomes extremely narrow -->
-<style type="text/css">
-
-body {
-  max-width: 100%;
+```{css, echo=FALSE}
+@import url("https://netdna.bootstrapcdn.com/bootswatch/3.0.0/simplex/bootstrap.min.css");
+.main-container {max-width: none;}
+pre {color: inherit; background-color: inherit;}
+code[class^="sourceCode"]::before {
+  content: attr(class);
+  display: block;
+  text-align: right;
+  font-size: 70%;
 }
-a, a:visited {
-  color: #d9230f;
-}
-
-</style>
+code[class^="sourceCode r"]::before { content: "R Source";}
+code[class^="sourceCode python"]::before { content: "Python Source"; }
+code[class^="sourceCode bash"]::before { content: "Bash Source"; }
+```
 
 # MODIS based time series analysis using BFAST Monitor and BFAST Lite
 
