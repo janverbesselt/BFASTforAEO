@@ -181,8 +181,8 @@ m[(QA_r < 0 | QA_r > 1)] <- NA # continue working with QA 0 (good data), and 1 (
 # apply the mask to the NDVI raster
 VI_m <- mask(VI_r, m, maskvalue=NA, updatevalue=NA)
 
-# plot the first image
-plot(m,9) # plot mask of time step 9
+# plot the 9th image (time step)
+plot(m,9) # plot mask
 plot(VI_m,9) # plot cleaned NDVI raster
 ```
 
