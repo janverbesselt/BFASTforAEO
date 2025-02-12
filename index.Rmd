@@ -231,87 +231,11 @@ plot(tspx, main = 'NDVI') # NDVI time series cleaned using the "reliability info
 ```
 
 Now we are ready to detect breaks in the time series!
-You can now choose: either use BFAST Monitor ("Option 1", the following section) to detect a single break at the end of the time series, or use BFAST Lite ("Option 2", the section after that) to detect all breaks in the middle of the time series.
-If you are interested, you can do both, but it's not necessary to answer both sets of questions.
 
-## Option 1: detect break at the end of the time series with BFAST Monitor
+## Detecting all breaks in the middle of a time series with BFAST Lite
 
-Now we apply the `bfastmonitor` function using a `trend + harmon` model with `order 3` for the harmonics (i.e. seasonality modelling):
-```{r}
-bfm1 <- bfastmonitor(tspx, response ~ trend + harmon, order = 3, start = c(2018,3)) # Note: the third observation in 2018 marks the transition from 'history' to 'monitoring'
-plot(bfm1)
-```
-
-```{block, type="alert alert-success"}
-> **Question 3**: A valid data range of NDVI in vegetation is between 0 and 1. So we should actually set NDVI values smaller than 0 to NA, as those are very likely to be invalid values.
-Now, do that for pixel nr. 492 and run bfastmonitor on this further cleaned NDVI time series.  You can use this R code snippet for that
-`tspx[tspx < 0] <- NA` and check the result by plotting the time series before and after. Describe what happens. Is this type of cleaning influencing the `bfastmonitor` analysis?
-```
-
-```{block, type="alert alert-success"}
-> **Question 4**: Now check if you detect a break in the center pixel (see pixel numbering scheme in the website above question 1). Check the `plot(bmf1)` result for the center pixel.
-```
-
-
-```{block, type="alert alert-success"}
-> **Question 5**: Now check pixel 78. What happens if you use a different *formula* in `bfastmonitor` for the pixel? For example, `response ∼ trend`. Check what happens and also in which sense is 2019 an abnormal year? Check the bfastmonitor plots.
-```
-
-Let's run the `bfastmonitor` code on the full raster time series spatially using the `app` function:
-
-```{r calc}
-dates <- as.Date(names(VI_m), "%Y-%m-%d")
-
-# here we define the function that we will apply across the brick using the `app` function:
-bfmRaster = function(pixels)
-{
-    tspx <- timeser(pixels, dates) # create a timeseries of all pixels
-    bfm <- bfastmonitor(tspx, response ~ trend + harmon, order = 3, start = c(2019,1)) # run bfast on all pixels
-    return(c(bfm$breakpoint, bfm$magnitude)) 
-}
-
-# apply the function to each raster cell (time series)
-# Optionally you can supply an argument cores=n (where n is the number of cores on your computer) for a potential speed boost
-bfmR <- app(VI_m, bfmRaster)
-names(bfmR) <- c('time of break', 'magnitude of change')
-plot(bfmR) # resulting time and magnitude of change
-```
-
-```{block, type="alert alert-success"}
-> **Question 6**:  Think about what you see in these two plots (created with the above code section).
-Do you think these plots imply major changes for the loobos site?
-See `?bfastmonitor` for a description of the returned values. 
-```
-
-```{block, type="alert alert-success"}
-> **Question 7**:  Now try to detect a change in 2019 for the pixel 1077 of the Victoria Zigzag Creek site in Australia, available via the [https://modis.ornl.gov/sites/](https://modis.ornl.gov/sites/) website.
-For your answer, (a) check what BFAST Monitor parameters are most appropriate for the site,
-(b) what is the landcover type of pixel 1077,
-(c) check the the time of break and magnitude of change plots,
-(d) think about the main differences and/or similarities (in magnitude) of this site with the loobos site.
-```
-
-Here is example R code to get the pixel number. When you run `click()`, click in the plot on a pixel with a break (i.e. where an estimated time of break is available).
-```{r, eval = FALSE}
-plot(bfmR,1)
-click(VI_m, id=FALSE, xy=FALSE, cell=TRUE, n=1)
-```
-
-Here we selected one pixel, and do the `bfastmonitor` analysis for that pixel:
-```{r, eval = TRUE}
-px <- 460 # pixel number so adjust this number to select the center pixel
-tspx <- timeser(unlist(VI_m[px]),as.Date(names(VI_m), "%Y-%m-%d")) # convert pixel 1 to a time series
-plot(tspx, main = 'NDVI') # NDVI time series cleaned using the "reliability information"
-tspx[tspx < 0] <- NA
-bfm <- bfastmonitor(tspx, response ~ trend + harmon, order = 3, start = c(2019,2))
-plot(bfm)
-```
-
-## Option 2: detecting all breaks in the middle of a time series with BFAST Lite
-
-BFAST Monitor is made to *detect the first break at the end of a time series*.
-If you need to detect more than one break, then you need to use a different algorithm: either BFAST or BFAST Lite.
-In this example, we will run BFAST Lite (a lightweight version of BFAST that can handle NA values) on the same data as we did above.
+If you need to detect more than one break, then you need to use either BFAST or BFAST Lite.
+In this example, we will run BFAST Lite (a lightweight version of BFAST that can handle NA values) on the pixels of the area we were looking at.
 
 Let's run the function `bfastlite()` on our data from the previous steps.
 Setting the parameter `breaks` to `BIC` results in more liberal detection of breaks compared to the default, `LWZ`.
@@ -386,7 +310,7 @@ Think about what happens and also in which sense is 2016 an abnormal year?
 ```
 
 Let's try to run BFAST Lite on the whole raster now.
-There is one problem with that: since the number of breaks is variable, we don't have a variable number of layers.
+There is one problem with that: the number of breaks varies from pixel to pixel, but a raster has a fixed number of layers.
 Thus, let's plot only the break that is the most significant, so that we get two layers as output.
 
 ```{r spatialbfl}
@@ -434,7 +358,7 @@ bflR <- app(VI_m, bflRaster, dates=as.Date(names(VI_m), "%Y-%m-%d"), timeser=tim
 })
 ```
 
-Run on 4 cores is two times faster:
+A run on 4 cores is typically two times faster:
 
 ```{r run-spatialbfl-multicore}
 # Best to use all cores! But then you have to include the definition of `timeser()` in `bflRaster`.
@@ -465,7 +389,7 @@ For your answer, (a) check what BFAST Lite parameters are most appropriate for t
 ## More information
 More information can be found on the [BFAST website](https://bfast2.github.io/) and in the BFAST papers mentioned on the website.
 
-The following section gives extra information about the concept of seasonality monitoring using harmonic analysis. There are no questions from this section, it's for your interest only,
+The following section gives extra information about the concept of seasonality monitoring using harmonic analysis. There are no questions from this section, it's for your interest only.
 
 ### Seasonality monitoring using harmonics
 
