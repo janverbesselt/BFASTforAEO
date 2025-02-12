@@ -182,12 +182,12 @@ m[(QA_r < 0 | QA_r > 1)] <- NA # continue working with QA 0 (good data), and 1 (
 VI_m <- mask(VI_r, m, maskvalue=NA, updatevalue=NA)
 
 # plot the first image
-plot(m,1) # plot mask
-plot(VI_m,1) # plot cleaned NDVI raster
+plot(m,9) # plot mask of time step 9
+plot(VI_m,9) # plot cleaned NDVI raster
 ```
 
 ```{block, type="alert alert-success"}
-> **Question 2**: Now what would happen if you would only work with "good" quality data (`QA_r == 0`)? Compare the plots with both good and marginal data to the plots with only good data.
+> **Question 2**: Now what would happen if you would only work with "good" quality data (keeping only `QA_r == 0`)? Compare the plots with both good and marginal data to the plots with only good data.
 ```
 
 ```{block type="alert alert-info"}
