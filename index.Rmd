@@ -30,7 +30,7 @@ code[class^="sourceCode bash"]::before { content: "Bash Source"; }
 
 # MODIS based time series analysis using BFAST Monitor and BFAST Lite
 
-<img src="https://www.wur.nl/upload/99f85964-d53b-4dc7-b3ff-fb62abc648ce_WUR_RGB_standard_2021-site.svg" alt="WUR logo" style="height: 35px;"/>
+<img src="https://raw.githubusercontent.com/GeoScripting-WUR/GeoScripting-WUR.github.io/refs/heads/master/figs/WUR_RGB_standard_2025.svg" alt="WUR logo" />
 
 [Jan Verbesselt, Dainius Masiliūnas](http://www.wur.eu/changemonitor)
 
@@ -159,9 +159,9 @@ QA <- mt_subset(product = "MOD13Q1",
 **Note**: In case the LP DAAC servers are down for maintenance and downloading via the above command fails, you can download a cached version from [here](https://github.com/verbe039/BFASTforAEO/releases), and then see `?readRDS`.
 ```
 
-### Creating a raster brick and cleaning the MODIS data using the reliability layer
+### Creating a SpatRaster and cleaning the MODIS data using the reliability layer
 
-Second, we create a raster brick using the `mt_to_terra` function that is included in the new *MODISTools* package (version 1.1.4). 
+Second, we create a SpatRaster using the `mt_to_terra` function that is included in the new *MODISTools* package (version 1.1.4).
 
 ```{r mttoraster}
 # convert df to raster
@@ -244,7 +244,7 @@ plot(bfm1)
 
 ```{block, type="alert alert-success"}
 > **Question 3**: A valid data range of NDVI in vegetation is between 0 and 1. So we should actually set NDVI values smaller than 0 to NA, as those are very likely to be invalid values.
-Now, do that for pixel nr. 492 and run bfastmonitor on this further cleaned NDVI time series.  You can use this R code snippet for that
+Now, do that for pixel nr. 33 and run bfastmonitor on this further cleaned NDVI time series.  You can use this R code snippet for that
 `tspx[tspx < 0] <- NA` and check the result by plotting the time series before and after. Describe what happens. Is this type of cleaning influencing the `bfastmonitor` analysis?
 ```
 
@@ -254,7 +254,7 @@ Now, do that for pixel nr. 492 and run bfastmonitor on this further cleaned NDVI
 
 
 ```{block, type="alert alert-success"}
-> **Question 5**: Now check pixel 78. What happens if you use a different *formula* in `bfastmonitor` for the pixel? For example, `response ∼ trend`. Check what happens and also in which sense is 2019 an abnormal year? Check the bfastmonitor plots.
+> **Question 5**: Now check pixel 33. What happens if you use a different *formula* in `bfastmonitor` for the pixel? For example, `response ∼ trend`. Check what happens and also in which sense is 2019 an abnormal year? Check the bfastmonitor plots.
 ```
 
 Let's run the `bfastmonitor` code on the full raster time series spatially using the `app` function:
@@ -319,6 +319,9 @@ Setting the parameter `breaks` to `BIC` results in more liberal detection of bre
 <!--We also set the `h` parameter (minimum time between two breaks) to 23 observations, i.e. one year, which means that we can detect the first break one year after the start of the time series and the last break one year before the end of the time series.-->
 
 ```{r}
+px <- 460 # Go back to pixel 460 as in the previous block
+tspx <- timeser(unlist(VI_m[px]),as.Date(names(VI_m), "%Y-%m-%d")) # convert pixel to a time series
+# Run BFAST Lite:
 breaks <- bfastlite(tspx, response ~ trend + harmon, order = 3, breaks = "BIC")
 breaks
 ```
